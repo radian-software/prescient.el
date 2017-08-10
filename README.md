@@ -22,22 +22,29 @@ have the highest respect for all of the authors.
 
 ## How it works
 
-`prescient.el` uses a very simple algorithm. If you don't enter any
-query, then the first few choices are the last selections you made.
-After that, candidates are sorted first by frequency of usage and then
-by length.
+`prescient.el` uses a very simple algorithm. The first few choices are
+the last selections you made. After that, candidates are sorted first
+by frequency of usage and then by length.
 
-Once you enter a query, the same base sorting still applies. However,
-if your query matches an exact substring of a candidate, then that
-candidate is ranked higher. Alternatively (and exclusively), if your
-query matches an exact substring of the initials of a candidate, then
-that candidate is also ranked higher.
+Filtering is done by substring and initialism matching. This means
+that your query must match an exact substring of a candidate, or an
+exact substring of the initials of a candidate, or that candidate is
+discarded.
 
-You can narrow further by providing multiple queries, separated by
-spaces. Substring and initial matching will apply separately for each
-query, allowing you to quickly select the candidate you want. Of
-course, once you've done so once, that candidate will be right at the
-top of the list for next time.
+To filter candidates further, simply enter another query, separated
+from the first by a space. The queries can match in any order. You can
+enter a literal space using two consecutive spaces.
+
+There are a few additional simple heuristics:
+
+* There is a bonus if your query matches a candidate starting at the
+  beginning, rather than in the middle. There is a smaller bonus if a
+  substring match starts right at the beginning of a word, rather than
+  in the middle of one.
+* There is a bonus if your query matches the basename of a path,
+  rather than one of the parent components.
+* There is a bonus if your queries match in order rather than out of
+  order.
 
 [company-statistics]: https://github.com/company-mode/company-statistics
 [flx]: https://github.com/lewang/flx
