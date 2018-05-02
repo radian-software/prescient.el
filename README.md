@@ -35,17 +35,6 @@ To filter candidates further, simply enter another query, separated
 from the first by a space. The queries can match in any order. You can
 enter a literal space using two consecutive spaces.
 
-There are a few additional simple heuristics:
-
-* There is a bonus if your query matches a candidate starting at the
-  beginning, rather than in the middle. There is a smaller bonus if a
-  substring match starts right at the beginning of a word, rather than
-  in the middle of one.
-* There is a bonus if your query matches the basename of a path,
-  rather than one of the parent components.
-* There is a bonus if your queries match in order rather than out of
-  order.
-
 [company-statistics]: https://github.com/company-mode/company-statistics
 [flx]: https://github.com/lewang/flx
 [helm]: https://github.com/emacs-helm/helm
