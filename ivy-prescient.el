@@ -17,6 +17,9 @@
 
 ;;;; Libraries
 
+(eval-when-compile
+  (require 'cl-macs))
+
 (require 'ivy)
 (require 'prescient)
 
@@ -38,6 +41,17 @@ is not respected."
 (defvar ivy-prescient--old-ivy-sort-function nil
   "Previous default value in `ivy-sort-functions-alist'.")
 
+(cl-defun ivy-prescient-read (ivy-read prompt collection &rest rest &key action caller
+                                       &allow-other-keys)
+  "Delegate to `ivy-read', recording information for `prescient-remember'.
+This is an `:around' advice for `ivy-read'."
+  (apply ivy-read prompt collection
+         (append `(:action ,(lambda (result)
+                              (prescient-remember result)
+                              (when action
+                                (funcall action result))))
+                 rest)))
+
 ;;;###autoload
 (define-minor-mode ivy-prescient-mode
   "Minor mode to use prescient.el in Ivy menus."
@@ -49,13 +63,15 @@ is not respected."
               (alist-get t ivy-sort-functions-alist))
         (setf (alist-get t ivy-sort-functions-alist)
               #'prescient-sort-compare)
-        (advice-add #'ivy--sort-function :override #'ivy-prescient-sort-function))
+        (advice-add #'ivy--sort-function :override #'ivy-prescient-sort-function)
+        (advice-add #'ivy-read :around #'ivy-prescient-read))
     (advice-remove #'ivy--filter #'ivy-prescient-filter)
     (when (equal (alist-get t ivy-sort-functions-alist)
                  #'prescient-sort-compare)
       (setf (alist-get t ivy-sort-functions-alist)
             ivy-prescient--old-ivy-sort-function))
-    (advice-remove #'ivy--sort-function #'ivy-prescient-sort-function)))
+    (advice-remove #'ivy--sort-function #'ivy-prescient-sort-function)
+    (advice-remove #'ivy-read #'ivy-prescient-read)))
 
 ;;;; Closing remarks
 

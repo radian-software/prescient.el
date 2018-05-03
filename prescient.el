@@ -137,16 +137,16 @@ list. Do not modify CANDIDATES."
   "Compare candidates C1 and C2 using the data in `prescient-frequency'.
 Return non-nil if C1 was used less frequently than C2, or is
 shorter (if the frequencies are equal)."
-  (let ((p1 (cl-position c1 prescient-history))
-        (p2 (cl-position c2 prescient-history)))
-    (or (and p2 (not p1))
-        (and p1 p2 (< p1 p2))
-        (let ((f1 (gethash c1 prescient-frequency 0))
-              (f2 (gethash c2 prescient-frequency 0)))
-          (or (< f1 f2)
-              (and (= f1 f2)
-                   (< (length c1)
-                      (length c2))))))))
+  (let ((p1 (or (cl-position c1 prescient-history :test #'equal) prescient-history-length))
+        (p2 (or (cl-position c2 prescient-history :test #'equal) prescient-history-length)))
+    (or (< p1 p2)
+        (and (= p1 p2)
+             (let ((f1 (gethash c1 prescient-frequency 0))
+                   (f2 (gethash c2 prescient-frequency 0)))
+               (or (< f1 f2)
+                   (and (= f1 f2)
+                        (< (length c1)
+                           (length c2)))))))))
 
 (defun prescient-sort (candidates)
   "Sort CANDIDATES using the data in `prescient-frequency'.
@@ -170,7 +170,8 @@ Return the sorted list. The original is modified destructively."
              (let ((new-freq (* old-freq prescient-frequency-decay)))
                (if (< new-freq prescient-frequency-threshold)
                    (remhash cand prescient-frequency)
-                 (puthash cand new-freq prescient-frequency))))))
+                 (puthash cand new-freq prescient-frequency))))
+           prescient-frequency))
 
 ;;;; Persistence
 
