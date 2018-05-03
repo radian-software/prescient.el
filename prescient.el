@@ -17,7 +17,7 @@
 
 ;;;; Libraries
 
-(require 'subr-x)
+(require 'cl-lib)
 
 ;;;; User options
 
@@ -72,25 +72,33 @@ The query is split on spaces, but a sequence of two or more
 spaces has one space removed and is treated literally rather than
 as a sub-query delimiter. Also, leading and trailing spaces are
 treated literally."
-  ;; This algorithm is a little complicated. You can't say it's not
-  ;; elegant, though. (Sorry.)
-  (let ((splits (split-string query " "))
-        (subquery "")
-        (token-found nil)
-        (subqueries nil))
-    (dolist (split splits)
-      (if (string-empty-p split)
-          (progn
-            (setq subquery (concat subquery " "))
-            (setq token-found nil))
-        (when token-found
-          (push subquery subqueries)
-          (setq subquery ""))
-        (setq subquery (concat subquery split))
-        (setq token-found t)))
-    (unless (string-empty-p subquery)
-      (push subquery subqueries))
-    (nreverse subqueries)))
+  ;; Special-case if the entire string is whitespace, since otherwise
+  ;; there's an off-by-one error.
+  (if (string-match-p "\\` *\\'" query)
+      ;; Returning an empty string for an empty query would be OK, but
+      ;; for efficiency we'd like to just return an empty subquery
+      ;; list in that case.
+      (unless (string-empty-p query)
+        (list query))
+    ;; This algorithm is a little complicated. You can't say it's not
+    ;; elegant, though. (Sorry.)
+    (let ((splits (split-string query " "))
+          (subquery "")
+          (token-found nil)
+          (subqueries nil))
+      (dolist (split splits)
+        (if (string-empty-p split)
+            (progn
+              (setq subquery (concat subquery " "))
+              (setq token-found nil))
+          (when token-found
+            (push subquery subqueries)
+            (setq subquery ""))
+          (setq subquery (concat subquery split))
+          (setq token-found t)))
+      (unless (string-empty-p subquery)
+        (push subquery subqueries))
+      (nreverse subqueries))))
 
 (defun prescient-initials-regexp (query)
   "Return a regexp matching QUERY as an initialism.
@@ -122,16 +130,28 @@ list. Do not modify CANDIDATES."
             (or (string-match literal-regex candidate)
                 (string-match initials-regex candidate)))
           literal-regexes
-          initials-regexes))))))
+          initials-regexes))
+       candidates))))
+
+(defun prescient-sort-compare (c1 c2)
+  "Compare candidates C1 and C2 using the data in `prescient-frequency'.
+Return non-nil if C1 was used less frequently than C2, or is
+shorter (if the frequencies are equal)."
+  (let ((p1 (cl-position c1 prescient-history))
+        (p2 (cl-position c2 prescient-history)))
+    (or (and p2 (not p1))
+        (and p1 p2 (< p1 p2))
+        (let ((f1 (gethash c1 prescient-frequency 0))
+              (f2 (gethash c2 prescient-frequency 0)))
+          (or (< f1 f2)
+              (and (= f1 f2)
+                   (< (length c1)
+                      (length c2))))))))
 
 (defun prescient-sort (candidates)
   "Sort CANDIDATES using the data in `prescient-frequency'.
 Return the sorted list. The original is modified destructively."
-  (sort candidates
-        (lambda (c1 c2)
-          (when-let ((f1 (gethash c1 prescient-frequency))
-                     (f2 (gethash c2 prescient-frequency)))
-            (< f1 f2)))))
+  (sort candidates #'prescient-sort-compare))
 
 ;;;; Candidate selection
 
