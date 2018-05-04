@@ -70,34 +70,47 @@ least `prescient-frequency-threshold'.")
   "Split QUERY string into sub-queries.
 The query is split on spaces, but a sequence of two or more
 spaces has one space removed and is treated literally rather than
-as a sub-query delimiter. Also, leading and trailing spaces are
-treated literally."
-  ;; Special-case if the entire string is whitespace, since otherwise
-  ;; there's an off-by-one error.
+as a sub-query delimiter."
   (if (string-match-p "\\` *\\'" query)
-      ;; Returning an empty string for an empty query would be OK, but
-      ;; for efficiency we'd like to just return an empty subquery
-      ;; list in that case.
-      (unless (string-empty-p query)
-        (list query))
-    ;; This algorithm is a little complicated. You can't say it's not
-    ;; elegant, though. (Sorry.)
+      ;; If string is zero or one spaces, then we match everything.
+      ;; Return an empty subquery list.
+      (unless (<= (length query) 1)
+        ;; Otherwise, the number of spaces should be reduced by one.
+        (substring query 1))
+    ;; Trim off a single space from the beginning and end, if present.
+    ;; Otherwise, they would generate empty splits and cause us to
+    ;; match literal whitespace.
+    (setq query (replace-regexp-in-string "\\` ?\\(.*?\\) ?\\'" "\\1" query 'fixedcase))
     (let ((splits (split-string query " "))
           (subquery "")
           (token-found nil)
           (subqueries nil))
       (dolist (split splits)
+        ;; Check for empty split, meaning two consecutive spaces in
+        ;; the original query.
         (if (string-empty-p split)
             (progn
+              ;; Consecutive spaces mean literal spaces in the
+              ;; subquery under construction.
               (setq subquery (concat subquery " "))
+              ;; If we get a non-empty split, append it to the
+              ;; subquery rather than parsing it as another subquery.
               (setq token-found nil))
+          ;; Possibly add the collected string as a new subquery.
           (when token-found
             (push subquery subqueries)
             (setq subquery ""))
+          ;; Either start a new subquery or append to the existing one
+          ;; (in the case of previously seeing an empty split).
           (setq subquery (concat subquery split))
+          ;; If another non-empty split is found, it's a separate
+          ;; subquery.
           (setq token-found t)))
+      ;; Check if we hit the end of the string while still
+      ;; constructing a subquery, and handle.
       (unless (string-empty-p subquery)
         (push subquery subqueries))
+      ;; We added the subqueries in reverse order.
       (nreverse subqueries))))
 
 (defun prescient-initials-regexp (query)
