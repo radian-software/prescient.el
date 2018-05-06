@@ -33,20 +33,20 @@ valid regexp."
   :group 'prescient
   :type 'string)
 
-(defcustom prescient-history-length 10
+(defcustom prescient-history-length 100
   "Number of recently chosen candidates that will be remembered.
 This is a count per completion context, not a global limit."
   :group 'prescient
   :type 'number)
 
-(defcustom prescient-frequency-decay 0.99
+(defcustom prescient-frequency-decay 0.997
   "Rate at which frequently chosen candidates will be forgotten.
 Every time a candidate is selected, all candidates are multiplied
 by this factor. See also `prescient-frequency-threshold'."
   :group 'prescient
   :type 'number)
 
-(defcustom prescient-frequency-threshold 0.25
+(defcustom prescient-frequency-threshold 0.05
   "Threshold for forgetting about a frequently chosen candidate.
 Any candidates with frequencies less than this after a selection
 will be discarded. See also `prescient-frequency-decay'."
