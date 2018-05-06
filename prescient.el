@@ -26,6 +26,13 @@
   :group 'convenience
   :prefix "prescient-")
 
+(defcustom prescient-separator-chars "-_/+[:space:]"
+  "Regexp character class for word separators.
+When brackets are placed around this string, it should form a
+valid regexp."
+  :group 'prescient
+  :type 'string)
+
 (defcustom prescient-history-length 10
   "Number of recently chosen candidates that will be remembered.
 This is a count per completion context, not a global limit."
@@ -117,12 +124,14 @@ as a sub-query delimiter."
   "Return a regexp matching QUERY as an initialism.
 This means that the regexp will only match a given string if
 QUERY is a substring of the initials of the string. The locations
-of initials are determined by the location of hyphens, so this
-function is not suitable for use with snake case or camel case."
-  (concat "\\(^\\|-\\)"
+of initials are determined using `prescient-separator-chars'."
+  (concat (format "\\(^\\|[%s]\\)" prescient-separator-chars)
           (mapconcat (lambda (char)
                        (regexp-quote (char-to-string char)))
-                     query "[^-]*-+")))
+                     query
+                     (format "[^%s]*[%s]+"
+                             prescient-separator-chars
+                             prescient-separator-chars))))
 
 ;;;; Sorting and filtering
 
