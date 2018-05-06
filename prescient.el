@@ -135,24 +135,31 @@ of initials are determined using `prescient-separator-chars'."
 
 ;;;; Sorting and filtering
 
+(defun prescient-filter-regexps (query)
+  "Convert QUERY to list of regexps.
+Each regexp must match the candidate in order for a candidate to
+match the QUERY."
+  (mapcar
+   (lambda (subquery)
+     (format "%s\\|%s"
+             (regexp-quote subquery)
+             (prescient-initials-regexp subquery)))
+   (prescient-split-query query)))
+
 (defun prescient-filter (query candidates)
   "Use QUERY to filter list of CANDIDATES.
 Split the query using `prescient-split-query'. Each candidate
 must match each subquery, either using substring or initialism
 matching. Discard any that do not, and return the resulting
 list. Do not modify CANDIDATES."
-  (let* ((subqueries (prescient-split-query query))
-         (literal-regexes (mapcar #'regexp-quote subqueries))
-         (initials-regexes (mapcar #'prescient-initials-regexp subqueries)))
+  (let ((regexps (prescient-filter-regexps query)))
     (save-match-data
       (cl-remove-if-not
        (lambda (candidate)
          (cl-every
-          (lambda (literal-regex initials-regex)
-            (or (string-match literal-regex candidate)
-                (string-match initials-regex candidate)))
-          literal-regexes
-          initials-regexes))
+          (lambda (regexp)
+            (string-match regexp candidate))
+          regexps))
        candidates))))
 
 (defun prescient-sort-compare (c1 c2)
