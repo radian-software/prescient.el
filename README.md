@@ -15,10 +15,17 @@ framework. For example:
 * [Ivy]
 * [Smex]
 
-Unfortunately I do not like any of these. Each one is either too big
-and does too much magic, or is too limited in scope to be useful by
-itself. Note, this is only my personal taste in sorting algorithms; I
-have the highest respect for all of the authors.
+Unfortunately I do not like any of these, for a variety of reasons.
+`historian.el` attempts to find the best of all worlds. It uses the
+high-quality and predictable sorting algorithm of Smex, but
+generalizes it to work on all commands rather than just `M-x`.
+Furthermore, it uses the more sophisticated interface of Ivy.
+Fuzzy-matching is supported, but unlike Flx only initialisms are
+matched; this eliminates the unpredictability of Flx. The idea is to
+get something that, like Helm, works nicely out of the box in all
+contexts, but that, unlike Helm, is simple and lightweight.
+`historian.el` also supports Company sorting and filtering, thus
+eliminating the need for a separate Company-Statistics package.
 
 ## How it works
 
@@ -35,6 +42,13 @@ To filter candidates further, simply enter another query, separated
 from the first by a space. The queries can match in any order. You can
 enter a literal space using two consecutive spaces.
 
+## Usage
+
+Cause Ivy to use `prescient.el` sorting and filtering unless otherwise
+specified in `ivy-re-builders-alist` and `ivy-sort-functions-alist`:
+
+    (ivy-prescient-mode +1)
+
 [company-statistics]: https://github.com/company-mode/company-statistics
 [flx]: https://github.com/lewang/flx
 [helm]: https://github.com/emacs-helm/helm
@@ -42,3 +56,4 @@ enter a literal space using two consecutive spaces.
 [ido]: https://www.gnu.org/software/emacs/manual/ido.html
 [ivy]: https://github.com/abo-abo/swiper#ivy
 [smex]: https://github.com/nonsequitur/smex
+[straight.el]: https://github.com/raxod502/straight.el
