@@ -71,6 +71,75 @@ The keys are candidates (strings or symbols) and the values are
 frequencies (floating-point numbers). Frequencies will be at
 least `prescient-frequency-threshold'.")
 
+(defvar prescient-cache-loaded nil
+  "Non-nil if prescient.el data was loaded from `prescient-save-file'.
+Even if the load failed, this variable is still set to non-nil
+when `prescient-load' is called.")
+
+;;;; Persistence
+
+(defun prescient-cache-version (version)
+  "Throw an error.
+This function was used in previous versions of prescient.el. If
+it is called while loading `prescient-save-file', then the save
+file has too old of a version."
+  (error "`prescient-save-file' has version <= 2"))
+
+(defvar prescient-cache-version 3
+  "Current version number of `prescient-save-file' format.")
+
+(defvar prescient-cache-callback #'prescient-cache-callback-load
+  "Callback function called by loading `prescient-save-file'.
+A `funcall' to this variable is written to `prescient-save-file'.
+The function may produce errors; they will be ignored.")
+
+(defun prescient-load-save-file ()
+  "Load `prescient-save-file', ignoring errors."
+  (let ((load-source-file-function nil))
+    (ignore-errors
+      (load prescient-save-file 'noerror 'nomessag))))
+
+(defun prescient-load ()
+  "Read data from `prescient-save-file'."
+  (interactive)
+  (cl-letf ((prescient-cache-callback
+             (lambda (&rest args)
+               (when (equal (plist-get args :version) prescient-cache-version)
+                 (setq prescient-history (plist-get args :history))
+                 (setq prescient-frequency (plist-get args :frequency))
+                 (setq prescient-serial-number
+                       (plist-get args :serial-number))))))
+    (prescient-load-save-file))
+  (setq prescient-cache-loaded t))
+
+(defun prescient-save ()
+  "Write data to `prescient-save-file'."
+  (cl-letf ((saved-serial-number nil)
+            (prescient-cache-callback
+             (lambda (&rest args)
+               (when (equal (plist-get args :version) prescient-cache-version)
+                 (setq saved-serial-number (plist-get args :serial-number))))))
+    (prescient-load-save-file)
+    (when (or (not (numberp saved-serial-number))
+              (>= prescient-serial-number saved-serial-number))
+      (make-directory (file-name-directory (expand-file-name prescient-save-file))
+                      'parents)
+      (with-temp-file prescient-save-file
+        (print
+         `(funcall prescient-cache-callback
+                   :version ',prescient-cache-version
+                   :history ',prescient-history
+                   :frequency ',prescient-frequency
+                   :serial-number ',prescient-serial-number)
+         (current-buffer))))))
+
+(define-minor-mode prescient-persist-mode
+  "Minor mode to persist prescient.el statistics to `prescient-save-file'."
+  :global t
+  (if prescient-persist-mode
+      (add-hook 'kill-emacs-hook #'prescient-save)
+    (remove-hook 'kill-emacs-hook #'prescient-save)))
+
 ;;;; Utility functions
 
 (defun prescient-split-query (query)
@@ -165,7 +234,14 @@ list. Do not modify CANDIDATES."
 (defun prescient-sort-compare (c1 c2)
   "Compare candidates C1 and C2 using the data in `prescient-frequency'.
 Return non-nil if C1 was used less frequently than C2, or is
-shorter (if the frequencies are equal)."
+shorter (if the frequencies are equal).
+
+If `prescient-persist-mode' is enabled, then ensure that
+frequency data has been loaded from `prescient-save-file' before
+comparing. Loading will only be attempted once, not before every
+comparison."
+  (when (and prescient-persist-mode (not prescient-cache-loaded))
+    (prescient-load))
   (let ((p1 (or (cl-position c1 prescient-history :test #'equal) prescient-history-length))
         (p2 (or (cl-position c2 prescient-history :test #'equal) prescient-history-length)))
     (or (< p1 p2)
@@ -184,6 +260,13 @@ Return the sorted list. The original is modified destructively."
 
 ;;;; Candidate selection
 
+(defvar prescient-serial-number 0
+  "Number of times `prescient-remember' has been called.
+
+This is used to determine which set of changes to the save file
+should \"win\" when two concurrent Emacs sessions want to modify
+it.")
+
 (defun prescient-remember (candidate)
   "Record CANDIDATE in `prescient-history' and `prescient-frequency'."
   ;; Add to `prescient-history'.
@@ -200,38 +283,9 @@ Return the sorted list. The original is modified destructively."
                (if (< new-freq prescient-frequency-threshold)
                    (remhash cand prescient-frequency)
                  (puthash cand new-freq prescient-frequency))))
-           prescient-frequency))
-
-;;;; Persistence
-
-(defun prescient-cache-version (version)
-  "Abort reading `prescient-save-file' if VERSION has an unexpected value.
-A call to this function is written to `prescient-save-file', and
-it is used to detect loading a save file written by an
-incompatible verison of prescient.el."
-  (unless (equal version 1)
-    (throw 'prescient-cache-version-mismatch nil)))
-
-(defun prescient-load ()
-  "Read data from `prescient-save-file'.
-Set `prescient-history' and `prescient-frequency' accordingly."
-  (interactive)
-  (catch 'prescient-cache-version-mismatch
-    (let ((load-source-file-function nil))
-      (load prescient-save-file 'noerror 'nomessage))))
-
-(defun prescient-save ()
-  "Write data to `prescient-save-file'.
-This uses the values of `prescient-history' and
-`prescient-frequency'."
-  (make-directory (file-name-directory (expand-file-name prescient-save-file)))
-  (with-temp-file prescient-save-file
-    (print
-     `(progn
-        (prescient-cache-version 1)
-        (setq prescient-history ',prescient-history)
-        (setq prescient-frequency ',prescient-frequency))
-     (current-buffer))))
+           prescient-frequency)
+  ;; Update serial number.
+  (cl-incf prescient-serial-number))
 
 ;;;; Closing remarks
 
