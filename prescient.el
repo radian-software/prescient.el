@@ -240,6 +240,10 @@ If `prescient-persist-mode' is enabled, then ensure that
 frequency data has been loaded from `prescient-save-file' before
 comparing. Loading will only be attempted once, not before every
 comparison."
+  (unless (stringp c1)
+    (setq c1 (format "%s" c1)))
+  (unless (stringp c2)
+    (setq c2 (format "%s" c2)))
   (when (and prescient-persist-mode (not prescient-cache-loaded))
     (prescient-load))
   (let ((p1 (or (cl-position c1 prescient-history :test #'equal) prescient-history-length))
