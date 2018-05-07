@@ -51,6 +51,10 @@ specified in `ivy-re-builders-alist` and `ivy-sort-functions-alist`:
 
     (ivy-prescient-mode +1)
 
+Cause statistics to be saved between Emacs sessions:
+
+    (prescient-persist-mode +1)
+
 [company-statistics]: https://github.com/company-mode/company-statistics
 [flx]: https://github.com/lewang/flx
 [helm]: https://github.com/emacs-helm/helm
