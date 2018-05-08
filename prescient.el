@@ -18,6 +18,7 @@
 ;;;; Libraries
 
 (require 'cl-lib)
+(require 'subr-x)
 
 ;;;; User options
 
@@ -77,9 +78,16 @@ least `prescient-frequency-threshold'.")
 Even if the load failed, this variable is still set to non-nil
 when `prescient-load' is called.")
 
+(defvar prescient-serial-number 0
+  "Number of times `prescient-remember' has been called.
+
+This is used to determine which set of changes to the save file
+should \"win\" when two concurrent Emacs sessions want to modify
+it.")
+
 ;;;; Persistence
 
-(defun prescient-cache-version (version)
+(defun prescient-cache-version (_version)
   "Throw an error.
 This function was used in previous versions of prescient.el. If
 it is called while loading `prescient-save-file', then the save
@@ -89,10 +97,13 @@ file has too old of a version."
 (defvar prescient-cache-version 5
   "Current version number of `prescient-save-file' format.")
 
-(defvar prescient-cache-callback #'prescient-cache-callback-load
+(defvar prescient-cache-callback #'ignore
   "Callback function called by loading `prescient-save-file'.
 A `funcall' to this variable is written to `prescient-save-file'.
-The function may produce errors; they will be ignored.")
+The function may produce errors; they will be ignored.
+
+Usually this variable is dynamically bound to another value while
+`prescient-save-file' is loaded.")
 
 (defun prescient-load-save-file ()
   "Load `prescient-save-file', ignoring errors."
@@ -115,15 +126,17 @@ The function may produce errors; they will be ignored.")
 
 (defun prescient-save ()
   "Write data to `prescient-save-file'."
-  (cl-letf ((saved-serial-number nil)
-            (prescient-cache-callback
-             (lambda (&rest args)
-               (when (equal (plist-get args :version) prescient-cache-version)
-                 (setq saved-serial-number (plist-get args :serial-number))))))
+  (cl-letf* ((saved-serial-number nil)
+             (prescient-cache-callback
+              (lambda (&rest args)
+                (when (equal (plist-get args :version) prescient-cache-version)
+                  (setq saved-serial-number
+                        (plist-get args :serial-number))))))
     (prescient-load-save-file)
     (when (or (not (numberp saved-serial-number))
               (>= prescient-serial-number saved-serial-number))
-      (make-directory (file-name-directory (expand-file-name prescient-save-file))
+      (make-directory (file-name-directory
+                       (expand-file-name prescient-save-file))
                       'parents)
       (with-temp-file prescient-save-file
         (print
@@ -157,7 +170,8 @@ as a sub-query delimiter."
     ;; Trim off a single space from the beginning and end, if present.
     ;; Otherwise, they would generate empty splits and cause us to
     ;; match literal whitespace.
-    (setq query (replace-regexp-in-string "\\` ?\\(.*?\\) ?\\'" "\\1" query 'fixedcase))
+    (setq query (replace-regexp-in-string
+                 "\\` ?\\(.*?\\) ?\\'" "\\1" query 'fixedcase))
     (let ((splits (split-string query " "))
           (subquery "")
           (token-found nil)
@@ -266,13 +280,6 @@ Return the sorted list. The original is modified destructively."
   (sort candidates #'prescient-sort-compare))
 
 ;;;; Candidate selection
-
-(defvar prescient-serial-number 0
-  "Number of times `prescient-remember' has been called.
-
-This is used to determine which set of changes to the save file
-should \"win\" when two concurrent Emacs sessions want to modify
-it.")
 
 (defun prescient-remember (candidate)
   "Record CANDIDATE in `prescient-history' and `prescient-frequency'."

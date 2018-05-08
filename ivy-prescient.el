@@ -1,4 +1,4 @@
-;;; ivy-prescient.el --- Prescient sorting for Ivy. -*- lexical-binding: t -*-
+;;; ivy-prescient.el --- prescient.el + Ivy -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018 Radon Rosborough
 
@@ -57,18 +57,21 @@ is not respected."
 
 (defun ivy-prescient-advice-sort-obarrays (ivy--sort-maybe collection)
   "Allow Ivy to sort collections that are given as obarrays.
-This is an `:around' advice for `ivy--sort-maybe'."
-  (cl-letf ((cl-sort-orig (symbol-function #'cl-sort))
-            ((symbol-function #'cl-sort)
-             (lambda (seq &rest args)
-               (when (obarrayp seq)
-                 (let ((lst nil))
-                   (mapatoms
-                    (lambda (sym)
-                      (push sym lst))
-                    seq)
-                   (setq seq lst)))
-               (apply cl-sort-orig seq args))))
+This is an `:around' advice for `ivy--sort-maybe'.
+
+IVY--SORT-MAYBE is the original function, and COLLECTION is the
+list of candidates to be sorted."
+  (cl-letf* ((cl-sort-orig (symbol-function #'cl-sort))
+             ((symbol-function #'cl-sort)
+              (lambda (seq &rest args)
+                (when (obarrayp seq)
+                  (let ((lst nil))
+                    (mapatoms
+                     (lambda (sym)
+                       (push sym lst))
+                     seq)
+                    (setq seq lst)))
+                (apply cl-sort-orig seq args))))
     (funcall ivy--sort-maybe collection)))
 
 (defalias 'ivy-prescient-sort-compare #'prescient-sort-compare
@@ -78,8 +81,9 @@ This is for use in `ivy-sort-functions-alist'.")
 (defvar ivy-prescient--old-ivy-sort-function nil
   "Previous default value in `ivy-sort-functions-alist'.")
 
-(cl-defun ivy-prescient-read (ivy-read prompt collection &rest rest &key action caller
-                                       &allow-other-keys)
+(cl-defun ivy-prescient-read
+    (ivy-read prompt collection &rest rest &key action caller
+              &allow-other-keys)
   "Delegate to `ivy-read', recording information for `prescient-remember'.
 This is an `:around' advice for `ivy-read'."
   (apply ivy-read prompt collection
@@ -118,7 +122,8 @@ This is an `:around' advice for `ivy-read'."
                  #'ivy-prescient-sort-compare)
       (setf (alist-get t ivy-sort-functions-alist)
             ivy-prescient--old-ivy-sort-function))
-    (advice-remove #'ivy--sort-function #'ivy-prescient-advice-fix-sort-function)
+    (advice-remove #'ivy--sort-function
+                   #'ivy-prescient-advice-fix-sort-function)
     (advice-remove #'ivy--sort-maybe #'ivy-prescient-advice-sort-obarrays)
     (advice-remove #'ivy-read #'ivy-prescient-read)))
 

@@ -1,4 +1,4 @@
-;;; company-prescient.el --- Prescient sorting for Company. -*- lexical-binding: t -*-
+;;; company-prescient.el --- prescient.el + Company -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018 Radon Rosborough
 
