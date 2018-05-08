@@ -85,7 +85,7 @@ it is called while loading `prescient-save-file', then the save
 file has too old of a version."
   (error "`prescient-save-file' has version <= 2"))
 
-(defvar prescient-cache-version 3
+(defvar prescient-cache-version 4
   "Current version number of `prescient-save-file' format.")
 
 (defvar prescient-cache-callback #'prescient-cache-callback-load
@@ -225,6 +225,8 @@ list. Do not modify CANDIDATES."
     (save-match-data
       (cl-remove-if-not
        (lambda (candidate)
+         (unless (stringp candidate)
+           (setq candidate (format "%s" candidate)))
          (cl-every
           (lambda (regexp)
             (string-match regexp candidate))
@@ -273,7 +275,10 @@ it.")
 
 (defun prescient-remember (candidate)
   "Record CANDIDATE in `prescient-history' and `prescient-frequency'."
-  ;; Add to `prescient-history'.
+  ;; Convert to plain string.
+  (unless (stringp candidate)
+    (setq candidate (format "%s" candidate)))
+  (setq candidate (substring-no-properties candidate))
   (cl-pushnew candidate prescient-history :test #'equal)
   ;; Remove old entries from `prescient-history'.
   (when (> (length prescient-history) prescient-history-length)
