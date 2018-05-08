@@ -34,8 +34,7 @@ valid regexp."
   :type 'string)
 
 (defcustom prescient-history-length 100
-  "Number of recently chosen candidates that will be remembered.
-This is a count per completion context, not a global limit."
+  "Number of recently chosen candidates that will be remembered."
   :group 'prescient
   :type 'number)
 
