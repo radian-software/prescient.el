@@ -278,7 +278,9 @@ it.")
   (unless (stringp candidate)
     (setq candidate (format "%s" candidate)))
   (setq candidate (substring-no-properties candidate))
-  (cl-pushnew candidate prescient-history :test #'equal)
+  ;; Add to `prescient-history'.
+  (setq prescient-history (delete candidate prescient-history))
+  (push candidate prescient-history)
   ;; Remove old entries from `prescient-history'.
   (when (> (length prescient-history) prescient-history-length)
     (setcdr (nthcdr (1- prescient-history-length) prescient-history) nil))
