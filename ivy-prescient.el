@@ -23,6 +23,13 @@
 (require 'ivy)
 (require 'prescient)
 
+;;;; User options
+
+(defcustom ivy-prescient-excluded-commands '(swiper)
+  "Commands for which candidates should not be remembered."
+  :group 'prescient
+  :type '(list symbol))
+
 ;;;; Minor mode
 
 (defun ivy-prescient-re-builder (query)
@@ -76,10 +83,12 @@ This is for use in `ivy-sort-functions-alist'.")
   "Delegate to `ivy-read', recording information for `prescient-remember'.
 This is an `:around' advice for `ivy-read'."
   (apply ivy-read prompt collection
-         (append `(:action ,(lambda (result)
-                              (prescient-remember result)
-                              (when action
-                                (funcall action result))))
+         (append `(:action
+                   ,(lambda (result)
+                      (unless (memq caller ivy-prescient-excluded-commands)
+                        (prescient-remember result))
+                      (when action
+                        (funcall action result))))
                  rest)))
 
 ;;;###autoload
