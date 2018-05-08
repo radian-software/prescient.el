@@ -60,13 +60,15 @@ will be discarded. See also `prescient-frequency-decay'."
 
 ;;;; Caches
 
-(defvar prescient-history nil
-  "List of recently chosen candidates.
-The list will be at most `prescient-history-length'.")
+(defvar prescient-history (make-hash-table :test 'equal)
+  "Hash table of recently chosen candidates.
+The keys are candidates as strings and the values are 0-based
+indices, less than `prescient-history-length'. The number of
+values will be at most `prescient-history-length'.")
 
 (defvar prescient-frequency (make-hash-table :test 'equal)
   "Hash table of frequently chosen candidates.
-The keys are candidates (strings or symbols) and the values are
+The keys are candidates as strings and the values are
 frequencies (floating-point numbers). Frequencies will be at
 least `prescient-frequency-threshold'.")
 
@@ -84,7 +86,7 @@ it is called while loading `prescient-save-file', then the save
 file has too old of a version."
   (error "`prescient-save-file' has version <= 2"))
 
-(defvar prescient-cache-version 4
+(defvar prescient-cache-version 5
   "Current version number of `prescient-save-file' format.")
 
 (defvar prescient-cache-callback #'prescient-cache-callback-load
@@ -247,8 +249,8 @@ comparison."
     (setq c2 (format "%s" c2)))
   (when (and prescient-persist-mode (not prescient-cache-loaded))
     (prescient-load))
-  (let ((p1 (or (cl-position c1 prescient-history :test #'equal) prescient-history-length))
-        (p2 (or (cl-position c2 prescient-history :test #'equal) prescient-history-length)))
+  (let ((p1 (gethash c1 prescient-history prescient-history-length))
+        (p2 (gethash c2 prescient-history prescient-history-length)))
     (or (< p1 p2)
         (and (= p1 p2)
              (let ((f1 (gethash c1 prescient-frequency 0))
@@ -279,11 +281,29 @@ it.")
     (setq candidate (format "%s" candidate)))
   (setq candidate (substring-no-properties candidate))
   ;; Add to `prescient-history'.
-  (setq prescient-history (delete candidate prescient-history))
-  (push candidate prescient-history)
-  ;; Remove old entries from `prescient-history'.
-  (when (> (length prescient-history) prescient-history-length)
-    (setcdr (nthcdr (1- prescient-history-length) prescient-history) nil))
+  (let ((this-pos (gethash
+                   candidate prescient-history prescient-history-length)))
+    ;; If the candidate was already in the history, then prepare for
+    ;; moving it to the front by incrementing the indices of other
+    ;; candidates.
+    (maphash
+     (lambda (other-candidate other-pos)
+       (cond
+        ;; If the other candidate came earlier in the history, then
+        ;; increment its index.
+        ((< other-pos this-pos)
+         (puthash other-candidate (1+ other-pos) prescient-history))
+        ;; Else, if it's already past the end of the history (this
+        ;; would happen if `prescient-history-length' were decreased),
+        ;; or if it's at the very end and a new candidate was added,
+        ;; then remove it from the history.
+        ((or (>= other-pos prescient-history-length)
+             (and (= other-pos (1- prescient-history-length))
+                  (= this-pos prescient-history-length)))
+         (remhash other-candidate prescient-history))))
+     prescient-history)
+    ;; Now add the new candidate to the beginning.
+    (puthash candidate 0 prescient-history))
   ;; Add to `prescient-frequency'.
   (puthash candidate (1+ (gethash candidate prescient-frequency 0))
            prescient-frequency)
