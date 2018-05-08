@@ -249,13 +249,11 @@ list. Do not modify CANDIDATES."
        candidates))))
 
 (defun prescient-sort-compare (c1 c2)
-  "Compare candidates C1 and C2 using the data in `prescient-frequency'.
-Return non-nil if C1 was used less frequently than C2, or is
-shorter (if the frequencies are equal).
+  "Compare candidates C1 and C2 by usage and length.
 
-If `prescient-persist-mode' is enabled, then ensure that
-frequency data has been loaded from `prescient-save-file' before
-comparing. Loading will only be attempted once, not before every
+If `prescient-persist-mode' is enabled, then ensure that usage
+data has been loaded from `prescient-save-file' before comparing.
+Loading will only be attempted once, not before every
 comparison."
   (unless (stringp c1)
     (setq c1 (format "%s" c1)))
