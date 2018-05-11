@@ -25,6 +25,8 @@
 (eval-when-compile
   (require 'cl-macs))
 
+(require 'obarray)
+
 (require 'ivy)
 (require 'prescient)
 
