@@ -23,7 +23,8 @@
 ;;;; Libraries
 
 (eval-when-compile
-  (require 'cl-macs))
+  (require 'cl-macs)
+  (require 'subr-x))
 
 (require 'ivy)
 (require 'prescient)
@@ -51,6 +52,20 @@ This is for use in `ivy-re-builders-alist'."
 
 (defvar ivy-prescient--old-re-builder nil
   "Previous default value in `ivy-re-builders-alist'.")
+
+(defun ivy-prescient-highlight-function (candidate)
+  "Highlight CANDIDATE that was matched using prescient.el."
+  (dolist (regexp (prescient-filter-regexps ivy-text 'with-groups))
+    (when (string-match regexp candidate)
+      (let ((group 1)
+            (groups (regexp-opt-depth regexp)))
+        (while (<= group groups)
+          (when-let ((start (match-beginning group))
+                     (end   (match-end       group)))
+            (ivy-add-face-text-property
+             start end (car ivy-minibuffer-faces) candidate))
+          (cl-incf group)))))
+  candidate)
 
 (defun ivy-prescient-advice-fix-sort-function (collection)
   "Retrieve sort function for COLLECTION from `ivy-sort-functions-alist'.
@@ -100,6 +115,9 @@ This is an `:around' advice for `ivy-read'."
               (alist-get t ivy-re-builders-alist))
         (setf (alist-get t ivy-re-builders-alist)
               #'ivy-prescient-re-builder)
+        (setf (alist-get #'ivy-prescient-re-builder
+                         ivy-highlight-functions-alist)
+              #'ivy-prescient-highlight-function)
         (setq ivy-prescient--old-ivy-sort-function
               (alist-get t ivy-sort-functions-alist))
         (setf (alist-get t ivy-sort-functions-alist)
@@ -115,6 +133,9 @@ This is an `:around' advice for `ivy-read'."
                  #'ivy-prescient-re-builder)
       (setf (alist-get t ivy-re-builders-alist)
             ivy-prescient--old-re-builder))
+    (setq ivy-highlight-functions-alist
+          (assq-delete-all #'ivy-prescient-highlight-function
+                           ivy-highlight-functions-alist))
     (when (equal (alist-get t ivy-sort-functions-alist)
                  #'ivy-prescient-sort-function)
       (setf (alist-get t ivy-sort-functions-alist)

@@ -227,14 +227,21 @@ as a sub-query delimiter."
       ;; We added the subqueries in reverse order.
       (nreverse subqueries))))
 
-(defun prescient-initials-regexp (query)
+(defun prescient-initials-regexp (query &optional with-groups)
   "Return a regexp matching QUERY as an initialism.
 This means that the regexp will only match a given string if
 QUERY is a substring of the initials of the string. The locations
-of initials are determined using `prescient-separator-chars'."
-  (concat (format "\\(^\\|[%s]\\)" prescient-separator-chars)
+of initials are determined using `prescient-separator-chars'.
+
+If WITH-GROUPS is non-nil, enclose all literal text in capture
+groups, so that it can be determined which parts of a matched
+candidate should be highlighted."
+  (concat (format "\\(?:^\\|[%s]\\)" prescient-separator-chars)
           (mapconcat (lambda (char)
-                       (regexp-quote (char-to-string char)))
+                       (let ((r (regexp-quote (char-to-string char))))
+                         (if with-groups
+                             (format "\\(%s\\)" r)
+                           r)))
                      query
                      (format "[^%s]*[%s]+"
                              prescient-separator-chars
@@ -242,15 +249,22 @@ of initials are determined using `prescient-separator-chars'."
 
 ;;;; Sorting and filtering
 
-(defun prescient-filter-regexps (query)
+(defun prescient-filter-regexps (query &optional with-groups)
   "Convert QUERY to list of regexps.
 Each regexp must match the candidate in order for a candidate to
-match the QUERY."
+match the QUERY.
+
+If WITH-GROUPS is non-nil, enclose all literal text in capture
+groups, so that it can be determined which parts of a matched
+candidate should be highlighted."
   (mapcar
    (lambda (subquery)
      (format "%s\\|%s"
-             (regexp-quote subquery)
-             (prescient-initials-regexp subquery)))
+             (let ((r (regexp-quote subquery)))
+               (if with-groups
+                   (format "\\(%s\\)" r)
+                 r))
+             (prescient-initials-regexp subquery with-groups)))
    (prescient-split-query query)))
 
 (defun prescient-filter (query candidates)
