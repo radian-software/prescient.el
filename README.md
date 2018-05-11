@@ -42,7 +42,7 @@ consecutive spaces match a literal space). Each subquery filters the
 candidates because it must match as either a substring of the
 candidate or as an initialism (e.g. `ffap` matches
 `find-file-at-point`). The last few candidates you selected are
-displayed first, followed by the most frequently selected one, and
+displayed first, followed by the most frequently selected ones, and
 then the remaining candidates are sorted by length.
 
 ## Configuration
