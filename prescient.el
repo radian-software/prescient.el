@@ -1,4 +1,4 @@
-;;; prescient.el --- Smart/stupid candidate sorting. -*- lexical-binding: t -*-
+;;; prescient.el --- Better sorting and filtering. -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2017-2018 Radon Rosborough
 
