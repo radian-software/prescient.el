@@ -74,12 +74,21 @@ list of candidates to be sorted."
                 (apply cl-sort-orig seq args))))
     (funcall ivy--sort-maybe collection)))
 
-(defalias 'ivy-prescient-sort-compare #'prescient-sort-compare
+(defalias 'ivy-prescient-sort-function #'prescient-sort-compare
   "Comparison function that uses prescient.el to sort candidates.
 This is for use in `ivy-sort-functions-alist'.")
 
 (defvar ivy-prescient--old-ivy-sort-function nil
   "Previous default value in `ivy-sort-functions-alist'.")
+
+(defalias 'ivy-prescient-sort-file-function #'prescient-sort-compare
+  "Comparison function that uses prescient.el to sort files.
+This is for use in `ivy-sort-functions-alist'.")
+
+(defvar ivy-prescient--old-ivy-sort-file-function nil
+  "Previous value for sorting files in `ivy-sort-functions-alist'.
+This is the value that was associated to
+`read-file-name-internal'.")
 
 (cl-defun ivy-prescient-read
     (ivy-read prompt collection &rest rest &key action caller
@@ -108,7 +117,11 @@ This is an `:around' advice for `ivy-read'."
         (setq ivy-prescient--old-ivy-sort-function
               (alist-get t ivy-sort-functions-alist))
         (setf (alist-get t ivy-sort-functions-alist)
-              #'ivy-prescient-sort-compare)
+              #'ivy-prescient-sort-function)
+        (setq ivy-prescient--old-ivy-sort-file-function
+              (alist-get #'read-file-name-internal ivy-sort-functions-alist))
+        (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
+              #'ivy-prescient-sort-file-function)
         (advice-add #'ivy--sort-function :override
                     #'ivy-prescient-advice-fix-sort-function)
         (advice-add #'ivy--sort-maybe :around
@@ -119,9 +132,14 @@ This is an `:around' advice for `ivy-read'."
       (setf (alist-get t ivy-re-builders-alist)
             ivy-prescient--old-re-builder))
     (when (equal (alist-get t ivy-sort-functions-alist)
-                 #'ivy-prescient-sort-compare)
+                 #'ivy-prescient-sort-function)
       (setf (alist-get t ivy-sort-functions-alist)
             ivy-prescient--old-ivy-sort-function))
+    (when (equal (alist-get #'read-file-name-internal
+                            ivy-sort-functions-alist)
+                 #'ivy-prescient-sort-file-function)
+      (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
+            ivy-prescient--old-ivy-sort-file-function))
     (advice-remove #'ivy--sort-function
                    #'ivy-prescient-advice-fix-sort-function)
     (advice-remove #'ivy--sort-maybe #'ivy-prescient-advice-sort-obarrays)
