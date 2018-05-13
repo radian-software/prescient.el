@@ -67,14 +67,6 @@ This is for use in `ivy-re-builders-alist'."
           (cl-incf group)))))
   candidate)
 
-(defun ivy-prescient-advice-fix-sort-function (collection)
-  "Retrieve sort function for COLLECTION from `ivy-sort-functions-alist'.
-This is an `:override' advice for `ivy--sort-function' which
-fixes what appears to be a bug whereby the default sort function
-is not respected."
-  (alist-get collection ivy-sort-functions-alist
-             (alist-get t ivy-sort-functions-alist)))
-
 (defalias 'ivy-prescient-sort-function #'prescient-sort-compare
   "Comparison function that uses prescient.el to sort candidates.
 This is for use in `ivy-sort-functions-alist'.")
@@ -126,8 +118,6 @@ This is an `:around' advice for `ivy-read'."
               (alist-get #'read-file-name-internal ivy-sort-functions-alist))
         (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
               #'ivy-prescient-sort-file-function)
-        (advice-add #'ivy--sort-function :override
-                    #'ivy-prescient-advice-fix-sort-function)
         (advice-add #'ivy-read :around #'ivy-prescient-read))
     (when (equal (alist-get t ivy-re-builders-alist)
                  #'ivy-prescient-re-builder)
@@ -145,8 +135,6 @@ This is an `:around' advice for `ivy-read'."
                  #'ivy-prescient-sort-file-function)
       (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
             ivy-prescient--old-ivy-sort-file-function))
-    (advice-remove #'ivy--sort-function
-                   #'ivy-prescient-advice-fix-sort-function)
     (advice-remove #'ivy-read #'ivy-prescient-read)))
 
 ;;;; Closing remarks
