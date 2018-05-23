@@ -233,9 +233,15 @@ This means that the regexp will only match a given string if
 QUERY is a substring of the initials of the string. The locations
 of initials are determined using `prescient-separator-chars'.
 
-If WITH-GROUPS is non-nil, enclose all literal text in capture
-groups, so that it can be determined which parts of a matched
-candidate should be highlighted."
+If WITH-GROUPS is non-nil, enclose the parts of the regexp that
+match the actual initials in capture groups, so that the match
+data can be used to highlight the initials of the match.
+
+To illustrate, if \"fa\" matches \"find-file-at-point\", then the
+entire match will be the text \"file-at\", and there will be two
+capture groups matching \"f\" and \"a\"."
+  ;; Currently we actually also match the previous hyphen in the above
+  ;; example. Not sure if this can be avoided.
   (concat (format "\\(?:^\\|[%s]\\)" prescient-separator-chars)
           (mapconcat (lambda (char)
                        (let ((r (regexp-quote (char-to-string char))))
@@ -245,7 +251,8 @@ candidate should be highlighted."
                      query
                      (format "[^%s]*[%s]+"
                              prescient-separator-chars
-                             prescient-separator-chars))))
+                             prescient-separator-chars))
+          (format "[^%s]*" prescient-separator-chars)))
 
 ;;;; Sorting and filtering
 
@@ -260,10 +267,7 @@ candidate should be highlighted."
   (mapcar
    (lambda (subquery)
      (format "%s\\|%s"
-             (let ((r (regexp-quote subquery)))
-               (if with-groups
-                   (format "\\(%s\\)" r)
-                 r))
+             (regexp-quote subquery)
              (prescient-initials-regexp subquery with-groups)))
    (prescient-split-query query)))
 
