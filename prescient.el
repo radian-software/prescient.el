@@ -304,7 +304,7 @@ comparison."
         (and (= p1 p2)
              (let ((f1 (gethash c1 prescient-frequency 0))
                    (f2 (gethash c2 prescient-frequency 0)))
-               (or (< f1 f2)
+               (or (> f1 f2)
                    (and (= f1 f2)
                         (< (length c1)
                            (length c2)))))))))
