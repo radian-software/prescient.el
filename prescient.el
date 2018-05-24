@@ -17,9 +17,9 @@
 ;; The algorithm of prescient.el is very simple. You enter a query, or
 ;; multiple queries separated by spaces (two spaces match a literal
 ;; space), and each query filters the candidates by matching either a
-;; substring (e.g. "scient" matches "prescient-separator-chars") or
-;; initialism (e.g. "psc" also matches the same). Then, candidates are
-;; sorted to prioritize recently chosen candidates, followed by
+;; substring (e.g. "scient" matches "prescient-frequency-threshold")
+;; or initialism (e.g. "ft" also matches the same). Then, candidates
+;; are sorted to prioritize recently chosen candidates, followed by
 ;; frequently chosen candidates, with the remaining candidates sorted
 ;; by length.
 
@@ -49,13 +49,6 @@
   "Simple but effective candidate sorting by usage."
   :group 'convenience
   :prefix "prescient-")
-
-(defcustom prescient-separator-chars "-_/+[:space:]\n"
-  "Regexp character class for word separators.
-When brackets are placed around this string, it should form a
-valid regexp."
-  :group 'prescient
-  :type 'string)
 
 (defcustom prescient-history-length 100
   "Number of recently chosen candidates that will be remembered."
@@ -230,8 +223,7 @@ as a sub-query delimiter."
 (defun prescient-initials-regexp (query &optional with-groups)
   "Return a regexp matching QUERY as an initialism.
 This means that the regexp will only match a given string if
-QUERY is a substring of the initials of the string. The locations
-of initials are determined using `prescient-separator-chars'.
+QUERY is a substring of the initials of the string.
 
 If WITH-GROUPS is non-nil, enclose the parts of the regexp that
 match the actual initials in capture groups, so that the match
@@ -240,19 +232,13 @@ data can be used to highlight the initials of the match.
 To illustrate, if \"fa\" matches \"find-file-at-point\", then the
 entire match will be the text \"file-at\", and there will be two
 capture groups matching \"f\" and \"a\"."
-  ;; Currently we actually also match the previous hyphen in the above
-  ;; example. Not sure if this can be avoided.
-  (concat (format "\\(?:^\\|[%s]\\)" prescient-separator-chars)
-          (mapconcat (lambda (char)
-                       (let ((r (regexp-quote (char-to-string char))))
-                         (if with-groups
-                             (format "\\(%s\\)" r)
-                           r)))
-                     query
-                     (format "[^%s]*[%s]+"
-                             prescient-separator-chars
-                             prescient-separator-chars))
-          (format "[^%s]*" prescient-separator-chars)))
+  (mapconcat (lambda (char)
+               (let ((r (regexp-quote (char-to-string char))))
+                 (when with-groups
+                   (setq r (format "\\(%s\\)" r)))
+                 (format "\\b%s\\w*" r)))
+             query
+             "\\W*"))
 
 ;;;; Sorting and filtering
 

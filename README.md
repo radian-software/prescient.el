@@ -47,10 +47,6 @@ then the remaining candidates are sorted by length.
 
 ## Configuration
 
-* `prescient-separator-chars`: The characters used to separate parts
-  of an initialism, including things like hyphens, underscores,
-  slashes, etc.
-
 * `prescient-history-length`: The number of recently selected
   candidates that are remembered and displayed at the top of the list.
 
