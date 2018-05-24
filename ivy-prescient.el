@@ -45,6 +45,15 @@
   :group 'prescient
   :type '(list symbol))
 
+(defcustom ivy-prescient-sort-commands
+  '(counsel-find-file
+    counsel-find-library)
+  "Commands for which candidates should always be sorted.
+This allows you to enable sorting for commands which call
+`ivy-read' with a nil value for `:sort'."
+  :group 'prescient
+  :type '(list symbol))
+
 ;;;; Minor mode
 
 (defun ivy-prescient-re-builder (query)
@@ -83,15 +92,25 @@ This is the value that was associated to
 (cl-defun ivy-prescient-read
     (ivy-read prompt collection &rest rest &key action caller
               &allow-other-keys)
-  "Delegate to `ivy-read', recording information for `prescient-remember'.
-This is an `:around' advice for `ivy-read'."
+  "Delegate to `ivy-read', handling persistence and sort customization.
+If the `:caller' passed to `ivy-read' is a member of
+`ivy-prescient-sort-commands', then `:sort' is unconditionally
+enabled. Also, `:action' is modified so that the selected
+candidate is passed to `prescient-remember'.
+
+This is an `:around' advice for `ivy-read'. IVY-READ is the
+original definition of `ivy-read', and PROMPT, COLLECTION are the
+same as in `ivy-read'. REST is the list of keyword arguments, and
+keyword arguments ACTION, CALLER are the same as in `ivy-read'."
   (apply ivy-read prompt collection
          (append `(:action
                    ,(lambda (result)
                       (unless (memq caller ivy-prescient-excluded-commands)
                         (prescient-remember result))
                       (when action
-                        (funcall action result))))
+                        (funcall action result)))
+                   ,@(when (memq caller ivy-prescient-sort-commands)
+                       `(:sort t)))
                  rest)))
 
 ;;;###autoload

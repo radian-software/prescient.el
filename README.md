@@ -70,30 +70,12 @@ ones, and then the remaining candidates are sorted by length.
   just pollute the save file. You can tell `prescient.el` about them
   here.
 
-## Tips and tricks
-
-Some [Counsel] commands intentionally disable sorting, so
-`prescient.el` will not work for them. Here is an example of how to
-forcibly enable sorting for Counsel commands whose candidates aren't
-sorted by default:
-
-    (defvar my-counsel-sort-commands
-      '(counsel-find-library counsel-find-file)
-      "List of commands which should have their candidates always sorted.")
-
-    (cl-defun my-advice-counsel-override-sort
-        (ivy-read prompt collection &rest rest &key caller &allow-other-keys)
-      "Delegate to `ivy-read', overriding `:sort' depending on CALLER.
-    Specifically, if CALLER appears in
-    `my-counsel-sort-commands', then override `:sort' to non-nil
-    unconditionally.
-
-    This is an `:around' advice for `ivy-read'."
-      (when (memq caller my-counsel-sort-commands)
-        (setq rest (append '(:sort t) rest)))
-      (apply ivy-read prompt collection rest))
-
-    (advice-add #'ivy-read :around #'my-advice-counsel-override-sort)
+* `ivy-prescient-sort-commands`: Some [Counsel] commands, like
+  `counsel-find-library`, intentionally disable sorting for their
+  candidates. You can override this preference and re-enable sorting
+  by adding such commands here. (To check if a command disables
+  sorting, inspect its source code and see if it calls `ivy-read` with
+  a nil value for the `:sort` keyword argument.)
 
 [company]: https://github.com/company-mode/company-mode
 [company-statistics]: https://github.com/company-mode/company-statistics
