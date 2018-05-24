@@ -50,7 +50,7 @@
   :group 'convenience
   :prefix "prescient-")
 
-(defcustom prescient-separator-chars "-_/+[:space:]"
+(defcustom prescient-separator-chars "-_/+[:space:]\n"
   "Regexp character class for word separators.
 When brackets are placed around this string, it should form a
 valid regexp."
