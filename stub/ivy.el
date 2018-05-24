@@ -1,6 +1,7 @@
 ;; This file contains stub definitions from ivy.el which allow
 ;; ivy-prescient.el to be byte-compiled in the absence of ivy.el.
 
+(defvar ivy--subexps nil)
 (defvar ivy-highlight-functions-alist nil)
 (defvar ivy-minibuffer-faces nil)
 (defvar ivy-re-builders-alist nil)
