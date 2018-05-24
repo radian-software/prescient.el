@@ -48,7 +48,8 @@
 (defgroup prescient nil
   "Simple but effective candidate sorting by usage."
   :group 'convenience
-  :prefix "prescient-")
+  :prefix "prescient-"
+  :link '(url-link "https://github.com/raxod502/prescient.el"))
 
 (defcustom prescient-history-length 100
   "Number of recently chosen candidates that will be remembered."
