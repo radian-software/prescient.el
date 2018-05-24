@@ -31,7 +31,16 @@
 
 ;;;; User options
 
-(defcustom ivy-prescient-excluded-commands '(swiper)
+(defcustom ivy-prescient-excluded-commands
+  '(counsel-ag
+    counsel-expression-history
+    counsel-git-grep
+    counsel-grep
+    counsel-mark-ring
+    counsel-minibuffer-history
+    counsel-shell-command-history
+    counsel-yank-pop
+    swiper)
   "Commands for which candidates should not be remembered."
   :group 'prescient
   :type '(list symbol))
