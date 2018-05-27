@@ -53,27 +53,23 @@
 
 (defcustom prescient-history-length 100
   "Number of recently chosen candidates that will be remembered."
-  :group 'prescient
   :type 'number)
 
 (defcustom prescient-frequency-decay 0.997
   "Rate at which frequently chosen candidates will be forgotten.
 Every time a candidate is selected, all candidates are multiplied
 by this factor. See also `prescient-frequency-threshold'."
-  :group 'prescient
   :type 'number)
 
 (defcustom prescient-frequency-threshold 0.05
   "Threshold for forgetting about a frequently chosen candidate.
 Any candidates with frequencies less than this after a selection
 will be discarded. See also `prescient-frequency-decay'."
-  :group 'prescient
   :type 'number)
 
 (defcustom prescient-save-file
   (expand-file-name "var/prescient-save.el" user-emacs-directory)
   "File in which to save `prescient-history' and `prescient-frequency'."
-  :group 'prescient
   :type 'file)
 
 ;;;; Caches
