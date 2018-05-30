@@ -69,29 +69,30 @@ will be discarded. See also `prescient-frequency-decay'."
 
 (defcustom prescient-save-file
   (expand-file-name "var/prescient-save.el" user-emacs-directory)
-  "File in which to save `prescient-history' and `prescient-frequency'."
+  "File in which to save usage information.
+This only has an effect if `prescient-persist-mode' is enabled."
   :type 'file)
 
 ;;;; Caches
 
-(defvar prescient-history (make-hash-table :test 'equal)
+(defvar prescient--history (make-hash-table :test 'equal)
   "Hash table of recently chosen candidates.
 The keys are candidates as strings and the values are 0-based
 indices, less than `prescient-history-length'. The number of
 values will be at most `prescient-history-length'.")
 
-(defvar prescient-frequency (make-hash-table :test 'equal)
+(defvar prescient--frequency (make-hash-table :test 'equal)
   "Hash table of frequently chosen candidates.
 The keys are candidates as strings and the values are
 frequencies (floating-point numbers). Frequencies will be at
 least `prescient-frequency-threshold'.")
 
-(defvar prescient-cache-loaded nil
+(defvar prescient--cache-loaded nil
   "Non-nil if prescient.el data was loaded from `prescient-save-file'.
 Even if the load failed, this variable is still set to non-nil
-when `prescient-load' is called.")
+when `prescient--load' is called.")
 
-(defvar prescient-serial-number 0
+(defvar prescient--serial-number 0
   "Number of times `prescient-remember' has been called.
 
 This is used to determine which set of changes to the save file
@@ -100,14 +101,7 @@ it.")
 
 ;;;; Persistence
 
-(defun prescient-cache-version (_version)
-  "Throw an error.
-This function was used in previous versions of prescient.el. If
-it is called while loading `prescient-save-file', then the save
-file has too old of a version."
-  (error "`prescient-save-file' has version <= 2"))
-
-(defvar prescient-cache-version 5
+(defvar prescient--cache-version 5
   "Current version number of `prescient-save-file' format.")
 
 (defvar prescient-cache-callback #'ignore
@@ -118,54 +112,55 @@ The function may produce errors; they will be ignored.
 Usually this variable is dynamically bound to another value while
 `prescient-save-file' is loaded.")
 
-(defun prescient-load-save-file ()
+(defun prescient--load-save-file ()
   "Load `prescient-save-file', ignoring errors."
   (let ((load-source-file-function nil))
     (ignore-errors
       (load prescient-save-file 'noerror 'nomessag))))
 
-(defun prescient-load ()
+(defun prescient--load ()
   "Read data from `prescient-save-file'."
   (interactive)
   (cl-letf ((prescient-cache-callback
              (lambda (&rest args)
-               (when (equal (plist-get args :version) prescient-cache-version)
-                 (setq prescient-history (plist-get args :history))
-                 (setq prescient-frequency (plist-get args :frequency))
-                 (setq prescient-serial-number
+               (when (equal (plist-get args :version) prescient--cache-version)
+                 (setq prescient--history (plist-get args :history))
+                 (setq prescient--frequency (plist-get args :frequency))
+                 (setq prescient--serial-number
                        (plist-get args :serial-number))))))
-    (prescient-load-save-file))
-  (setq prescient-cache-loaded t))
+    (prescient--load-save-file))
+  (setq prescient--cache-loaded t))
 
-(defun prescient-save ()
+(defun prescient--save ()
   "Write data to `prescient-save-file'."
   (cl-letf* ((saved-serial-number nil)
              (prescient-cache-callback
               (lambda (&rest args)
-                (when (equal (plist-get args :version) prescient-cache-version)
+                (when (equal (plist-get args :version)
+                             prescient--cache-version)
                   (setq saved-serial-number
                         (plist-get args :serial-number))))))
-    (prescient-load-save-file)
+    (prescient--load-save-file)
     (when (or (not (numberp saved-serial-number))
-              (>= prescient-serial-number saved-serial-number))
+              (>= prescient--serial-number saved-serial-number))
       (make-directory (file-name-directory
                        (expand-file-name prescient-save-file))
                       'parents)
       (with-temp-file prescient-save-file
         (print
          `(funcall prescient-cache-callback
-                   :version ',prescient-cache-version
-                   :history ',prescient-history
-                   :frequency ',prescient-frequency
-                   :serial-number ',prescient-serial-number)
+                   :version ',prescient--cache-version
+                   :history ',prescient--history
+                   :frequency ',prescient--frequency
+                   :serial-number ',prescient--serial-number)
          (current-buffer))))))
 
 (define-minor-mode prescient-persist-mode
   "Minor mode to persist prescient.el statistics to `prescient-save-file'."
   :global t
   (if prescient-persist-mode
-      (add-hook 'kill-emacs-hook #'prescient-save)
-    (remove-hook 'kill-emacs-hook #'prescient-save)))
+      (add-hook 'kill-emacs-hook #'prescient--save)
+    (remove-hook 'kill-emacs-hook #'prescient--save)))
 
 ;;;; Utility functions
 
@@ -283,35 +278,35 @@ comparison."
     (setq c1 (format "%s" c1)))
   (unless (stringp c2)
     (setq c2 (format "%s" c2)))
-  (when (and prescient-persist-mode (not prescient-cache-loaded))
-    (prescient-load))
-  (let ((p1 (gethash c1 prescient-history prescient-history-length))
-        (p2 (gethash c2 prescient-history prescient-history-length)))
+  (when (and prescient-persist-mode (not prescient--cache-loaded))
+    (prescient--load))
+  (let ((p1 (gethash c1 prescient--history prescient-history-length))
+        (p2 (gethash c2 prescient--history prescient-history-length)))
     (or (< p1 p2)
         (and (= p1 p2)
-             (let ((f1 (gethash c1 prescient-frequency 0))
-                   (f2 (gethash c2 prescient-frequency 0)))
+             (let ((f1 (gethash c1 prescient--frequency 0))
+                   (f2 (gethash c2 prescient--frequency 0)))
                (or (> f1 f2)
                    (and (= f1 f2)
                         (< (length c1)
                            (length c2)))))))))
 
 (defun prescient-sort (candidates)
-  "Sort CANDIDATES using the data in `prescient-frequency'.
+  "Sort CANDIDATES using frequency data.
 Return the sorted list. The original is modified destructively."
   (sort candidates #'prescient-sort-compare))
 
 ;;;; Candidate selection
 
 (defun prescient-remember (candidate)
-  "Record CANDIDATE in `prescient-history' and `prescient-frequency'."
+  "Record CANDIDATE in `prescient--history' and `prescient--frequency'."
   ;; Convert to plain string.
   (unless (stringp candidate)
     (setq candidate (format "%s" candidate)))
   (setq candidate (substring-no-properties candidate))
-  ;; Add to `prescient-history'.
+  ;; Add to `prescient--history'.
   (let ((this-pos (gethash
-                   candidate prescient-history prescient-history-length)))
+                   candidate prescient--history prescient-history-length)))
     ;; If the candidate was already in the history, then prepare for
     ;; moving it to the front by incrementing the indices of other
     ;; candidates.
@@ -321,7 +316,7 @@ Return the sorted list. The original is modified destructively."
         ;; If the other candidate came earlier in the history, then
         ;; increment its index.
         ((< other-pos this-pos)
-         (puthash other-candidate (1+ other-pos) prescient-history))
+         (puthash other-candidate (1+ other-pos) prescient--history))
         ;; Else, if it's already past the end of the history (this
         ;; would happen if `prescient-history-length' were decreased),
         ;; or if it's at the very end and a new candidate was added,
@@ -329,22 +324,22 @@ Return the sorted list. The original is modified destructively."
         ((or (>= other-pos prescient-history-length)
              (and (= other-pos (1- prescient-history-length))
                   (= this-pos prescient-history-length)))
-         (remhash other-candidate prescient-history))))
-     prescient-history)
+         (remhash other-candidate prescient--history))))
+     prescient--history)
     ;; Now add the new candidate to the beginning.
-    (puthash candidate 0 prescient-history))
-  ;; Add to `prescient-frequency'.
-  (puthash candidate (1+ (gethash candidate prescient-frequency 0))
-           prescient-frequency)
-  ;; Remove old entries from `prescient-frequency'.
+    (puthash candidate 0 prescient--history))
+  ;; Add to `prescient--frequency'.
+  (puthash candidate (1+ (gethash candidate prescient--frequency 0))
+           prescient--frequency)
+  ;; Remove old entries from `prescient--frequency'.
   (maphash (lambda (cand old-freq)
              (let ((new-freq (* old-freq prescient-frequency-decay)))
                (if (< new-freq prescient-frequency-threshold)
-                   (remhash cand prescient-frequency)
-                 (puthash cand new-freq prescient-frequency))))
-           prescient-frequency)
+                   (remhash cand prescient--frequency)
+                 (puthash cand new-freq prescient--frequency))))
+           prescient--frequency)
   ;; Update serial number.
-  (cl-incf prescient-serial-number))
+  (cl-incf prescient--serial-number))
 
 ;;;; Closing remarks
 
