@@ -16,15 +16,21 @@ predictable, and faster.
 
 ## Installation
 
-`prescient.el` is not yet registered on MELPA. As such, you will need
-to run it from source. You can do this using
-[`straight.el`][straight.el] as follows:
+`prescient.el` is available on MELPA as three separate packages:
 
-    (straight-use-package
-     '(prescient :host github :repo "raxod502/prescient.el"))
+* [`prescient`](https://melpa.org/#/prescient)
+* [`ivy-prescient`](https://melpa.org/#/ivy-prescient)
+* [`company-prescient`](https://melpa.org/#/company-prescient)
 
-You may also use any other package manager which allows you to install
-and run packages from source, or install the package manually.
+The easiest way to install these packages is using
+[`straight.el`][straight.el]:
+
+    (straight-use-package 'prescient)
+    (straight-use-package 'ivy-prescient)
+    (straight-use-package 'company-prescient)
+
+However, you may install using any other package manager if you
+prefer.
 
 ## Usage
 
