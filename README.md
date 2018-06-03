@@ -83,6 +83,32 @@ ones, and then the remaining candidates are sorted by length.
   sorting, inspect its source code and see if it calls `ivy-read` with
   a nil value for the `:sort` keyword argument.)
 
+## Known bugs
+
+During the development of `ivy-prescient.el`, I discovered a number of
+bugs in [Ivy]. Until my pull requests are merged upstream, you will
+therefore find some bugs in the end-user experience:
+
+* Highlighting is wrong in both Ivy and Swiper ([#1587], [#1591],
+  [#1600]).
+
+* If a candidate is preselected in the Ivy menu, then sometimes it
+  remains selected even after you start typing a query ([#1573]).
+
+In the meantime, you can use my forked version of Ivy which includes
+these fixes:
+
+    (straight-use-package
+     '(ivy :host github
+           :repo "raxod502/swiper"
+           :files (:defaults (:exclude
+                              "swiper.el"
+                              "counsel.el"
+                              "ivy-hydra.el")
+                             "doc/ivy-help.org")
+           :branch "fork/1"
+           :upstream (:host github :repo "abo-abo/swiper")))
+
 [company]: https://github.com/company-mode/company-mode
 [company-statistics]: https://github.com/company-mode/company-statistics
 [counsel]: https://github.com/abo-abo/swiper#counsel
@@ -94,3 +120,8 @@ ones, and then the remaining candidates are sorted by length.
 [no-littering]: https://github.com/emacscollective/no-littering
 [smex]: https://github.com/nonsequitur/smex
 [straight.el]: https://github.com/raxod502/straight.el
+
+[#1573]: https://github.com/abo-abo/swiper/pull/1573
+[#1587]: https://github.com/abo-abo/swiper/pull/1587
+[#1591]: https://github.com/abo-abo/swiper/pull/1591
+[#1600]: https://github.com/abo-abo/swiper/pull/1600
