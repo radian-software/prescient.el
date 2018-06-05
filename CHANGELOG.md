@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 1.0 (released 2018-06-05)
 ### Added
 * Packages:
   * `prescient.el`
