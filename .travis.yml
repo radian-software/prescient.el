@@ -10,7 +10,7 @@ matrix:
   allow_failures:
     - env: EMACS_VERSION=git-snapshot
 install:
-  - git clone --depth 1 -b v0.14.0 https://github.com/rejeep/evm.git ~/.evm
+  - git clone --depth 1 https://github.com/rejeep/evm.git ~/.evm
   - export PATH="$HOME/.evm/bin:$PATH"
   - evm config path /tmp
   - evm install "emacs-$EMACS_VERSION-travis"
