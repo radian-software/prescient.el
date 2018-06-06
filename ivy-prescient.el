@@ -89,6 +89,17 @@ This is for use in `ivy-sort-functions-alist'.")
 This is the value that was associated to
 `read-file-name-internal'.")
 
+(defun ivy-prescient--wrap-action (caller action)
+  "Wrap an action for use in `ivy-read'.
+CALLER is the `:caller' argument to `ivy-read', and ACTION is the
+original action, a function. Return a new function that also
+invokes `prescient-remember'."
+  (lambda (result)
+    (unless (memq caller ivy-prescient-excluded-commands)
+      (prescient-remember result))
+    (when action
+      (funcall action result))))
+
 (cl-defun ivy-prescient-read
     (ivy-read prompt collection &rest rest &key action caller
               &allow-other-keys)
@@ -104,11 +115,17 @@ same as in `ivy-read'. REST is the list of keyword arguments, and
 keyword arguments ACTION, CALLER are the same as in `ivy-read'."
   (apply ivy-read prompt collection
          (append `(:action
-                   ,(lambda (result)
-                      (unless (memq caller ivy-prescient-excluded-commands)
-                        (prescient-remember result))
-                      (when action
-                        (funcall action result)))
+                   ,(if (or (null action) (functionp action))
+                        (ivy-prescient--wrap-action caller action)
+                      (mapcar
+                       (lambda (entry)
+                         (if (listp entry)
+                             (cl-destructuring-bind (key fun . rest) entry
+                               (apply #'list key
+                                      (ivy-prescient--wrap-action caller fun)
+                                      rest))
+                           entry))
+                       action))
                    ,@(when (memq caller ivy-prescient-sort-commands)
                        `(:sort t)))
                  rest)))
