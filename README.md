@@ -89,8 +89,7 @@ During the development of `ivy-prescient.el`, I discovered a number of
 bugs in [Ivy]. Until my pull requests are merged upstream, you will
 therefore find some bugs in the end-user experience:
 
-* Highlighting is wrong in both Ivy and Swiper ([#1587], [#1591],
-  [#1600]).
+* Highlighting is wrong in both Ivy and Swiper ([#1587] and [#1600]).
 
 * If a candidate is preselected in the Ivy menu, then sometimes it
   remains selected even after you start typing a query ([#1573]).
@@ -123,5 +122,4 @@ these fixes:
 
 [#1573]: https://github.com/abo-abo/swiper/pull/1573
 [#1587]: https://github.com/abo-abo/swiper/pull/1587
-[#1591]: https://github.com/abo-abo/swiper/pull/1591
 [#1600]: https://github.com/abo-abo/swiper/pull/1600
