@@ -89,6 +89,9 @@ This is for use in `ivy-sort-functions-alist'.")
 This is the value that was associated to
 `read-file-name-internal'.")
 
+(defvar ivy-prescient--old-initial-inputs-alist nil
+  "Previous value of `ivy-initial-inputs-alist'.")
+
 (defun ivy-prescient--wrap-action (caller action)
   "Wrap an action for use in `ivy-read'.
 CALLER is the `:caller' argument to `ivy-read', and ACTION is the
@@ -148,6 +151,8 @@ keyword arguments ACTION, CALLER are the same as in `ivy-read'."
               (alist-get #'read-file-name-internal ivy-sort-functions-alist))
         (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
               #'ivy-prescient-sort-file-function)
+        (setq ivy-prescient--old-initial-inputs-alist ivy-initial-inputs-alist)
+        (setq ivy-initial-inputs-alist nil)
         (advice-add #'ivy-read :around #'ivy-prescient-read))
     (when (equal (alist-get t ivy-re-builders-alist)
                  #'ivy-prescient-re-builder)
@@ -162,6 +167,8 @@ keyword arguments ACTION, CALLER are the same as in `ivy-read'."
                  #'ivy-prescient-sort-file-function)
       (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
             ivy-prescient--old-ivy-sort-file-function))
+    (dolist (pair (reverse ivy-prescient--old-initial-inputs-alist))
+      (setf (alist-get (car pair) ivy-initial-inputs-alist) (cdr pair)))
     (advice-remove #'ivy-read #'ivy-prescient-read)))
 
 ;;;; Closing remarks
