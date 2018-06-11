@@ -38,6 +38,11 @@
 
 ;;; Code:
 
+;; To see the outline of this file, run M-x outline-minor-mode and
+;; then press C-c @ C-t. To also show the top-level functions and
+;; variable declarations in each section, run M-x occur with the
+;; following query: ^;;;;* \|^(
+
 ;;;; Libraries
 
 (require 'cl-lib)
