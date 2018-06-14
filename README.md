@@ -86,17 +86,14 @@ ones, and then the remaining candidates are sorted by length.
 ## Known bugs
 
 During the development of `ivy-prescient.el`, I discovered a number of
-bugs in [Ivy]. Until my pull requests are merged upstream, you will
-therefore find some bugs in the end-user experience:
-
-* Highlighting of matches at the ends of lines in Swiper is sometimes
-  erroneous ([#1600]).
+bugs in [Ivy]. Most of them have been fixed by now; there is only one
+pull request that remains unmerged upstream:
 
 * If a candidate is preselected in the Ivy menu, then sometimes it
   remains selected even after you start typing a query ([#1573]).
 
 In the meantime, you can use my forked version of Ivy which includes
-these fixes:
+this fix:
 
     (straight-use-package
      '(ivy :host github
@@ -122,4 +119,3 @@ these fixes:
 [straight.el]: https://github.com/raxod502/straight.el
 
 [#1573]: https://github.com/abo-abo/swiper/pull/1573
-[#1600]: https://github.com/abo-abo/swiper/pull/1600
