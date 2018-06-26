@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 2.0 (released 2018-06-26)
 ### Changed
 * `ivy-prescient.el` now clears the value of
   `ivy-initial-inputs-alist` when `ivy-prescient-mode` is enabled, in
