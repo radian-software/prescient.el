@@ -1,10 +1,14 @@
 dist: trusty
-sudo: false
+sudo: required
+addons:
+  apt:
+    packages:
+      - texinfo
 env:
-  - EMACS_VERSION=25.1
-  - EMACS_VERSION=25.2
-  - EMACS_VERSION=25.3
-  - EMACS_VERSION=26.1
+  - EMACS_VERSION=25.1-travis
+  - EMACS_VERSION=25.2-travis
+  - EMACS_VERSION=25.3-travis
+  - EMACS_VERSION=26.1-travis
   - EMACS_VERSION=git-snapshot
 matrix:
   allow_failures:
@@ -13,8 +17,8 @@ install:
   - git clone --depth 1 https://github.com/rejeep/evm.git ~/.evm
   - export PATH="$HOME/.evm/bin:$PATH"
   - evm config path /tmp
-  - evm install "emacs-$EMACS_VERSION-travis"
-  - export PATH="/tmp/emacs-$EMACS_VERSION-travis/bin:$PATH"
+  - evm install "emacs-$EMACS_VERSION"
+  - export PATH="/tmp/emacs-$EMACS_VERSION/bin:$PATH"
   - emacs --version
 script:
   - make
