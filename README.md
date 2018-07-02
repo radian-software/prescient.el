@@ -83,6 +83,12 @@ ones, and then the remaining candidates are sorted by length.
   sorting, inspect its source code and see if it calls `ivy-read` with
   a nil value for the `:sort` keyword argument.)
 
+* `ivy-prescient-retain-classic-highlighting`: By default, the
+  highlighting behavior of `ivy-prescient.el` is slightly different
+  from Ivy's highlighting for `ivy--regex-ignore-order`. You can
+  recover the original behavior by customizing this user option; see
+  the docstring for more details.
+
 ## Known bugs
 
 During the development of `ivy-prescient.el`, I discovered a number of

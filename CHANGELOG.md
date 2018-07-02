@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### New features
+* New user option `ivy-prescient-retain-classic-highlighting` allows
+  you to more closely emulate the highlighting behavior of Ivy when
+  `ivy-prescient-mode` is enabled ([#11]).
+
+### Enhancements
+* API function `prescient-filter-regexps` now has special behavior
+  when the symbol `all` is passed as the `WITH-GROUPS` argument. The
+  documentation string for this function, which was previously
+  erroneous, has been fixed ([#11]).
+
+[#11]: https://github.com/raxod502/prescient.el/issues/11
+
 ## 2.0 (released 2018-06-26)
 ### Changed
 * `ivy-prescient.el` now clears the value of
