@@ -91,26 +91,10 @@ ones, and then the remaining candidates are sorted by length.
 
 ## Known bugs
 
-During the development of `ivy-prescient.el`, I discovered a number of
-bugs in [Ivy]. Most of them have been fixed by now; there is only one
-pull request that remains unmerged upstream:
-
-* If a candidate is preselected in the Ivy menu, then sometimes it
-  remains selected even after you start typing a query ([#1573]).
-
-In the meantime, you can use my forked version of Ivy which includes
-this fix:
-
-    (straight-use-package
-     '(ivy :host github
-           :repo "raxod502/swiper"
-           :files (:defaults (:exclude
-                              "swiper.el"
-                              "counsel.el"
-                              "ivy-hydra.el")
-                             "doc/ivy-help.org")
-           :branch "fork/1"
-           :upstream (:host github :repo "abo-abo/swiper")))
+If you are using release 0.10.0 of Ivy, you will notice a number of
+bugs and significantly degraded functionality. To fix these, please
+upgrade to the latest `master` branch of Ivy as of July 3, 2018 or
+wait for a new release of Ivy.
 
 [company]: https://github.com/company-mode/company-mode
 [company-statistics]: https://github.com/company-mode/company-statistics
@@ -123,5 +107,3 @@ this fix:
 [no-littering]: https://github.com/emacscollective/no-littering
 [smex]: https://github.com/nonsequitur/smex
 [straight.el]: https://github.com/raxod502/straight.el
-
-[#1573]: https://github.com/abo-abo/swiper/pull/1573
