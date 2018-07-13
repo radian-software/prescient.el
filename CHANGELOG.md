@@ -14,6 +14,12 @@ The format is based on [Keep a Changelog].
   when the symbol `all` is passed as the `WITH-GROUPS` argument. The
   documentation string for this function, which was previously
   erroneous, has been fixed ([#11]).
+* For some reason, Ivy explicitly supports candidates which are lists,
+  by just taking their cars. `ivy-prescient.el` now does the same,
+  instead of converting the lists to strings. This reduces bloat in
+  the save file, and in some cases improves frequency tracking (for
+  example, frequency tracking works much better for
+  `org-refile-get-location`).
 
 [#11]: https://github.com/raxod502/prescient.el/issues/11
 

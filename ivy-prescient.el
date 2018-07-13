@@ -95,9 +95,16 @@ This is for use in `ivy-re-builders-alist'."
 (defvar ivy-prescient--old-re-builder nil
   "Previous default value in `ivy-re-builders-alist'.")
 
-(defalias 'ivy-prescient-sort-function #'prescient-sort-compare
+(defun ivy-prescient-sort-function (c1 c2)
   "Comparison function that uses prescient.el to sort candidates.
-This is for use in `ivy-sort-functions-alist'.")
+This is for use in `ivy-sort-functions-alist'."
+  ;; For some reason, Ivy supports candidates that are lists, and just
+  ;; takes their cars. I guess we have to support that too.
+  (when (listp c1)
+    (setq c1 (car c1)))
+  (when (listp c2)
+    (setq c2 (car c2)))
+  (prescient-sort-compare c1 c2))
 
 (defvar ivy-prescient--old-ivy-sort-function nil
   "Previous default value in `ivy-sort-functions-alist'.")
@@ -120,6 +127,10 @@ CALLER is the `:caller' argument to `ivy-read', and ACTION is the
 original action, a function. Return a new function that also
 invokes `prescient-remember'."
   (lambda (result)
+    ;; Same as in `ivy-prescient-sort-function', we have to account
+    ;; for candidates which are lists by taking their cars.
+    (when (listp result)
+      (setq result (car result)))
     (unless (memq caller ivy-prescient-excluded-commands)
       (prescient-remember result))
     (when action
