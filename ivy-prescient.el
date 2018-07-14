@@ -97,7 +97,8 @@ This is for use in `ivy-re-builders-alist'."
 
 (defun ivy-prescient-sort-function (c1 c2)
   "Comparison function that uses prescient.el to sort candidates.
-This is for use in `ivy-sort-functions-alist'."
+This is for use in `ivy-sort-functions-alist'. C1 and C2 are
+arbitrary candidates to be compared; they need not be strings."
   ;; For some reason, Ivy supports candidates that are lists, and just
   ;; takes their cars. I guess we have to support that too.
   (when (listp c1)
@@ -212,4 +213,5 @@ keyword arguments ACTION, CALLER are the same as in `ivy-read'."
 
 ;; Local Variables:
 ;; outline-regexp: ";;;;* "
+;; checkdoc-verb-check-experimental-flag: nil
 ;; End:
