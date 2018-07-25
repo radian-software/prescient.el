@@ -7,7 +7,7 @@
 ;; Keywords: extensions
 ;; Created: 7 Aug 2017
 ;; Package-Requires: ((emacs "25.1"))
-;; Version: 2.0
+;; Version: 2.1
 
 ;;; Commentary:
 

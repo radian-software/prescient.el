@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 2.1 (released 2018-07-25)
 ### New features
 * New user option `ivy-prescient-retain-classic-highlighting` allows
   you to more closely emulate the highlighting behavior of Ivy when
