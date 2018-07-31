@@ -51,12 +51,12 @@ candidate or as an initialism (e.g. `ffap` matches
 selected are displayed first, followed by the most frequently selected
 ones, and then the remaining candidates are sorted by length.
 
-If you don't like this algorithm, you can choose a different one by
-customizing `prescient-filter-method`. For Ivy, you can set up
-keybindings for changing this value on the fly by customizing
-`ivy-prescient-filter-method-keys`; by default, you can toggle between
-substring/initialism matching and regexp matching by pressing `C-c
-C-r`.
+If you don't like the algorithm used for filtering, you can choose a
+different one by customizing `prescient-filter-method`. For Ivy, you
+can set up keybindings for changing this value on the fly by
+customizing `ivy-prescient-filter-method-keys`; by default, you can
+toggle between substring/initialism matching and regexp matching by
+pressing `C-c C-r`.
 
 ## Configuration
 
@@ -116,7 +116,7 @@ C-r`.
 If you are using release 0.10.0 of Ivy, you will notice a number of
 bugs and significantly degraded functionality. To fix these, please
 upgrade to the latest `master` branch of Ivy as of July 3, 2018 or
-wait for a new release of Ivy.
+[wait for a new release of Ivy][ivy-release].
 
 [company]: https://github.com/company-mode/company-mode
 [company-statistics]: https://github.com/company-mode/company-statistics
@@ -126,6 +126,7 @@ wait for a new release of Ivy.
 [historian]: https://github.com/PythonNut/historian.el
 [ido]: https://www.gnu.org/software/emacs/manual/ido.html
 [ivy]: https://github.com/abo-abo/swiper#ivy
+[ivy-release]: https://github.com/abo-abo/swiper/issues/1664
 [no-littering]: https://github.com/emacscollective/no-littering
 [smex]: https://github.com/nonsequitur/smex
 [straight.el]: https://github.com/raxod502/straight.el
