@@ -26,6 +26,8 @@
   (require 'cl-macs)
   (require 'subr-x))
 
+(require 'map)
+
 (require 'ivy)
 (require 'prescient)
 
@@ -54,6 +56,32 @@ This allows you to enable sorting for commands which call
   :group 'prescient
   :type '(list symbol))
 
+(defcustom ivy-prescient-filter-method-keys
+  '(("C-c C-r" . ((literal+initialism . regexp)
+                  (regexp             . literal+initialism))))
+  "Bindings for `ivy-minibuffer-map' for switching filter methods.
+This is an alist where the keys are key sequence strings as used
+in `kbd', and the values are alists whose own keys and values are
+values for `prescient-filter-method'. When a key sequence is
+typed, the link in the alist corresponding to the current
+`prescient-filter-method' is identified, and the cdr of that link
+is used to find the new value for `prescient-filter-method'.
+
+The resulting changes to `prescient-filter-method' are local to
+the current Ivy session unless
+`ivy-prescient-persist-filter-method' is non-nil."
+  :group 'prescient
+  :type `(alist
+          :key-type string
+          :value-type (alist
+                       :key-type ,prescient--filter-method-custom-type
+                       :value-type ,prescient--filter-method-custom-type)))
+
+(defcustom ivy-prescient-persist-filter-method nil
+  "Whether changes to `prescient-filter-method' persist between Ivy sessions."
+  :group 'prescient
+  :type 'boolean)
+
 (defcustom ivy-prescient-retain-classic-highlighting nil
   "Whether to emulate the way Ivy highlights candidates as closely as possible.
 With the default value, nil, the entire match is highlighted with
@@ -72,25 +100,59 @@ out-of-order matching."
   :group 'prescient
   :type 'boolean)
 
+;;;; Utility functions
+
+(defun ivy-prescient--make-filter-method-keymap ()
+  "Make a keymap from `ivy-prescient-filter-method-keys'."
+  (let ((keymap (make-sparse-keymap)))
+    (prog1 keymap
+      (map-do
+       (lambda (key-string sub-alist)
+         (define-key
+           keymap (kbd key-string)
+           (lambda ()
+             (interactive)
+             (when-let ((new-filter-method
+                         (alist-get prescient-filter-method sub-alist)))
+               (setq prescient-filter-method new-filter-method)))))
+       ivy-prescient-filter-method-keys))))
+
 ;;;; Minor mode
+
+(defvar ivy-prescient--last-valid-regexp-list ""
+  "Last return value of `ivy-prescient-re-builder'.
+This is used to ensure that when the user provides an invalid
+regexp, we can instead return the last valid regexp they entered.
+This is important since Ivy crashes when given an invalid
+regexp.")
 
 (defun ivy-prescient-re-builder (query)
   "Generate an Ivy-formatted regexp list for the given QUERY string.
 This is for use in `ivy-re-builders-alist'."
-  (setq ivy--subexps 0)
-  (or
-   (mapcar
-    (lambda (regexp)
-      (setq ivy--subexps (max ivy--subexps (regexp-opt-depth regexp)))
-      (cons regexp t))
-    (prescient-filter-regexps
-     query
-     (if ivy-prescient-retain-classic-highlighting
-         'all
-       'with-groups)))
-   ;; For some reason, Ivy doesn't seem to like to be given an empty
-   ;; list of regexps. Instead, it wants an empty string.
-   ""))
+  (cl-block nil
+    (let ((orig-ivy-subexps ivy--subexps))
+      (setq ivy--subexps 0)
+      (save-match-data
+        (setq
+         ivy-prescient--last-valid-regexp-list
+         (or
+          (mapcar
+           (lambda (regexp)
+             (condition-case _
+                 (string-match regexp "")
+               (invalid-regexp
+                (setq ivy--subexps orig-ivy-subexps)
+                (cl-return ivy-prescient--last-valid-regexp-list)))
+             (setq ivy--subexps (max ivy--subexps (regexp-opt-depth regexp)))
+             (cons regexp t))
+           (prescient-filter-regexps
+            query
+            (if ivy-prescient-retain-classic-highlighting
+                'all
+              'with-groups)))
+          ;; For some reason, Ivy doesn't seem to like to be given an empty
+          ;; list of regexps. Instead, it wants an empty string.
+          ""))))))
 
 (defvar ivy-prescient--old-re-builder nil
   "Previous default value in `ivy-re-builders-alist'.")
@@ -142,34 +204,50 @@ invokes `prescient-remember'."
       (funcall action result))))
 
 (cl-defun ivy-prescient-read
-    (ivy-read prompt collection &rest rest &key action caller
+    (ivy-read prompt collection &rest rest &key action caller keymap
               &allow-other-keys)
   "Delegate to `ivy-read', handling persistence and sort customization.
 If the `:caller' passed to `ivy-read' is a member of
 `ivy-prescient-sort-commands', then `:sort' is unconditionally
 enabled. Also, `:action' is modified so that the selected
-candidate is passed to `prescient-remember'.
+candidate is passed to `prescient-remember'. Finally, `:keymap'
+is updated according to the value of
+`ivy-prescient-filter-method-keys'.
 
 This is an `:around' advice for `ivy-read'. IVY-READ is the
 original definition of `ivy-read', and PROMPT, COLLECTION are the
 same as in `ivy-read'. REST is the list of keyword arguments, and
 keyword arguments ACTION, CALLER are the same as in `ivy-read'."
-  (apply ivy-read prompt collection
-         (append `(:action
-                   ,(if (or (null action) (functionp action))
-                        (ivy-prescient--wrap-action caller action)
-                      (mapcar
-                       (lambda (entry)
-                         (if (listp entry)
-                             (cl-destructuring-bind (key fun . rest) entry
-                               (apply #'list key
-                                      (ivy-prescient--wrap-action caller fun)
-                                      rest))
-                           entry))
-                       action))
-                   ,@(when (memq caller ivy-prescient-sort-commands)
-                       `(:sort t)))
-                 rest)))
+  (let ((orig-filter-method prescient-filter-method))
+    (unwind-protect
+        (apply ivy-read prompt collection
+               (append `(:action
+                         ,(if (or (null action) (functionp action))
+                              (ivy-prescient--wrap-action caller action)
+                            (mapcar
+                             (lambda (entry)
+                               (if (listp entry)
+                                   (cl-destructuring-bind
+                                       (key fun . rest) entry
+                                     (apply #'list key
+                                            (ivy-prescient--wrap-action
+                                             caller fun)
+                                            rest))
+                                 entry))
+                             action))
+                         ,@(when (memq caller ivy-prescient-sort-commands)
+                             `(:sort t))
+                         :keymap
+                         ,(let ((filter-method-keymap
+                                 (ivy-prescient--make-filter-method-keymap)))
+                            (if keymap
+                                (make-composed-keymap
+                                 filter-method-keymap
+                                 keymap)
+                              filter-method-keymap)))
+                       rest))
+      (unless ivy-prescient-persist-filter-method
+        (setq prescient-filter-method orig-filter-method)))))
 
 ;;;###autoload
 (define-minor-mode ivy-prescient-mode

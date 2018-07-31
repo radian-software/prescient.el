@@ -51,6 +51,13 @@ candidate or as an initialism (e.g. `ffap` matches
 selected are displayed first, followed by the most frequently selected
 ones, and then the remaining candidates are sorted by length.
 
+If you don't like this algorithm, you can choose a different one by
+customizing `prescient-filter-method`. For Ivy, you can set up
+keybindings for changing this value on the fly by customizing
+`ivy-prescient-filter-method-keys`; by default, you can toggle between
+substring/initialism matching and regexp matching by pressing `C-c
+C-r`.
+
 ## Configuration
 
 * `prescient-history-length`: The number of recently selected
@@ -71,6 +78,11 @@ ones, and then the remaining candidates are sorted by length.
   default value follows the conventions of
   [`no-littering`][no-littering].
 
+* `prescient-filter-method`: Which algorithm to use for filtering
+  candidates. The default is `literal+initialism` as described above,
+  but you can also use substring matching, initialism matching, regexp
+  matching, or fuzzy matching. See the docstring for full details.
+
 * `ivy-prescient-excluded-commands`: Some commands, like `swiper`,
   don't benefit from `prescient.el` sorting, so their usage statistics
   just pollute the save file. You can tell `prescient.el` about them
@@ -82,6 +94,16 @@ ones, and then the remaining candidates are sorted by length.
   by adding such commands here. (To check if a command disables
   sorting, inspect its source code and see if it calls `ivy-read` with
   a nil value for the `:sort` keyword argument.)
+
+* `ivy-prescient-filter-method-keys`: This is an alist which
+  `ivy-prescient.el` uses to establish additional temporary bindings
+  in `ivy-minibuffer-map`. These bindings allow you to quickly change
+  the value of `prescient-filter-method` while inside Ivy. See the
+  docstring for information about the format of this alist.
+
+* `ivy-prescient-persist-filter-method`: If non-nil, then changes made
+  to `prescient-filter-method` while Ivy is active persist until the
+  next time you use Ivy, instead of being reset once you leave.
 
 * `ivy-prescient-retain-classic-highlighting`: By default, the
   highlighting behavior of `ivy-prescient.el` is slightly different

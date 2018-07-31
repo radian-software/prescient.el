@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### New features
+* New user option `prescient-filter-method` allows you to use
+  substring, initialism, regexp, or fuzzy matching ([#13]).
+* By default, you can use `C-c C-r` in Ivy to toggle between
+  substring/initialism matching and regexp matching. Bindings can be
+  customized in the new user option
+  `ivy-prescient-filter-method-keys`. By default, the changes do not
+  persist between Ivy sessions, but this can be customized using the
+  new user option `ivy-prescient-persist-filter-method`.
+
+### Deprecated
+* The function `prescient-initials-regexp` is now considered
+  deprecated and it should not be used. Changes to its behavior will
+  however be documented until it is removed in a future release.
+
+[#13]: https://github.com/raxod502/prescient.el/issues/13
+
 ## 2.1 (released 2018-07-25)
 ### New features
 * New user option `ivy-prescient-retain-classic-highlighting` allows

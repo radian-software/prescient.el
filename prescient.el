@@ -78,6 +78,39 @@ will be discarded. See also `prescient-frequency-decay'."
 This only has an effect if `prescient-persist-mode' is enabled."
   :type 'file)
 
+(defvar prescient--filter-method-custom-type
+  '(choice
+    (const :tag "Literal" literal)
+    (const :tag "Initialism" initialism)
+    (const :tag "Literal and initialism" literal+initialism)
+    (const :tag "Regexp" regexp)
+    (const :tag "Fuzzy" fuzzy))
+  "Value for `:type' field in `prescient-filter-method' defcustom.")
+
+(defcustom prescient-filter-method 'literal+initialism
+  "How to interpret prescient.el filtering queries.
+Queries are first split on spaces (with two consecutive spaces)
+standing for a literal space. Then, the candidates are filtered
+using each subquery in turn. This variable affects how that
+filtering takes place.
+
+Value `literal' means the subquery must be a substring of the
+candidate.
+
+Value `initialism' means the subquery must match a substring of
+the initials of the candidate.
+
+Value `literal+initialism' means the subquery must be either a
+substring or an initialism.
+
+Value `regexp' means the subquery is interpreted directly as a
+regular expression.
+
+Value `fuzzy' means the characters of the subquery must match
+some subset of those of the candidate, in the correct order but
+not necessarily contiguous."
+  :type prescient--filter-method-custom-type)
+
 ;;;; Caches
 
 (defvar prescient--history (make-hash-table :test 'equal)
@@ -217,7 +250,13 @@ as a sub-query delimiter."
       ;; We added the subqueries in reverse order.
       (nreverse subqueries))))
 
-(defun prescient-initials-regexp (query &optional with-groups)
+(defun prescient--with-group (regexp with-group)
+  "Wrap REGEXP in a capture group, but only if WITH-GROUP is non-nil."
+  (if with-group
+      (format "\\(%s\\)" regexp)
+    regexp))
+
+(defun prescient--initials-regexp (query &optional with-groups)
   "Return a regexp matching QUERY as an initialism.
 This means that the regexp will only match a given string if
 QUERY is a substring of the initials of the string.
@@ -237,6 +276,13 @@ capture groups matching \"f\" and \"a\"."
              query
              "\\W*"))
 
+;; Remove this and do not document further changes in CHANGELOG after
+;; six months or two releases, whichever comes later.
+(define-obsolete-function-alias
+  'prescient-initials-regexp
+  'prescient--initials-regexp
+  "2018-07-29")
+
 ;;;; Sorting and filtering
 
 (defun prescient-filter-regexps (query &optional with-groups)
@@ -249,12 +295,29 @@ with capture groups. If it is the symbol `all', additionally
 enclose literal substrings with capture groups."
   (mapcar
    (lambda (subquery)
-     (format "%s\\|%s"
-             (let ((r (regexp-quote subquery)))
-               (when (eq with-groups 'all)
-                 (setq r (format "\\(%s\\)" r)))
-               r)
-             (prescient-initials-regexp subquery with-groups)))
+     (pcase prescient-filter-method
+       (`literal
+        (prescient--with-group
+         (regexp-quote subquery)
+         (eq with-groups 'all)))
+       (`initialism
+        (prescient--initials-regexp subquery with-groups))
+       (`literal+initialism
+        (format "%s\\|%s"
+                (prescient--with-group
+                 (regexp-quote subquery)
+                 (eq with-groups 'all))
+                (prescient--initials-regexp subquery with-groups)))
+       (`regexp
+        subquery)
+       (`fuzzy
+        (mapconcat
+         (lambda (char)
+           (prescient--with-group
+            (regexp-quote
+             (char-to-string char))
+            with-groups))
+         subquery ".*"))))
    (prescient-split-query query)))
 
 (defun prescient-filter (query candidates)
