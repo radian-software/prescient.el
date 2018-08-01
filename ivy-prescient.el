@@ -106,7 +106,7 @@ out-of-order matching."
   "Make a keymap from `ivy-prescient-filter-method-keys'."
   (let ((keymap (make-sparse-keymap)))
     (prog1 keymap
-      (map-do
+      (map-apply
        (lambda (key-string sub-alist)
          (define-key
            keymap (kbd key-string)
