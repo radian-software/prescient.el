@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 2.2 (released 2018-08-23)
 ### New features
 * New user option `prescient-filter-method` allows you to use
   substring, initialism, regexp, or fuzzy matching ([#13]).
