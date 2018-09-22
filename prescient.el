@@ -177,7 +177,9 @@ Usually this variable is dynamically bound to another value while
                 (when (equal (plist-get args :version)
                              prescient--cache-version)
                   (setq saved-serial-number
-                        (plist-get args :serial-number))))))
+                        (plist-get args :serial-number)))))
+             (print-length nil)
+             (print-level nil))
     (prescient--load-save-file)
     (when (or (not (numberp saved-serial-number))
               (>= prescient--serial-number saved-serial-number))
