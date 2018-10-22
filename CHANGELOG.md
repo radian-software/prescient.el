@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## 2.2.1 (released 2018-09-22)
+### Fixed
+* Previously, if the user or some other code had customized
+  `print-length` or `print-level`, then these settings could break the
+  ability of `prescient.el` to persist history and frequency data to
+  `prescient-save-file`. Now, persistence works regardless of the
+  values of these variables ([#16]).
+
+[#16]: https://github.com/raxod502/prescient.el/issues/16
+
 ## 2.2 (released 2018-08-23)
 ### New features
 * New user option `prescient-filter-method` allows you to use
