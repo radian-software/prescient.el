@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Enhancements
+* The Custom groups for the user options `prescient-persist-mode`,
+  `ivy-prescient-mode`, and `company-prescient-mode` have now been set
+  properly to `prescient` (instead of each being in its own group).
+
 ## 2.2.1 (released 2018-09-22)
 ### Fixed
 * Previously, if the user or some other code had customized

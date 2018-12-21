@@ -40,6 +40,7 @@ This is for use on `company-completion-finished-hook'.")
 (define-minor-mode company-prescient-mode
   "Minor mode to use prescient.el in Company completions."
   :global t
+  :group 'prescient
   (if company-prescient-mode
       (progn
         (add-to-list 'company-transformers #'company-prescient-transformer)

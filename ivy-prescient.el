@@ -253,6 +253,7 @@ keyword arguments ACTION, CALLER are the same as in `ivy-read'."
 (define-minor-mode ivy-prescient-mode
   "Minor mode to use prescient.el in Ivy menus."
   :global t
+  :group 'prescient
   (if ivy-prescient-mode
       (progn
         (setq ivy-prescient--old-re-builder

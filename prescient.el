@@ -198,6 +198,7 @@ Usually this variable is dynamically bound to another value while
 (define-minor-mode prescient-persist-mode
   "Minor mode to persist prescient.el statistics to `prescient-save-file'."
   :global t
+  :group 'prescient
   (if prescient-persist-mode
       (add-hook 'kill-emacs-hook #'prescient--save)
     (remove-hook 'kill-emacs-hook #'prescient--save)))
