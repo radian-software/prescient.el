@@ -9,6 +9,13 @@ The format is based on [Keep a Changelog].
   `ivy-prescient-mode`, and `company-prescient-mode` have now been set
   properly to `prescient` (instead of each being in its own group).
 
+### Bugs fixed
+* `ivy-prescient` now depends on version 0.11.0 of `ivy`, rather than
+  0.10.0. This [long-awaited] release includes a number of bugfixes
+  which are critical for correct operation of `ivy-prescient`.
+
+[long-awaited]: https://github.com/abo-abo/swiper/issues/1664
+
 ## 2.2.1 (released 2018-09-22)
 ### Fixed
 * Previously, if the user or some other code had customized

@@ -115,8 +115,7 @@ pressing `C-c C-r`.
 
 If you are using release 0.10.0 of Ivy, you will notice a number of
 bugs and significantly degraded functionality. To fix these, please
-upgrade to the latest `master` branch of Ivy as of July 3, 2018 or
-[wait for a new release of Ivy][ivy-release].
+upgrade to release 0.11.0.
 
 [company]: https://github.com/company-mode/company-mode
 [company-statistics]: https://github.com/company-mode/company-statistics
