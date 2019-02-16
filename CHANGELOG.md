@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### New features
+* Two new user options, `ivy-prescient-enable-filtering` and
+  `ivy-prescient-enable-sorting` which control filtering and adaptive
+  sorting respectively ([#32]).
+
+[#32]: https://github.com/raxod502/prescient.el/issues/32
+
 ## 2.2.2 (released 2019-02-12)
 ### Enhancements
 * The Custom groups for the user options `prescient-persist-mode`,
