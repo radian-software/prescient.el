@@ -100,23 +100,21 @@ out-of-order matching."
   :group 'prescient
   :type 'boolean)
 
-(defcustom ivy-prescient-override-filter-method t
-  "Whether to override default ivy re-builder with `prescient-filter-method'.
- Individual collection functions can still be overriden using
-`ivy-re-builders-alist'. This will also disable
-`ivy-initial-inputs-alist' since the only filter method that
-supports it is `regexp'. Changing this variable will not take
-effect until `ivy-prescient-mode' has been reloaded."
+(defcustom ivy-prescient-enable-filtering t
+  "Whether to enable filtering of ivy colections with `prescient-filter-method'.
+ If nil, then `ivy-prescient-mode' does not change the filtering
+behavior of Ivy from the default. See Ivy documentation for how to
+configure filtering yourself. Changing this variable will not
+take effect until `ivy-prescient-mode' has been reloaded."
   :group 'prescient
   :type 'boolean)
 
-(defcustom ivy-prescient-adaptive-sorting t
+(defcustom ivy-prescient-enable-sorting t
   "Whether to use adaptive sorting in ivy collections.
-Invividual collection functions can still be overriden using
-`ivy-sort-functions-alist'. Note that
-`ivy-prescient-sort-commands' enables sorting of collections not
-normally supported. Changing this variable will not take effect
-until `ivy-prescient-mode' has been reloaded."
+If nil, then `ivy-prescient-mode' does not change the sorting
+behavior of Ivy from the default. See Ivy documentation for how
+to configure sorting yourself. Changing this variable will not
+take effect until `ivy-prescient-mode' has been reloaded."
   :group 'prescient
   :type 'boolean)
 
@@ -276,14 +274,14 @@ keyword arguments ACTION, CALLER are the same as in `ivy-read'."
   :group 'prescient
   (if ivy-prescient-mode
       (progn
-        (when ivy-prescient-override-filter-method
+        (when ivy-prescient-enable-filtering
           (setq ivy-prescient--old-re-builder
                 (alist-get t ivy-re-builders-alist))
           (setf (alist-get t ivy-re-builders-alist)
                 #'ivy-prescient-re-builder)
           (setq ivy-prescient--old-initial-inputs-alist ivy-initial-inputs-alist)
           (setq ivy-initial-inputs-alist nil))
-        (when ivy-prescient-adaptive-sorting
+        (when ivy-prescient-enable-sorting
           (setq ivy-prescient--old-ivy-sort-function
                 (alist-get t ivy-sort-functions-alist))
           (setf (alist-get t ivy-sort-functions-alist)

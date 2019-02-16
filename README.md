@@ -111,14 +111,13 @@ pressing `C-c C-r`.
   recover the original behavior by customizing this user option; see
   the docstring for more details.
 
-* `ivy-prescient-override-filter-method`: If non-nil, override the
-  default in `ivy-re-builder-alist` with `prescient-filter-method`.
-  You can set this to nil to retain filter functions set by ivy.
+* `ivy-prescient-enable-filtering`: If non-nil, filter Ivy collections
+  with `prescient-filter-method`. You can set this to nil to retain
+  default filter functions set by ivy.
 
-* `ivy-prescient-adaptive-sorting`: If non-nil, use adapative sorting
-  for ivy collections. This will override the default in
-  `ivy-sort-functions-alist`. YOu can set this to nil to retain
-  default ivy sorting.
+* `ivy-prescient-enable-sorting`: If non-nil, use adapative sorting
+  for ivy collections. You can set this to nil to retain default ivy
+  sorting.
 
 ## Known bugs
 
