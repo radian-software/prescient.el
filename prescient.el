@@ -320,13 +320,11 @@ enclose literal substrings with capture groups."
                (regexp-quote
                 (char-to-string char))
                with-groups))
-            subquery ".*"))
-          (`literal+initialism ;; For backwards compatibility
-           (let ((prescient-filter-method '(literal initialism)))
-             (car (prescient-filter-regexps subquery with-groups))))))
-      (if (listp prescient-filter-method)
-          prescient-filter-method
-        (list prescient-filter-method))
+            subquery ".*"))))
+      (pcase prescient-filter-method
+        (`literal+initialism '(literal initialism)) ;; For backwards compatibility
+        ((and (pred listp) x) x)
+        (x (list x)))
       "\\|"))
    (prescient-split-query query)))
 
