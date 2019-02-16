@@ -107,7 +107,12 @@ some subset of those of the candidate, in the correct order but
 not necessarily contiguous.
 
 Value can also be a list of any of the above methods, in which
-case each method will be applied in order until one matches."
+case each method will be applied in order until one matches.
+
+
+For backwards compatibility, the value of this variable can also
+be `literal+initialism', which equivalent to the list (`literal'
+`initialism')."
   :type prescient--filter-method-custom-type)
 
 ;;;; Caches
@@ -315,7 +320,10 @@ enclose literal substrings with capture groups."
                (regexp-quote
                 (char-to-string char))
                with-groups))
-            subquery ".*"))))
+            subquery ".*"))
+          (`literal+initialism ;; For backwards compatibility
+           (let ((prescient-filter-method '(literal initialism)))
+             (car (prescient-filter-regexps subquery with-groups))))))
       (if (listp prescient-filter-method)
           prescient-filter-method
         (list prescient-filter-method))
