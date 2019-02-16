@@ -79,15 +79,14 @@ This only has an effect if `prescient-persist-mode' is enabled."
   :type 'file)
 
 (defvar prescient--filter-method-custom-type
-  '(choice
+  '(set
     (const :tag "Literal" literal)
-    (const :tag "Initialism" initialism)
-    (const :tag "Literal and initialism" literal+initialism)
     (const :tag "Regexp" regexp)
+    (const :tag "Initialism" initialism)
     (const :tag "Fuzzy" fuzzy))
   "Value for `:type' field in `prescient-filter-method' defcustom.")
 
-(defcustom prescient-filter-method 'literal+initialism
+(defcustom prescient-filter-method '(literal initialism)
   "How to interpret prescient.el filtering queries.
 Queries are first split on spaces (with two consecutive spaces)
 standing for a literal space. Then, the candidates are filtered
@@ -97,18 +96,18 @@ filtering takes place.
 Value `literal' means the subquery must be a substring of the
 candidate.
 
-Value `initialism' means the subquery must match a substring of
-the initials of the candidate.
-
-Value `literal+initialism' means the subquery must be either a
-substring or an initialism.
-
 Value `regexp' means the subquery is interpreted directly as a
 regular expression.
 
+Value `initialism' means the subquery must match a substring of
+the initials of the candidate.
+
 Value `fuzzy' means the characters of the subquery must match
 some subset of those of the candidate, in the correct order but
-not necessarily contiguous."
+not necessarily contiguous.
+
+Value can also be a list of any of the above methods, in which
+case each method will be applied in order until one matches."
   :type prescient--filter-method-custom-type)
 
 ;;;; Caches
@@ -298,29 +297,29 @@ with capture groups. If it is the symbol `all', additionally
 enclose literal substrings with capture groups."
   (mapcar
    (lambda (subquery)
-     (pcase prescient-filter-method
-       (`literal
-        (prescient--with-group
-         (regexp-quote subquery)
-         (eq with-groups 'all)))
-       (`initialism
-        (prescient--initials-regexp subquery with-groups))
-       (`literal+initialism
-        (format "%s\\|%s"
-                (prescient--with-group
-                 (regexp-quote subquery)
-                 (eq with-groups 'all))
-                (prescient--initials-regexp subquery with-groups)))
-       (`regexp
-        subquery)
-       (`fuzzy
-        (mapconcat
-         (lambda (char)
+     (mapconcat
+      (lambda (method)
+        (pcase method
+          (`literal
            (prescient--with-group
-            (regexp-quote
-             (char-to-string char))
-            with-groups))
-         subquery ".*"))))
+            (regexp-quote subquery)
+            (eq with-groups 'all)))
+          (`initialism
+           (prescient--initials-regexp subquery with-groups))
+          (`regexp
+           subquery)
+          (`fuzzy
+           (mapconcat
+            (lambda (char)
+              (prescient--with-group
+               (regexp-quote
+                (char-to-string char))
+               with-groups))
+            subquery ".*"))))
+      (if (listp prescient-filter-method)
+          prescient-filter-method
+        (list prescient-filter-method))
+      "\\|"))
    (prescient-split-query query)))
 
 (defun prescient-filter (query candidates)
