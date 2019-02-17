@@ -102,7 +102,7 @@ out-of-order matching."
 
 (defcustom ivy-prescient-enable-filtering t
   "Whether to enable filtering of ivy colections with `prescient-filter-method'.
- If nil, then `ivy-prescient-mode' does not change the filtering
+If nil, then `ivy-prescient-mode' does not change the filtering
 behavior of Ivy from the default. See Ivy documentation for how to
 configure filtering yourself. Changing this variable will not
 take effect until `ivy-prescient-mode' has been reloaded."
