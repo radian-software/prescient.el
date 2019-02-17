@@ -322,7 +322,9 @@ enclose literal substrings with capture groups."
                with-groups))
             subquery ".*"))))
       (pcase prescient-filter-method
-        (`literal+initialism '(literal initialism)) ;; For backwards compatibility
+        ;; We support `literal+initialism' for backwards
+        ;; compatibility.
+        (`literal+initialism '(literal initialism))
         ((and (pred listp) x) x)
         (x (list x)))
       "\\|"))
