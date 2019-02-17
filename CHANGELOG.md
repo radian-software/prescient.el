@@ -5,11 +5,17 @@ The format is based on [Keep a Changelog].
 
 ## Unreleased
 ### New features
+* The user option `prescient-filter-method` now accepts a list of
+  filter methods that will be applied in order until one matches. This
+  changes the new default changed from `literal+initialism` to
+  `(literal initialism)`, which is functionally equivalent. This
+  allows for any combination of filter methods ([#29]).
 * Two new user options, `ivy-prescient-enable-filtering` and
   `ivy-prescient-enable-sorting`, which allow the user to selectively
   disable the filtering or sorting functionalities of
   `ivy-prescient.el` ([#32]).
 
+[#29]: https://github.com/raxod502/prescient.el/issues/29
 [#32]: https://github.com/raxod502/prescient.el/issues/32
 
 ## 2.2.2 (released 2019-02-12)
