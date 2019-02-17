@@ -100,6 +100,24 @@ out-of-order matching."
   :group 'prescient
   :type 'boolean)
 
+(defcustom ivy-prescient-enable-filtering t
+  "Whether to enable filtering of ivy colections with `prescient-filter-method'.
+If nil, then `ivy-prescient-mode' does not change the filtering
+behavior of Ivy from the default. See Ivy documentation for how to
+configure filtering yourself. Changing this variable will not
+take effect until `ivy-prescient-mode' has been reloaded."
+  :group 'prescient
+  :type 'boolean)
+
+(defcustom ivy-prescient-enable-sorting t
+  "Whether to use adaptive sorting in ivy collections.
+If nil, then `ivy-prescient-mode' does not change the sorting
+behavior of Ivy from the default. See Ivy documentation for how
+to configure sorting yourself. Changing this variable will not
+take effect until `ivy-prescient-mode' has been reloaded."
+  :group 'prescient
+  :type 'boolean)
+
 ;;;; Utility functions
 
 (defun ivy-prescient--make-filter-method-keymap ()
@@ -256,20 +274,22 @@ keyword arguments ACTION, CALLER are the same as in `ivy-read'."
   :group 'prescient
   (if ivy-prescient-mode
       (progn
-        (setq ivy-prescient--old-re-builder
-              (alist-get t ivy-re-builders-alist))
-        (setf (alist-get t ivy-re-builders-alist)
-              #'ivy-prescient-re-builder)
-        (setq ivy-prescient--old-ivy-sort-function
-              (alist-get t ivy-sort-functions-alist))
-        (setf (alist-get t ivy-sort-functions-alist)
-              #'ivy-prescient-sort-function)
-        (setq ivy-prescient--old-ivy-sort-file-function
-              (alist-get #'read-file-name-internal ivy-sort-functions-alist))
-        (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
-              #'ivy-prescient-sort-file-function)
-        (setq ivy-prescient--old-initial-inputs-alist ivy-initial-inputs-alist)
-        (setq ivy-initial-inputs-alist nil)
+        (when ivy-prescient-enable-filtering
+          (setq ivy-prescient--old-re-builder
+                (alist-get t ivy-re-builders-alist))
+          (setf (alist-get t ivy-re-builders-alist)
+                #'ivy-prescient-re-builder)
+          (setq ivy-prescient--old-initial-inputs-alist ivy-initial-inputs-alist)
+          (setq ivy-initial-inputs-alist nil))
+        (when ivy-prescient-enable-sorting
+          (setq ivy-prescient--old-ivy-sort-function
+                (alist-get t ivy-sort-functions-alist))
+          (setf (alist-get t ivy-sort-functions-alist)
+                #'ivy-prescient-sort-function)
+          (setq ivy-prescient--old-ivy-sort-file-function
+                (alist-get #'read-file-name-internal ivy-sort-functions-alist))
+          (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
+                #'ivy-prescient-sort-file-function))
         (advice-add #'ivy-read :around #'ivy-prescient-read))
     (when (equal (alist-get t ivy-re-builders-alist)
                  #'ivy-prescient-re-builder)
@@ -284,8 +304,9 @@ keyword arguments ACTION, CALLER are the same as in `ivy-read'."
                  #'ivy-prescient-sort-file-function)
       (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
             ivy-prescient--old-ivy-sort-file-function))
-    (dolist (pair (reverse ivy-prescient--old-initial-inputs-alist))
-      (setf (alist-get (car pair) ivy-initial-inputs-alist) (cdr pair)))
+    (unless ivy-initial-inputs-alist
+      (dolist (pair (reverse ivy-prescient--old-initial-inputs-alist))
+        (setf (alist-get (car pair) ivy-initial-inputs-alist) (cdr pair))))
     (advice-remove #'ivy-read #'ivy-prescient-read)))
 
 ;;;; Closing remarks

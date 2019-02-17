@@ -112,6 +112,16 @@ pressing `C-c C-r`.
   recover the original behavior by customizing this user option; see
   the docstring for more details.
 
+* `ivy-prescient-enable-filtering`: If set to nil, then
+  `ivy-prescient.el` does not apply `prescient.el` filtering to Ivy.
+  See the Ivy documentation for information on how Ivy filters by
+  default, and how to customize it manually.
+
+* `ivy-prescient-enable-sorting`: If set to nil, then
+  `ivy-prescient.el` does not apply `prescient.el` sorting to Ivy. See
+  the Ivy documentation for information on how Ivy sorts by default,
+  and how to customize it manually.
+
 ## Known bugs
 
 If you are using release 0.10.0 of Ivy, you will notice a number of
