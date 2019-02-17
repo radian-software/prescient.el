@@ -111,13 +111,15 @@ pressing `C-c C-r`.
   recover the original behavior by customizing this user option; see
   the docstring for more details.
 
-* `ivy-prescient-enable-filtering`: If non-nil, filter Ivy collections
-  with `prescient-filter-method`. You can set this to nil to retain
-  default filter functions set by ivy.
+* `ivy-prescient-enable-filtering`: If set to nil, then
+  `ivy-prescient.el` does not apply `prescient.el` filtering to Ivy.
+  See the Ivy documentation for information on how Ivy filters by
+  default, and how to customize it manually.
 
-* `ivy-prescient-enable-sorting`: If non-nil, use adapative sorting
-  for ivy collections. You can set this to nil to retain default ivy
-  sorting.
+* `ivy-prescient-enable-sorting`: If set to nil, then
+  `ivy-prescient.el` does not apply `prescient.el` sorting to Ivy. See
+  the Ivy documentation for information on how Ivy sorts by default,
+  and how to customize it manually.
 
 ## Known bugs
 
