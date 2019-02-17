@@ -6,8 +6,9 @@ The format is based on [Keep a Changelog].
 ## Unreleased
 ### New features
 * Two new user options, `ivy-prescient-enable-filtering` and
-  `ivy-prescient-enable-sorting` which control filtering and adaptive
-  sorting respectively ([#32]).
+  `ivy-prescient-enable-sorting`, which allow the user to selectively
+  disable the filtering or sorting functionalities of
+  `ivy-prescient.el` ([#32]).
 
 [#32]: https://github.com/raxod502/prescient.el/issues/32
 
