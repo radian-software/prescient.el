@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### New features
+* The user option `prescient-filter-method` now accepts a list of
+  filter methods that will be applied in order until one matches. This
+  changes the new default changed from `literal+initialism` to
+  `(literal initialism)`, which is functionally equivalent. This
+  allows for any combination of filter methods ([#29]).
+
+[#29]: https://github.com/raxod502/prescient.el/issues/29
+
 ## 2.2.2 (released 2019-02-12)
 ### Enhancements
 * The Custom groups for the user options `prescient-persist-mode`,

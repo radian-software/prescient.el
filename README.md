@@ -78,10 +78,11 @@ pressing `C-c C-r`.
   default value follows the conventions of
   [`no-littering`][no-littering].
 
-* `prescient-filter-method`: Which algorithm to use for filtering
-  candidates. The default is `literal+initialism` as described above,
-  but you can also use substring matching, initialism matching, regexp
-  matching, or fuzzy matching. See the docstring for full details.
+* `prescient-filter-method`: A list of algorithms to use for filtering
+  candidates. The default is `literal` and `initialism` as described
+  above, but you can also use substring matching, initialism matching,
+  regexp matching, fuzzy matching, or any combination of those. See
+  the docstring for full details.
 
 * `ivy-prescient-excluded-commands`: Some commands, like `swiper`,
   don't benefit from `prescient.el` sorting, so their usage statistics
