@@ -40,32 +40,6 @@ This allows you to enable sorting for commands which call
   :group 'prescient
   :type '(list symbol))
 
-(defcustom ivy-prescient-filter-method-keys
-  '(("C-c C-r" . ((literal+initialism . regexp)
-                  (regexp             . literal+initialism))))
-  "Bindings for `ivy-minibuffer-map' for switching filter methods.
-This is an alist where the keys are key sequence strings as used
-in `kbd', and the values are alists whose own keys and values are
-values for `prescient-filter-method'. When a key sequence is
-typed, the link in the alist corresponding to the current
-`prescient-filter-method' is identified, and the cdr of that link
-is used to find the new value for `prescient-filter-method'.
-
-The resulting changes to `prescient-filter-method' are local to
-the current Ivy session unless
-`ivy-prescient-persist-filter-method' is non-nil."
-  :group 'prescient
-  :type `(alist
-          :key-type string
-          :value-type (alist
-                       :key-type ,prescient--filter-method-custom-type
-                       :value-type ,prescient--filter-method-custom-type)))
-
-(defcustom ivy-prescient-persist-filter-method nil
-  "Whether changes to `prescient-filter-method' persist between Ivy sessions."
-  :group 'prescient
-  :type 'boolean)
-
 (defcustom ivy-prescient-retain-classic-highlighting nil
   "Whether to emulate the way Ivy highlights candidates as closely as possible.
 With the default value, nil, the entire match is highlighted with
@@ -101,23 +75,6 @@ to configure sorting yourself. Changing this variable will not
 take effect until `ivy-prescient-mode' has been reloaded."
   :group 'prescient
   :type 'boolean)
-
-;;;; Utility functions
-
-(defun ivy-prescient--make-filter-method-keymap ()
-  "Make a keymap from `ivy-prescient-filter-method-keys'."
-  (let ((keymap (make-sparse-keymap)))
-    (prog1 keymap
-      (map-apply
-       (lambda (key-string sub-alist)
-         (define-key
-           keymap (kbd key-string)
-           (lambda ()
-             (interactive)
-             (when-let ((new-filter-method
-                         (alist-get prescient-filter-method sub-alist)))
-               (setq prescient-filter-method new-filter-method)))))
-       ivy-prescient-filter-method-keys))))
 
 ;;;; Minor mode
 
@@ -217,33 +174,6 @@ enabled."
                           ivy-prescient-sort-commands)
                     '(:sort t))))
 
-(cl-defun ivy-prescient-add-keymap
-    (ivy-read prompt collection &rest rest &key keymap
-              &allow-other-keys)
-  "Delegate to `ivy-read', handling persistence and sort customization.
-If the `:caller' passed to `ivy-read' is a member of
-`ivy-prescient-sort-commands', then `:sort' is unconditionally
-enabled. Also, `:keymap' is updated according to the value of
-`ivy-prescient-filter-method-keys'.
-
-This is an `:around' advice for `ivy-read'. IVY-READ is the
-original definition of `ivy-read', and PROMPT, COLLECTION are the
-same as in `ivy-read'. REST is the list of keyword arguments."
-  (let ((orig-filter-method prescient-filter-method))
-    (unwind-protect
-        (apply ivy-read prompt collection
-               (append `(:keymap
-                         ,(let ((filter-method-keymap
-                                 (ivy-prescient--make-filter-method-keymap)))
-                            (if keymap
-                                (make-composed-keymap
-                                 filter-method-keymap
-                                 keymap)
-                              filter-method-keymap)))
-                       rest))
-      (unless ivy-prescient-persist-filter-method
-        (setq prescient-filter-method orig-filter-method)))))
-
 ;;;###autoload
 (define-minor-mode ivy-prescient-mode
   "Minor mode to use prescient.el in Ivy menus."
@@ -258,8 +188,7 @@ same as in `ivy-read'. REST is the list of keyword arguments."
                 #'ivy-prescient-re-builder)
           (setq ivy-prescient--old-initial-inputs-alist
                 ivy-initial-inputs-alist)
-          (setq ivy-initial-inputs-alist nil)
-          (advice-add #'ivy-read :around #'ivy-prescient-add-keymap))
+          (setq ivy-initial-inputs-alist nil))
         (when ivy-prescient-enable-sorting
           (setq ivy-prescient--old-ivy-sort-function
                 (alist-get t ivy-sort-functions-alist))
@@ -287,9 +216,7 @@ same as in `ivy-read'. REST is the list of keyword arguments."
     (unless ivy-initial-inputs-alist
       (dolist (pair (reverse ivy-prescient--old-initial-inputs-alist))
         (setf (alist-get (car pair) ivy-initial-inputs-alist) (cdr pair))))
-    ;; TODO : make sure that these advices don't conflict
     (advice-remove #'ivy-read #'ivy-prescient-enable-extra-sort)
-    (advice-remove #'ivy-read #'ivy-prescient-add-keymap)
     (advice-remove #'ivy--get-action #'ivy-prescient--wrap-action)))
 
 ;;;; Closing remarks
