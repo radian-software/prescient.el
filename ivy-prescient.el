@@ -33,23 +33,7 @@
 
 ;;;; User options
 
-(defcustom ivy-prescient-excluded-commands
-  '(counsel-ag
-    counsel-expression-history
-    counsel-git-grep
-    counsel-grep
-    counsel-mark-ring
-    counsel-minibuffer-history
-    counsel-shell-command-history
-    counsel-yank-pop
-    swiper)
-  "Commands for which candidates should not be remembered."
-  :group 'prescient
-  :type '(list symbol))
-
-(defcustom ivy-prescient-sort-commands
-  '(counsel-find-file
-    counsel-find-library)
+(defcustom ivy-prescient-sort-commands '(counsel-find-library)
   "Commands for which candidates should always be sorted.
 This allows you to enable sorting for commands which call
 `ivy-read' with a nil value for `:sort'."
@@ -202,60 +186,53 @@ This is the value that was associated to
 (defvar ivy-prescient--old-initial-inputs-alist nil
   "Previous value of `ivy-initial-inputs-alist'.")
 
-(defun ivy-prescient--wrap-action (caller action)
+(defun ivy-prescient--wrap-action (action)
   "Wrap an action for use in `ivy-read'.
-CALLER is the `:caller' argument to `ivy-read', and ACTION is the
-original action, a function. Return a new function that also
-invokes `prescient-remember'."
-  (lambda (result)
-    ;; Same as in `ivy-prescient-sort-function', we have to account
-    ;; for candidates which are lists by taking their cars. Make sure
-    ;; to do this only for the call to `prescient-remember', and not
-    ;; for the actual action, though. See
-    ;; https://github.com/raxod502/prescient.el/issues/12.
-    (let ((result result))
-      (when (listp result)
-        (setq result (car result)))
-      (unless (memq caller ivy-prescient-excluded-commands)
-        (prescient-remember result)))
-    (when action
-      (funcall action result))))
+ACTION is the original action, a function. Return a new function
+that also invokes `prescient-remember'."
+  (if (or ivy-marked-candidates
+          (not (memq (let ((sort (ivy-state-sort ivy-last))
+                           (coll (ivy-state-collection ivy-last)))
+                       (cond ((functionp sort)
+                              sort)
+                             ((or sort (eq coll #'read-file-name-internal))
+                              (ivy--sort-function coll))))
+                     '(ivy-prescient-sort-file-function
+                       ivy-prescient-sort-function))))
+      action
+    (let ((dir ivy--directory))
+      (lambda (x)
+        (let ((cand x))
+          (when (listp cand) (setq cand (car x)))
+          (when dir (setq cand (string-remove-prefix dir cand)))
+          (prescient-remember cand))
+        (funcall action x)))))
 
-(cl-defun ivy-prescient-read
-    (ivy-read prompt collection &rest rest &key action caller keymap
+(defun ivy-prescient-enable-extra-sort (args)
+  "Enable sorting of `ivy-prescient-sort-commands'.
+ If the `:caller' passed to `ivy-read' is a member of
+`ivy-prescient-sort-commands', then `:sort' is unconditionally
+enabled."
+  (append args (and (memq (plist-get args :caller)
+                          ivy-prescient-sort-commands)
+                    '(:sort t))))
+
+(cl-defun ivy-prescient-add-keymap
+    (ivy-read prompt collection &rest rest &key keymap
               &allow-other-keys)
   "Delegate to `ivy-read', handling persistence and sort customization.
 If the `:caller' passed to `ivy-read' is a member of
 `ivy-prescient-sort-commands', then `:sort' is unconditionally
-enabled. Also, `:action' is modified so that the selected
-candidate is passed to `prescient-remember'. Finally, `:keymap'
-is updated according to the value of
+enabled. Also, `:keymap' is updated according to the value of
 `ivy-prescient-filter-method-keys'.
 
 This is an `:around' advice for `ivy-read'. IVY-READ is the
 original definition of `ivy-read', and PROMPT, COLLECTION are the
-same as in `ivy-read'. REST is the list of keyword arguments, and
-keyword arguments ACTION, CALLER are the same as in `ivy-read'."
+same as in `ivy-read'. REST is the list of keyword arguments."
   (let ((orig-filter-method prescient-filter-method))
     (unwind-protect
         (apply ivy-read prompt collection
-               (append `(:action
-                         ,(if (or (null action) (functionp action))
-                              (ivy-prescient--wrap-action caller action)
-                            (mapcar
-                             (lambda (entry)
-                               (if (listp entry)
-                                   (cl-destructuring-bind
-                                       (key fun . rest) entry
-                                     (apply #'list key
-                                            (ivy-prescient--wrap-action
-                                             caller fun)
-                                            rest))
-                                 entry))
-                             action))
-                         ,@(when (memq caller ivy-prescient-sort-commands)
-                             `(:sort t))
-                         :keymap
+               (append `(:keymap
                          ,(let ((filter-method-keymap
                                  (ivy-prescient--make-filter-method-keymap)))
                             (if keymap
@@ -281,7 +258,8 @@ keyword arguments ACTION, CALLER are the same as in `ivy-read'."
                 #'ivy-prescient-re-builder)
           (setq ivy-prescient--old-initial-inputs-alist
                 ivy-initial-inputs-alist)
-          (setq ivy-initial-inputs-alist nil))
+          (setq ivy-initial-inputs-alist nil)
+          (advice-add #'ivy-read :around #'ivy-prescient-add-keymap))
         (when ivy-prescient-enable-sorting
           (setq ivy-prescient--old-ivy-sort-function
                 (alist-get t ivy-sort-functions-alist))
@@ -290,8 +268,9 @@ keyword arguments ACTION, CALLER are the same as in `ivy-read'."
           (setq ivy-prescient--old-ivy-sort-file-function
                 (alist-get #'read-file-name-internal ivy-sort-functions-alist))
           (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
-                #'ivy-prescient-sort-file-function))
-        (advice-add #'ivy-read :around #'ivy-prescient-read))
+                #'ivy-prescient-sort-file-function)
+          (advice-add #'ivy-read :filter-args #'ivy-prescient-enable-extra-sort)
+          (advice-add #'ivy--get-action :filter-return #'ivy-prescient--wrap-action)))
     (when (equal (alist-get t ivy-re-builders-alist)
                  #'ivy-prescient-re-builder)
       (setf (alist-get t ivy-re-builders-alist)
@@ -308,7 +287,10 @@ keyword arguments ACTION, CALLER are the same as in `ivy-read'."
     (unless ivy-initial-inputs-alist
       (dolist (pair (reverse ivy-prescient--old-initial-inputs-alist))
         (setf (alist-get (car pair) ivy-initial-inputs-alist) (cdr pair))))
-    (advice-remove #'ivy-read #'ivy-prescient-read)))
+    ;; TODO : make sure that these advices don't conflict
+    (advice-remove #'ivy-read #'ivy-prescient-enable-extra-sort)
+    (advice-remove #'ivy-read #'ivy-prescient-add-keymap)
+    (advice-remove #'ivy--get-action #'ivy-prescient--wrap-action)))
 
 ;;;; Closing remarks
 
