@@ -143,10 +143,19 @@ This is the value that was associated to
 (defvar ivy-prescient--old-initial-inputs-alist nil
   "Previous value of `ivy-initial-inputs-alist'.")
 
+(declare-function ivy-state-sort "ivy")
+(declare-function ivy-state-collection "ivy")
+(declare-function ivy--sort-function "ivy")
+(declare-function ivy--get-action "ivy")
+
 (defun ivy-prescient--wrap-action (action)
   "Wrap an action for use in `ivy-read'.
 ACTION is the original action, a function. Return a new function
 that also invokes `prescient-remember'."
+  (defvar ivy-marked-candidates)
+  (defvar ivy-last)
+  (defvar ivy--directory)
+  (declare-function 'ivy-state-collection "ivy")
   (if (or ivy-marked-candidates
           (not (memq (let ((sort (ivy-state-sort ivy-last))
                            (coll (ivy-state-collection ivy-last)))
