@@ -86,7 +86,7 @@ This only has an effect if `prescient-persist-mode' is enabled."
     (const :tag "Fuzzy" fuzzy))
   "Value for `:type' field in `prescient-filter-method' defcustom.")
 
-(defcustom prescient-filter-method '(literal initialism)
+(defcustom prescient-filter-method '(literal regexp initialism)
   "How to interpret prescient.el filtering queries.
 Queries are first split on spaces (with two consecutive spaces)
 standing for a literal space. Then, the candidates are filtered
