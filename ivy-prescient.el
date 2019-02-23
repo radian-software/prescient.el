@@ -207,8 +207,10 @@ enabled."
                 (alist-get #'read-file-name-internal ivy-sort-functions-alist))
           (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
                 #'ivy-prescient-sort-file-function)
-          (advice-add #'ivy-read :filter-args #'ivy-prescient-enable-extra-sort)
-          (advice-add #'ivy--get-action :filter-return #'ivy-prescient--wrap-action)))
+          (advice-add #'ivy-read :filter-args
+                      #'ivy-prescient-enable-extra-sort)
+          (advice-add #'ivy--get-action :filter-return
+                      #'ivy-prescient--wrap-action)))
     (when (equal (alist-get t ivy-re-builders-alist)
                  #'ivy-prescient-re-builder)
       (setf (alist-get t ivy-re-builders-alist)
