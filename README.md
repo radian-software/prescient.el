@@ -46,17 +46,10 @@ statistics to be saved between Emacs sessions, enable
 you type. The query is first split on spaces into subqueries (two
 consecutive spaces match a literal space). Each subquery filters the
 candidates because it must match as either a substring of the
-candidate or as an initialism (e.g. `ffap` matches
+candidate, a regexp, or an initialism (e.g. `ffap` matches
 `find-file-at-point`, and so does `fa`). The last few candidates you
 selected are displayed first, followed by the most frequently selected
 ones, and then the remaining candidates are sorted by length.
-
-If you don't like the algorithm used for filtering, you can choose a
-different one by customizing `prescient-filter-method`. For Ivy, you
-can set up keybindings for changing this value on the fly by
-customizing `ivy-prescient-filter-method-keys`; by default, you can
-toggle between substring/initialism matching and regexp matching by
-pressing `C-c C-r`.
 
 ## Configuration
 
@@ -79,15 +72,10 @@ pressing `C-c C-r`.
   [`no-littering`][no-littering].
 
 * `prescient-filter-method`: A list of algorithms to use for filtering
-  candidates. The default is `literal` and `initialism` as described
-  above, but you can also use substring matching, initialism matching,
-  regexp matching, fuzzy matching, or any combination of those. See
-  the docstring for full details.
-
-* `ivy-prescient-excluded-commands`: Some commands, like `swiper`,
-  don't benefit from `prescient.el` sorting, so their usage statistics
-  just pollute the save file. You can tell `prescient.el` about them
-  here.
+  candidates. The default is `literal`, `regexp`, and `initialism` as
+  described above, but you can also use substring matching, initialism
+  matching, regexp matching, fuzzy matching, or any combination of
+  those. See the docstring for full details.
 
 * `ivy-prescient-sort-commands`: Some [Counsel] commands, like
   `counsel-find-library`, intentionally disable sorting for their
@@ -95,16 +83,6 @@ pressing `C-c C-r`.
   by adding such commands here. (To check if a command disables
   sorting, inspect its source code and see if it calls `ivy-read` with
   a nil value for the `:sort` keyword argument.)
-
-* `ivy-prescient-filter-method-keys`: This is an alist which
-  `ivy-prescient.el` uses to establish additional temporary bindings
-  in `ivy-minibuffer-map`. These bindings allow you to quickly change
-  the value of `prescient-filter-method` while inside Ivy. See the
-  docstring for information about the format of this alist.
-
-* `ivy-prescient-persist-filter-method`: If non-nil, then changes made
-  to `prescient-filter-method` while Ivy is active persist until the
-  next time you use Ivy, instead of being reset once you leave.
 
 * `ivy-prescient-retain-classic-highlighting`: By default, the
   highlighting behavior of `ivy-prescient.el` is slightly different
