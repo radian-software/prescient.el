@@ -167,7 +167,7 @@ that also invokes `prescient-remember'."
 
 (defun ivy-prescient-enable-extra-sort (args)
   "Enable sorting of `ivy-prescient-sort-commands'.
- If the `:caller' passed to `ivy-read' is a member of
+If the `:caller' in ARGS is a member of
 `ivy-prescient-sort-commands', then `:sort' is unconditionally
 enabled."
   (append args (and (memq (plist-get args :caller)
