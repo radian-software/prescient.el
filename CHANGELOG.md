@@ -7,8 +7,8 @@ The format is based on [Keep a Changelog].
 
 ### Bugs fixed
 * Fixed completion in file-name based collections ([#28])
-* Fixed an issue where ivy actions that accepted a list of candidates were
-  being handled incorrectly ([#33])
+* Fixed an issue where ivy actions that accepted a list of candidates
+  were being handled incorrectly ([#33])
 
 [#28]: https://github.com/raxod502/prescient.el/issues/28
 [#33]: https://github.com/raxod502/prescient.el/issues/33
