@@ -204,7 +204,7 @@ enabled."
             ivy-prescient--old-ivy-sort-function))
     (when (equal (alist-get #'read-file-name-internal
                             ivy-sort-functions-alist)
-                 #'ivy-prescient-sort-file-function)
+                 #'ivy-prescient-sort-function)
       (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
             ivy-prescient--old-ivy-sort-file-function))
     (unless ivy-initial-inputs-alist
