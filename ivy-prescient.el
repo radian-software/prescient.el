@@ -131,10 +131,6 @@ arbitrary candidates to be compared; they need not be strings."
 (defvar ivy-prescient--old-ivy-sort-function nil
   "Previous default value in `ivy-sort-functions-alist'.")
 
-(defalias 'ivy-prescient-sort-file-function #'prescient-sort-compare
-  "Comparison function that uses prescient.el to sort files.
-This is for use in `ivy-sort-functions-alist'.")
-
 (defvar ivy-prescient--old-ivy-sort-file-function nil
   "Previous value for sorting files in `ivy-sort-functions-alist'.
 This is the value that was associated to
@@ -143,38 +139,27 @@ This is the value that was associated to
 (defvar ivy-prescient--old-initial-inputs-alist nil
   "Previous value of `ivy-initial-inputs-alist'.")
 
-(declare-function ivy-state-sort "ivy")
-(declare-function ivy-state-collection "ivy")
-(declare-function ivy--sort-function "ivy")
-(declare-function ivy--get-action "ivy")
-
 (defun ivy-prescient--wrap-action (action)
   "Wrap an action for use in `ivy-read'.
 ACTION is the original action, a function. Return a new function
 that also invokes `prescient-remember'."
-  (defvar ivy-marked-candidates)
-  (defvar ivy-last)
-  (defvar ivy--directory)
-  (declare-function 'ivy-state-collection "ivy")
-  (if (or ivy-marked-candidates
-          (not (memq (let ((sort (ivy-state-sort ivy-last))
-                           (coll (ivy-state-collection ivy-last)))
-                       (cond ((functionp sort)
-                              sort)
-                             ((or sort (eq coll #'read-file-name-internal))
-                              (ivy--sort-function coll))))
-                     '(ivy-prescient-sort-file-function
-                       ivy-prescient-sort-function))))
+  (if (or (bound-and-true-p ivy-marked-candidates)
+          (not (eq 'ivy-prescient-sort-function
+                   (let ((sort (ivy-state-sort ivy-last))
+                         (coll (ivy-state-collection ivy-last)))
+                     (cond ((functionp sort) sort)
+                           ((or sort (eq coll #'read-file-name-internal))
+                            (ivy--sort-function coll)))))))
       action
     (let ((dir ivy--directory))
       (lambda (x)
         (let ((cand x))
           (when (listp cand) (setq cand (car x)))
-          (when dir (setq cand (string-remove-prefix dir cand)))
+          (when dir (setq cand (file-relative-name cand dir)))
           (prescient-remember cand))
         (funcall action x)))))
 
-(defun ivy-prescient-enable-extra-sort (args)
+(defun ivy-prescient--enable-sort-commands (args)
   "Enable sorting of `ivy-prescient-sort-commands'.
 If the `:caller' in ARGS is a member of
 `ivy-prescient-sort-commands', then `:sort' is unconditionally
@@ -191,24 +176,22 @@ enabled."
   (if ivy-prescient-mode
       (progn
         (when ivy-prescient-enable-filtering
-          (setq ivy-prescient--old-re-builder
-                (alist-get t ivy-re-builders-alist))
-          (setf (alist-get t ivy-re-builders-alist)
-                #'ivy-prescient-re-builder)
-          (setq ivy-prescient--old-initial-inputs-alist
-                ivy-initial-inputs-alist)
-          (setq ivy-initial-inputs-alist nil))
+          (cl-shiftf ivy-prescient--old-re-builder
+                     (alist-get t ivy-re-builders-alist)
+                     #'ivy-prescient-re-builder)
+          (cl-shiftf ivy-prescient--old-initial-inputs-alist
+                     ivy-initial-inputs-alist
+                     nil))
         (when ivy-prescient-enable-sorting
-          (setq ivy-prescient--old-ivy-sort-function
-                (alist-get t ivy-sort-functions-alist))
-          (setf (alist-get t ivy-sort-functions-alist)
-                #'ivy-prescient-sort-function)
-          (setq ivy-prescient--old-ivy-sort-file-function
-                (alist-get #'read-file-name-internal ivy-sort-functions-alist))
-          (setf (alist-get #'read-file-name-internal ivy-sort-functions-alist)
-                #'ivy-prescient-sort-file-function)
+          (cl-shiftf ivy-prescient--old-ivy-sort-function
+                     (alist-get t ivy-sort-functions-alist)
+                     #'ivy-prescient-sort-function)
+          (cl-shiftf ivy-prescient--old-ivy-sort-file-function
+                     (alist-get #'read-file-name-internal
+                                ivy-sort-functions-alist)
+                     #'ivy-prescient-sort-function)
           (advice-add #'ivy-read :filter-args
-                      #'ivy-prescient-enable-extra-sort)
+                      #'ivy-prescient--enable-sort-commands)
           (advice-add #'ivy--get-action :filter-return
                       #'ivy-prescient--wrap-action)))
     (when (equal (alist-get t ivy-re-builders-alist)
@@ -227,7 +210,7 @@ enabled."
     (unless ivy-initial-inputs-alist
       (dolist (pair (reverse ivy-prescient--old-initial-inputs-alist))
         (setf (alist-get (car pair) ivy-initial-inputs-alist) (cdr pair))))
-    (advice-remove #'ivy-read #'ivy-prescient-enable-extra-sort)
+    (advice-remove #'ivy-read #'ivy-prescient--enable-sort-commands)
     (advice-remove #'ivy--get-action #'ivy-prescient--wrap-action)))
 
 ;;;; Closing remarks

@@ -49,7 +49,9 @@ candidates because it must match as either a substring of the
 candidate, a regexp, or an initialism (e.g. `ffap` matches
 `find-file-at-point`, and so does `fa`). The last few candidates you
 selected are displayed first, followed by the most frequently selected
-ones, and then the remaining candidates are sorted by length.
+ones, and then the remaining candidates are sorted by length. If you
+don't like the algorithm used for filtering, you can choose a
+different one by customizing `prescient-filter-method`.
 
 ## Configuration
 
