@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
 ## Unreleased
+
+### Bugs fixed
+* Fixed completion in file-name based collections ([#28])
+* Fixed an issue where ivy actions that accepted a list of candidates were
+  being handled incorrectly ([#33])
+
+[#28]: https://github.com/raxod502/prescient.el/issues/28
+[#33]: https://github.com/raxod502/prescient.el/issues/33
+
+### Deprecated
+* Removed `ivy-prescient-filter-method-keys` and
+  `ivy-prescient-persist-filter-method` because `regexp` is now part
+  of the default filter method, and therefore these are no longer
+  needed ([#15], [#24], and [#27]).
+* Removed `ivy-prescient-excluded-commands` because ivy-prescient now
+  automatically detects if sorting is enabled in a collection
+
+[#15]: https://github.com/raxod502/prescient.el/issues/15
+[#24]: https://github.com/raxod502/prescient.el/issues/24
+[#27]: https://github.com/raxod502/prescient.el/issues/27
+
 ### New features
 * The user option `prescient-filter-method` now accepts a list of
   filter methods that will be applied in order until one matches. This
