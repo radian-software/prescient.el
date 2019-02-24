@@ -4,40 +4,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
 ## Unreleased
-
-### Bugs fixed
-* Fixed completion in file-name based collections ([#28])
-* Fixed an issue where ivy actions that accepted a list of candidates
-  were being handled incorrectly ([#33])
-
-[#28]: https://github.com/raxod502/prescient.el/issues/28
-[#33]: https://github.com/raxod502/prescient.el/issues/33
-
-### Deprecated
-* Removed `ivy-prescient-filter-method-keys` and
-  `ivy-prescient-persist-filter-method` because `regexp` is now part
-  of the default filter method, and therefore these are no longer
-  needed ([#15], [#24], and [#27]).
-* Removed `ivy-prescient-excluded-commands` because ivy-prescient now
-  automatically detects if sorting is enabled in a collection
-
-[#15]: https://github.com/raxod502/prescient.el/issues/15
-[#24]: https://github.com/raxod502/prescient.el/issues/24
-[#27]: https://github.com/raxod502/prescient.el/issues/27
-
 ### New features
 * The user option `prescient-filter-method` now accepts a list of
   filter methods that will be applied in order until one matches. This
-  changes the new default changed from `literal+initialism` to
-  `(literal initialism)`, which is functionally equivalent. This
-  allows for any combination of filter methods ([#29]).
+  allows for any combination of filter methods ([#29]). The default
+  value has changed from `literal+initialism` to `(literal regexp
+  initialism)`, which provides a superset of functionality.
 * Two new user options, `ivy-prescient-enable-filtering` and
   `ivy-prescient-enable-sorting`, which allow the user to selectively
   disable the filtering or sorting functionalities of
   `ivy-prescient.el` ([#32]).
 
+### Bugs fixed
+* Fixed sorting in filename-based collections ([#28]).
+* Fixed an issue where Ivy actions that accepted a list of candidates
+  were being handled incorrectly ([#33]).
+
+### Removed
+* Removed `ivy-prescient-filter-method-keys` and
+  `ivy-prescient-persist-filter-method` because `regexp` is now part
+  of the default filter method, and therefore these are no longer
+  needed ([#15], [#24], and [#27]).
+* Removed `ivy-prescient-excluded-commands` because `ivy-prescient.el`
+  now automatically detects if sorting is enabled in a collection.
+
+[#15]: https://github.com/raxod502/prescient.el/issues/15
+[#24]: https://github.com/raxod502/prescient.el/issues/24
+[#27]: https://github.com/raxod502/prescient.el/issues/27
+[#28]: https://github.com/raxod502/prescient.el/issues/28
 [#29]: https://github.com/raxod502/prescient.el/issues/29
 [#32]: https://github.com/raxod502/prescient.el/issues/32
+[#33]: https://github.com/raxod502/prescient.el/issues/33
 
 ## 2.2.2 (released 2019-02-12)
 ### Enhancements
