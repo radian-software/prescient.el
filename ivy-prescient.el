@@ -78,40 +78,24 @@ take effect until `ivy-prescient-mode' has been reloaded."
 
 ;;;; Minor mode
 
-(defvar ivy-prescient--last-valid-regexp-list ""
-  "Last return value of `ivy-prescient-re-builder'.
-This is used to ensure that when the user provides an invalid
-regexp, we can instead return the last valid regexp they entered.
-This is important since Ivy crashes when given an invalid
-regexp.")
-
 (defun ivy-prescient-re-builder (query)
   "Generate an Ivy-formatted regexp list for the given QUERY string.
 This is for use in `ivy-re-builders-alist'."
-  (cl-block nil
-    (let ((orig-ivy-subexps ivy--subexps))
-      (setq ivy--subexps 0)
-      (save-match-data
-        (setq
-         ivy-prescient--last-valid-regexp-list
-         (or
-          (mapcar
-           (lambda (regexp)
-             (condition-case _
-                 (string-match regexp "")
-               (invalid-regexp
-                (setq ivy--subexps orig-ivy-subexps)
-                (cl-return ivy-prescient--last-valid-regexp-list)))
-             (setq ivy--subexps (max ivy--subexps (regexp-opt-depth regexp)))
-             (cons regexp t))
-           (prescient-filter-regexps
-            query
-            (if ivy-prescient-retain-classic-highlighting
-                'all
-              'with-groups)))
-          ;; For some reason, Ivy doesn't seem to like to be given an empty
-          ;; list of regexps. Instead, it wants an empty string.
-          ""))))))
+  (setq ivy--subexps 0)
+  (save-match-data
+    (or
+     (mapcar
+      (lambda (regexp)
+        (setq ivy--subexps (max ivy--subexps (regexp-opt-depth regexp)))
+        (cons regexp t))
+      (prescient-filter-regexps
+       query
+       (if ivy-prescient-retain-classic-highlighting
+           'all
+         'with-groups)))
+     ;; For some reason, Ivy doesn't seem to like to be given an empty
+     ;; list of regexps. Instead, it wants an empty string.
+     "")))
 
 (defvar ivy-prescient--old-re-builder nil
   "Previous default value in `ivy-re-builders-alist'.")

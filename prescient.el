@@ -301,31 +301,38 @@ with capture groups. If it is the symbol `all', additionally
 enclose literal substrings with capture groups."
   (mapcar
    (lambda (subquery)
-     (mapconcat
-      (lambda (method)
-        (pcase method
-          (`literal
-           (prescient--with-group
-            (regexp-quote subquery)
-            (eq with-groups 'all)))
-          (`initialism
-           (prescient--initials-regexp subquery with-groups))
-          (`regexp
-           subquery)
-          (`fuzzy
-           (mapconcat
-            (lambda (char)
-              (prescient--with-group
-               (regexp-quote
-                (char-to-string char))
-               with-groups))
-            subquery ".*"))))
-      (pcase prescient-filter-method
-        ;; We support `literal+initialism' for backwards
-        ;; compatibility.
-        (`literal+initialism '(literal initialism))
-        ((and (pred listp) x) x)
-        (x (list x)))
+     (string-join
+      (cl-remove
+       nil
+       (mapcar
+        (lambda (method)
+          (pcase method
+            (`literal
+             (prescient--with-group
+              (regexp-quote subquery)
+              (eq with-groups 'all)))
+            (`initialism
+             (prescient--initials-regexp subquery with-groups))
+            (`regexp
+             (ignore-errors
+               ;; Ignore regexp if it's malformed.
+               (string-match-p subquery "")
+               subquery))
+            (`fuzzy
+             (mapconcat
+              (lambda (char)
+                (prescient--with-group
+                 (regexp-quote
+                  (char-to-string char))
+                 with-groups))
+              subquery ".*"))))
+        (pcase prescient-filter-method
+          ;; We support `literal+initialism' for backwards
+          ;; compatibility.
+          (`literal+initialism '(literal initialism))
+          ((and (pred listp) x) x)
+          (x (list x))))
+       :test #'eq)
       "\\|"))
    (prescient-split-query query)))
 

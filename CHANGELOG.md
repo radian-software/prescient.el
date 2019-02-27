@@ -15,6 +15,13 @@ The format is based on [Keep a Changelog].
   disable the filtering or sorting functionalities of
   `ivy-prescient.el` ([#32]).
 
+### Enhancements
+* Previously, if you had set `prescient-filter-method` to `regexp` and
+  entered an invalid regexp with `ivy-prescient.el`, then the
+  candidate list would not update. Now, the list is cleared until your
+  regexp is valid again. This behavior is more consistent and
+  predictable.
+
 ### Bugs fixed
 * Fixed sorting in filename-based collections ([#28]).
 * Fixed an issue where Ivy actions that accepted a list of candidates
