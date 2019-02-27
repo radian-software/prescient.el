@@ -109,7 +109,6 @@ not necessarily contiguous.
 Value can also be a list of any of the above methods, in which
 case each method will be applied in order until one matches.
 
-
 For backwards compatibility, the value of this variable can also
 be `literal+initialism', which equivalent to the list (`literal'
 `initialism')."
