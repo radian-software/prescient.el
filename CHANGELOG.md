@@ -22,6 +22,10 @@ The format is based on [Keep a Changelog].
   regexp is valid again. This behavior is more consistent and
   predictable.
 
+* Previously, ivy-prescient would only remember directories that the
+  user operated on with an action (for example, if you open it with
+  dired). Now it will remember all directories used in navigation.
+
 ### Bugs fixed
 * Fixed sorting in filename-based collections ([#28]).
 * Fixed an issue where Ivy actions that accepted a list of candidates

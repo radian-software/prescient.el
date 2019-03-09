@@ -143,6 +143,15 @@ that also invokes `prescient-remember'."
           (prescient-remember cand))
         (funcall action x)))))
 
+(defun ivy-prescient--remember-directory (success)
+  "Remember the directory we just entered when SUCCESS."
+  (when success
+    (prescient-remember
+     (file-name-as-directory
+      (file-name-nondirectory
+       (directory-file-name ivy--directory)))))
+  success)
+
 (defun ivy-prescient--enable-sort-commands (args)
   "Enable sorting of `ivy-prescient-sort-commands'.
 If the `:caller' in ARGS is a member of
@@ -176,6 +185,8 @@ enabled."
                      #'ivy-prescient-sort-function)
           (advice-add #'ivy-read :filter-args
                       #'ivy-prescient--enable-sort-commands)
+          (advice-add #'ivy--directory-enter :filter-return
+                      #'ivy-prescient--remember-directory)
           (advice-add #'ivy--get-action :filter-return
                       #'ivy-prescient--wrap-action)))
     (when (equal (alist-get t ivy-re-builders-alist)
@@ -195,6 +206,7 @@ enabled."
       (dolist (pair (reverse ivy-prescient--old-initial-inputs-alist))
         (setf (alist-get (car pair) ivy-initial-inputs-alist) (cdr pair))))
     (advice-remove #'ivy-read #'ivy-prescient--enable-sort-commands)
+    (advice-remove #'ivy--directory-enter #'ivy-prescient--remember-directory)
     (advice-remove #'ivy--get-action #'ivy-prescient--wrap-action)))
 
 ;;;; Closing remarks
