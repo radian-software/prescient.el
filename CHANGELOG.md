@@ -21,10 +21,10 @@ The format is based on [Keep a Changelog].
   candidate list would not update. Now, the list is cleared until your
   regexp is valid again. This behavior is more consistent and
   predictable.
-
-* Previously, ivy-prescient would only remember directories that the
-  user operated on with an action (for example, if you open it with
-  dired). Now it will remember all directories used in navigation.
+* Previously, `ivy-prescient.el` would only remember directories that
+  the user operated on with an action (for example, opening them with
+  Dired). Now it will remember all intermediate directories used in
+  navigation.
 
 ### Bugs fixed
 * Fixed sorting in filename-based collections ([#28]).
