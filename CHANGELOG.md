@@ -21,6 +21,10 @@ The format is based on [Keep a Changelog].
   candidate list would not update. Now, the list is cleared until your
   regexp is valid again. This behavior is more consistent and
   predictable.
+* Previously, `ivy-prescient.el` would only remember directories that
+  the user operated on with an action (for example, opening them with
+  Dired). Now it will remember all intermediate directories used in
+  navigation ([#36]).
 
 ### Bugs fixed
 * Fixed sorting in filename-based collections ([#28]).
@@ -42,6 +46,7 @@ The format is based on [Keep a Changelog].
 [#29]: https://github.com/raxod502/prescient.el/issues/29
 [#32]: https://github.com/raxod502/prescient.el/issues/32
 [#33]: https://github.com/raxod502/prescient.el/issues/33
+[#36]: https://github.com/raxod502/prescient.el/pull/36
 
 ## 2.2.2 (released 2019-02-12)
 ### Enhancements
