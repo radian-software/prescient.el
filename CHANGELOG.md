@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 3.0 (released 2019-04-10)
 ### New features
 * The user option `prescient-filter-method` now accepts a list of
   filter methods that will be applied in order until one matches. This
