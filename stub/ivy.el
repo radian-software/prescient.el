@@ -14,5 +14,6 @@
 (defun ivy-state-collection (struct))
 (defun ivy--sort-function (collection))
 (defun ivy--get-action (collection))
+(defun ivy--directory-enter ())
 
 (provide 'ivy)

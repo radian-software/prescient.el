@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Enhancements
+* Previously, `ivy-prescient.el` would only remember directories that
+  the user operated on with an action (for example, opening them with
+  Dired). Now it will remember all intermediate directories used in
+  navigation ([#36]).
+
+[#36]: https://github.com/raxod502/prescient.el/pull/36
+
 ## 3.0 (released 2019-04-10)
 ### New features
 * The user option `prescient-filter-method` now accepts a list of
