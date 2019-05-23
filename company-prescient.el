@@ -6,8 +6,8 @@
 ;; Homepage: https://github.com/raxod502/prescient.el
 ;; Keywords: extensions
 ;; Created: 7 Aug 2017
-;; Package-Requires: ((emacs "25.1") (prescient "3.0") (company "0.9.6"))
-;; Version: 3.0
+;; Package-Requires: ((emacs "25.1") (prescient "3.1") (company "0.9.6"))
+;; Version: 3.1
 
 ;;; Commentary:
 

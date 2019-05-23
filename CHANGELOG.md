@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 3.1 (released 2019-05-23)
 ### Enhancements
 * Previously, `ivy-prescient.el` would only remember directories that
   the user operated on with an action (for example, opening them with
