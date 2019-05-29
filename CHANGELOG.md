@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
 ## Unreleased
+### Enhancements
+* The `fuzzy` regex builder now matches the first occurrence of each
+  character in the query, giving more intuitive results when
+  highlighted ([#37]).
+
+[#37]: https://github.com/raxod502/prescient.el/pull/37
+
 ### Bugs fixed
 * Logic error which caused a crash on an all-whitespace query has now
   been fixed.
