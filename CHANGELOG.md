@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Bugs fixed
+* Logic error which caused a crash on an all-whitespace query has now
+  been fixed.
+
 ## 3.1 (released 2019-05-23)
 ### Enhancements
 * Previously, `ivy-prescient.el` would only remember directories that

@@ -218,7 +218,7 @@ as a sub-query delimiter."
       ;; Return an empty subquery list.
       (unless (<= (length query) 1)
         ;; Otherwise, the number of spaces should be reduced by one.
-        (substring query 1))
+        (list (substring query 1)))
     ;; Trim off a single space from the beginning and end, if present.
     ;; Otherwise, they would generate empty splits and cause us to
     ;; match literal whitespace.
