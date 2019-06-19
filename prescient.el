@@ -78,14 +78,6 @@ will be discarded. See also `prescient-frequency-decay'."
 This only has an effect if `prescient-persist-mode' is enabled."
   :type 'file)
 
-(defvar prescient--filter-method-custom-type
-  '(set
-    (const :tag "Literal" literal)
-    (const :tag "Regexp" regexp)
-    (const :tag "Initialism" initialism)
-    (const :tag "Fuzzy" fuzzy))
-  "Value for `:type' field in `prescient-filter-method' defcustom.")
-
 (defcustom prescient-filter-method '(literal regexp initialism)
   "How to interpret prescient.el filtering queries.
 Queries are first split on spaces (with two consecutive spaces
@@ -112,7 +104,11 @@ case each method will be applied in order until one matches.
 For backwards compatibility, the value of this variable can also
 be `literal+initialism', which equivalent to the list (`literal'
 `initialism')."
-  :type prescient--filter-method-custom-type)
+  :type '(set
+          (const :tag "Literal" literal)
+          (const :tag "Regexp" regexp)
+          (const :tag "Initialism" initialism)
+          (const :tag "Fuzzy" fuzzy)))
 
 ;;;; Caches
 
