@@ -28,6 +28,8 @@
 (require 'company)
 (require 'prescient)
 
+;;;; Minor mode
+
 (defalias 'company-prescient-transformer #'prescient-sort
   "Candidate transformer function that uses prescient.el to sort candidates.
 This is for use in `company-transformers'.")
