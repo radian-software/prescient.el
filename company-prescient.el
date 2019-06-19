@@ -28,11 +28,26 @@
 (require 'company)
 (require 'prescient)
 
+;;;; User options
+
+(defcustom company-prescient-sort-length-enable :default
+  "Whether to sort candidates by length in Company.
+The value of `prescient-sort-length-enable' is bound to the value
+of this variable when sorting Company candidates. If the value of
+this variable is `:default', then this binding is skipped."
+  :group 'prescient
+  :type 'boolean)
+
 ;;;; Minor mode
 
-(defalias 'company-prescient-transformer #'prescient-sort
-  "Candidate transformer function that uses prescient.el to sort candidates.
-This is for use in `company-transformers'.")
+(defun company-prescient-transformer (candidates)
+  "Candidate transformer function that uses prescient.el to sort CANDIDATES.
+This is for use in `company-transformers'."
+  (let ((prescient-sort-length-enable
+         (if (eq company-prescient-sort-length-enable :default)
+             prescient-sort-length-enable
+           company-prescient-sort-length-enable)))
+    (prescient-sort candidates)))
 
 (defalias 'company-prescient-completion-finished #'prescient-remember
   "Hook function to remember selected Company candidate.
@@ -60,5 +75,6 @@ This is for use on `company-completion-finished-hook'.")
 ;;; company-prescient.el ends here
 
 ;; Local Variables:
+;; checkdoc-verb-check-experimental-flag: nil
 ;; outline-regexp: ";;;;* "
 ;; End:

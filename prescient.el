@@ -110,6 +110,19 @@ be `literal+initialism', which equivalent to the list (`literal'
           (const :tag "Initialism" initialism)
           (const :tag "Fuzzy" fuzzy)))
 
+(defcustom prescient-sort-length-enable t
+  "Whether to sort candidates by length.
+If non-nil, then candidates with identical recency and frequency
+will be sorted by length. If nil, then they will be left in the
+order of the original collection.
+
+It might be desirable to set this variable to nil (via
+`company-prescient-sort-length-enable') when working with a
+Company backend which returns fuzzy-matched results that cannot
+usefully be sorted by length (presumably, the backend returns
+these results in some already-sorted order)."
+  :type 'boolean)
+
 ;;;; Caches
 
 (defvar prescient--history (make-hash-table :test 'equal)
@@ -374,7 +387,10 @@ list. Do not modify CANDIDATES."
 If `prescient-persist-mode' is enabled, then ensure that usage
 data has been loaded from `prescient-save-file' before comparing.
 Loading will only be attempted once, not before every
-comparison."
+comparison.
+
+If `prescient-sort-length-enable' is nil, then do not sort by
+length."
   (unless (stringp c1)
     (setq c1 (format "%s" c1)))
   (unless (stringp c2)
@@ -389,6 +405,7 @@ comparison."
                    (f2 (gethash c2 prescient--frequency 0)))
                (or (> f1 f2)
                    (and (= f1 f2)
+                        prescient-sort-length-enable
                         (< (length c1)
                            (length c2)))))))))
 

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
 ## Unreleased
+### New features
+* New user options `prescient-sort-length-enable` and
+  `company-prescient-sort-length-enable` allow disabling
+  `prescient.el` sorting by length, without disabling sorting
+  altogether.
+
 ### Enhancements
 * The `fuzzy` regex builder now matches the first occurrence of each
   character in the query, giving more intuitive results when
