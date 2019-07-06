@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 3.2 (released 2019-07-06)
 ### New features
 * New user options `prescient-sort-length-enable` and
   `company-prescient-sort-length-enable` allow disabling
@@ -15,11 +15,11 @@ The format is based on [Keep a Changelog].
   character in the query, giving more intuitive results when
   highlighted ([#37]).
 
-[#37]: https://github.com/raxod502/prescient.el/pull/37
-
 ### Bugs fixed
 * Logic error which caused a crash on an all-whitespace query has now
   been fixed.
+
+[#37]: https://github.com/raxod502/prescient.el/pull/37
 
 ## 3.1 (released 2019-05-23)
 ### Enhancements
