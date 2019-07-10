@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## 3.3 (released 2019-07-10)
+## Unreleased
 ### Enhancements
 * New user option `prescient-aggressive-file-save` to enable
   saving the cache data more aggressively according to the
