@@ -123,6 +123,13 @@ usefully be sorted by length (presumably, the backend returns
 these results in some already-sorted order)."
   :type 'boolean)
 
+(defcustom prescient-aggressive-file-save nil
+  "Whether to save the cache file aggressively.
+If non-nil, then write the cache data to `prescient-save-file'
+after the cache data is updated by `prescient-remember' when
+`prescient-persist-mode' is activated."
+  :type 'boolean)
+
 ;;;; Caches
 
 (defvar prescient--history (make-hash-table :test 'equal)
@@ -457,7 +464,11 @@ Return the sorted list. The original is modified destructively."
                  (puthash cand new-freq prescient--frequency))))
            prescient--frequency)
   ;; Update serial number.
-  (cl-incf prescient--serial-number))
+  (cl-incf prescient--serial-number)
+  ;; Save the cache data.
+  (when (and prescient-persist-mode
+	     prescient-aggressive-file-save)
+    (prescient--save)))
 
 ;;;; Closing remarks
 
