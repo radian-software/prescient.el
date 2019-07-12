@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Enhancements
+* New user option `prescient-aggressive-file-save` to enable
+  saving the cache data more aggressively according to the
+  discussions ([#17] and [#39]).
+
+[#17]: https://github.com/raxod502/prescient.el/issues/17
+[#39]: https://github.com/raxod502/prescient.el/pull/39
+
 ## 3.2 (released 2019-07-06)
 ### New features
 * New user options `prescient-sort-length-enable` and
