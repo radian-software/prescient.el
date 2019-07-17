@@ -84,7 +84,8 @@ different one by customizing `prescient-filter-method`.
   candidates. You can override this preference and re-enable sorting
   by adding such commands here. (To check if a command disables
   sorting, inspect its source code and see if it calls `ivy-read` with
-  a nil value for the `:sort` keyword argument.)
+  a nil value for the `:sort` keyword argument. If `:sort` is not
+  configured in `ivy-read`, then it also means sorting is disabled.)
 
 * `ivy-prescient-retain-classic-highlighting`: By default, the
   highlighting behavior of `ivy-prescient.el` is slightly different
