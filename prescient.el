@@ -138,6 +138,18 @@ The keys are candidates as strings and the values are 0-based
 indices, less than `prescient-history-length'. The number of
 values will be at most `prescient-history-length'.")
 
+(defun prescient--history-as-list ()
+  "Return a list of the most recently chosen candidates as strings.
+The most recently chosen candidates are at the front of the
+list. This function is mostly useful for debugging."
+  (let ((history (make-vector prescient-history-length nil)))
+    (maphash
+     (lambda (cand index)
+       (ignore-errors
+         (aset history index cand)))
+     prescient--history)
+    (cl-remove nil (append history nil))))
+
 (defvar prescient--frequency (make-hash-table :test 'equal)
   "Hash table of frequently chosen candidates.
 The keys are candidates as strings and the values are
