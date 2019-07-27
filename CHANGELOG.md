@@ -8,9 +8,13 @@ The format is based on [Keep a Changelog].
 * New user option `prescient-aggressive-file-save` to enable
   saving the cache data more aggressively according to the
   discussions ([#17] and [#39]).
+* The minor mode `ivy-prescient-mode` now affects the
+  `completion-in-region` command by default, without the need for the
+  user to change the value of `ivy-sort-functions-alist` ([#41]).
 
 [#17]: https://github.com/raxod502/prescient.el/issues/17
 [#39]: https://github.com/raxod502/prescient.el/pull/39
+[#41]: https://github.com/raxod502/prescient.el/issues/41
 
 ## 3.2 (released 2019-07-06)
 ### New features

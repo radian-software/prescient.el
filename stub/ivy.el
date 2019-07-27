@@ -12,6 +12,7 @@
 (defun ivy--directory-enter ())
 (defun ivy--get-action (collection))
 (defun ivy--sort-function (collection))
+(defun ivy-completion-in-region (start end collection &optional predicate))
 (defun ivy-read (prompt collection &rest args))
 (defun ivy-state-collection (struct))
 (defun ivy-state-sort (struct))
