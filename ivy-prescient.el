@@ -125,6 +125,11 @@ This is the value that was associated to
 This is the value that was associated to
 `ivy-completion-in-region' in `ivy-sort-functions-alist'.")
 
+(defvar ivy-prescient--old-ivy-sort-matches-completion-in-region-function nil
+  "Previous value for sorting `completion-in-region' results.
+This is the value that was associated to
+`ivy-completion-in-region' in `ivy-sort-matches-functions-alist'.")
+
 (defvar ivy-prescient--old-initial-inputs-alist nil
   "Previous value of `ivy-initial-inputs-alist'.")
 
@@ -193,6 +198,11 @@ enabled."
            (alist-get #'ivy-completion-in-region
                       ivy-sort-functions-alist)
            #'ivy-prescient-sort-function)
+          (cl-shiftf
+           ivy-prescient--old-ivy-sort-matches-completion-in-region-function
+           (alist-get #'ivy-completion-in-region
+                      ivy-sort-matches-functions-alist)
+           nil)
           (advice-add #'ivy-read :filter-args
                       #'ivy-prescient--enable-sort-commands)
           (advice-add #'ivy--directory-enter :filter-return
@@ -217,6 +227,11 @@ enabled."
                  #'ivy-prescient-sort-function)
       (setf (alist-get #'ivy-completion-in-region ivy-sort-functions-alist)
             ivy-prescient--old-ivy-sort-completion-in-region-function))
+    (unless (alist-get #'ivy-completion-in-region
+                       ivy-sort-matches-functions-alist)
+      (setf (alist-get #'ivy-completion-in-region
+                       ivy-sort-matches-functions-alist)
+            ivy-prescient--old-ivy-sort-matches-completion-in-region-function))
     (unless ivy-initial-inputs-alist
       (dolist (pair (reverse ivy-prescient--old-initial-inputs-alist))
         (setf (alist-get (car pair) ivy-initial-inputs-alist) (cdr pair))))
