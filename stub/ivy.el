@@ -7,8 +7,8 @@
 (defvar ivy-last nil)
 (defvar ivy-marked-candidates nil)
 (defvar ivy-re-builders-alist nil)
-(defvar ivy-sort-functions-alist nil)
 (defvar ivy-sort-matches-functions-alist nil)
+(defvar ivy-sort-functions-alist nil)
 
 (defun ivy--directory-enter ())
 (defun ivy--get-action (collection))
