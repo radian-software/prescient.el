@@ -12,9 +12,15 @@ The format is based on [Keep a Changelog].
   `completion-in-region` command by default, without the need for the
   user to change the value of `ivy-sort-functions-alist` ([#41]).
 
+### Bugs fixed
+* An update to Ivy caused `ivy-prescient.el` to no longer have any
+  effect for the `ivy-completion-in-region` command. This has been
+  fixed ([#41], [#42]).
+
 [#17]: https://github.com/raxod502/prescient.el/issues/17
 [#39]: https://github.com/raxod502/prescient.el/pull/39
 [#41]: https://github.com/raxod502/prescient.el/issues/41
+[#42]: https://github.com/raxod502/prescient.el/pull/42
 
 ## 3.2 (released 2019-07-06)
 ### New features
