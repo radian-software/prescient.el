@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Bugs fixed
+* Commit [`9da800`][9da800] of Counsel resulted in candidates for
+  `counsel-M-x` no longer being sorted. This has been fixed.
+
+[9da800]: https://github.com/abo-abo/swiper/commit/9da800306a82e85ac6d62d0b86baa731b394807e
+
 ## 3.3 (released 2019-09-20)
 ### Enhancements
 * New user option `prescient-aggressive-file-save` to enable

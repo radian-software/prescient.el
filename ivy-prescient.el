@@ -33,7 +33,7 @@
 
 ;;;; User options
 
-(defcustom ivy-prescient-sort-commands '(counsel-find-library)
+(defcustom ivy-prescient-sort-commands '(counsel-find-library counsel-M-x)
   "Commands for which candidates should always be sorted.
 This allows you to enable sorting for commands which call
 `ivy-read' with a nil value for `:sort'."
