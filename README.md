@@ -40,6 +40,11 @@ sorting, enable `company-prescient-mode`. To cause your usage
 statistics to be saved between Emacs sessions, enable
 `prescient-persist-mode`.
 
+Please note that **you must load Counsel before `ivy-prescient.el`**.
+This is because loading Counsel results in a number of changes being
+made to the user options of Ivy, which `ivy-prescient.el` must then
+undo.
+
 ## Algorithm
 
 `prescient.el` takes as input a list of candidates, and a query that
