@@ -17,5 +17,6 @@
 (defun ivy-read (prompt collection &rest args))
 (defun ivy-state-collection (struct))
 (defun ivy-state-sort (struct))
+(defun ivy-string< (x y))
 
 (provide 'ivy)

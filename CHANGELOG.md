@@ -4,10 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
 ## Unreleased
-### Bugs fixed
-* Commit [`9da800`][9da800] of Counsel resulted in candidates for
-  `counsel-M-x` no longer being sorted. This has been fixed.
+### Breaking changes
+* As part of the ongoing struggle to maintain a useful package on top
+  of Ivy's unstable API, the way in which sorting is handled has
+  changed. All commands now have their candidates sorted, unless
+  configured otherwise in `ivy-sort-matches-functions-alist` (note
+  that this currently happens only for `ivy-switch-buffer` by
+  default). As a consequence, `ivy-prescient-sort-commands` no longer
+  has any effect. Feedback is requested on whether this change breaks
+  any existing use cases, so that a better API can be designed.
 
+### Bugs fixed
+* Recent commits to Counsel (including [`9da800`][9da800] and
+  [`2d840b`][2d840b]) resulted in candidates for many commands no
+  longer being sorted. This has been fixed.
+
+### Deprecated
+* User option `ivy-prescient-sort-commands` no longer has any effect,
+  since all commands are forced to have their candidates sorted now.
+
+[2d840b]: https://github.com/abo-abo/swiper/commit/2d840b8be54fbc887a6b2a6a8178d27786d1421f
 [9da800]: https://github.com/abo-abo/swiper/commit/9da800306a82e85ac6d62d0b86baa731b394807e
 
 ## 3.3 (released 2019-09-20)
