@@ -182,8 +182,10 @@ enabled."
                      ivy-initial-inputs-alist
                      nil))
         (when ivy-prescient-enable-sorting
-          ;; Not sure if `map-do' handles mutation of alist during
-          ;; iteration. Use `map-keys' plus `dolist' to be safe.
+          ;; Not sure if `map-apply' (note that `map-do' is not
+          ;; available before Emacs 26) handles mutation of alist
+          ;; during iteration. Use `map-keys' plus `dolist' to be
+          ;; safe.
           (dolist (caller (map-keys ivy-sort-functions-alist))
             (when (memq (alist-get caller ivy-sort-functions-alist)
                         '(ivy-string< ivy-sort-file-function-default))
@@ -209,12 +211,12 @@ enabled."
                  #'ivy-prescient-re-builder)
       (setf (alist-get t ivy-re-builders-alist)
             ivy-prescient--old-re-builder))
-    (map-do (lambda (caller function)
-              (when (equal (alist-get caller ivy-sort-functions-alist)
-                           #'ivy-prescient-sort-function)
-                (setf (alist-get caller ivy-sort-functions-alist)
-                      function)))
-            ivy-prescient--old-ivy-sort-functions-alist)
+    (map-apply (lambda (caller function)
+                 (when (equal (alist-get caller ivy-sort-functions-alist)
+                              #'ivy-prescient-sort-function)
+                   (setf (alist-get caller ivy-sort-functions-alist)
+                         function)))
+               ivy-prescient--old-ivy-sort-functions-alist)
     (setq ivy-prescient--old-ivy-sort-functions-alist nil)
     (unless (alist-get #'ivy-completion-in-region
                        ivy-sort-matches-functions-alist)
