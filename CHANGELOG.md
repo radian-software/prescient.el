@@ -5,23 +5,19 @@ The format is based on [Keep a Changelog].
 
 ## Unreleased
 ### Breaking changes
-* As part of the ongoing struggle to maintain a useful package on top
-  of Ivy's unstable API, the way in which sorting is handled has
-  changed. All commands now have their candidates sorted, unless
-  configured otherwise in `ivy-sort-matches-functions-alist` (note
-  that this currently happens only for `ivy-switch-buffer` by
-  default). As a consequence, `ivy-prescient-sort-commands` no longer
-  has any effect. Feedback is requested on whether this change breaks
-  any existing use cases, so that a better API can be designed.
+* Due to internal changes in Ivy and Counsel which make it extremely
+  difficult and brittle to control sorting in a fine-grained manner,
+  candidates for all commands are now sorted by default. You can still
+  configure the behavior in `ivy-prescient-sort-commands`, which has a
+  new default value and now also has the ability to specify a
+  *blacklist* of commands (used in the new default, which excludes
+  `swiper`) in addition to a whitelist (used in the old default).
 
 ### Bugs fixed
 * Recent commits to Counsel (including [`9da800`][9da800] and
   [`2d840b`][2d840b]) resulted in candidates for many commands no
   longer being sorted. This has been fixed.
 
-### Deprecated
-* User option `ivy-prescient-sort-commands` no longer has any effect,
-  since all commands are forced to have their candidates sorted now.
 
 ### Removed
 * Function `prescient-initials-regexp`, which was deprecated in

@@ -33,15 +33,21 @@
 
 ;;;; User options
 
-(defcustom ivy-prescient-sort-commands '(counsel-find-library counsel-M-x)
-  "Deprecated variable. Setting it has no effect.
-In the past, this specified commands for which candidates should
-always be sorted. This allowed you to enable sorting for commands
-which call `ivy-read' with a nil value for `:sort'. Now, however,
-`ivy-prescient' enables sorting for every command,
-unconditionally."
+(defcustom ivy-prescient-sort-commands '(:not swiper)
+  "Control which commands have their candidates sorted by `ivy-prescient'.
+If nil, then sorting is disabled for all commands. If t, then
+sorting is enabled for all commands. If a list of commands, then
+only those commands have their candidates sorted. If a list
+starting with the symbol `:not', then all commands *except* the
+ones listed have their candidates sorted.
+
+Note that this variable overrides the sorting options of Ivy,
+unless `ivy-prescient-enable-sorting' is nil in which case it has
+no effect."
   :group 'prescient
-  :type '(list symbol))
+  :type '(choice (boolean :tag "Unconditional")
+                 (repeat :tag "Whitelist" function)
+                 (cons (const :not) (repeat :tag "Blacklist" function))))
 
 (defcustom ivy-prescient-retain-classic-highlighting nil
   "Whether to emulate the way Ivy highlights candidates as closely as possible.
@@ -159,13 +165,22 @@ that also invokes `prescient-remember'."
 
 (defun ivy-prescient--enable-sort-commands (args)
   "Enable sorting of `ivy-prescient-sort-commands'.
-If the `:caller' in ARGS is a member of
-`ivy-prescient-sort-commands', then `:sort' is unconditionally
-enabled."
-  ;; Put it at the end so it doesn't override a value that's already
-  ;; there. (I.e., you can explicitly pass `:sort nil' to disable
-  ;; sorting.)
-  (append args '(:sort t)))
+If the `:caller' in ARGS should be sorted according to
+`ivy-prescient-sort-commands', then `:sort' is enabled even if
+wasn't in the call to `ivy-read'."
+  (when (or (and (symbolp ivy-prescient-sort-commands)
+                 ivy-prescient-sort-commands)
+            (and (listp ivy-prescient-sort-commands)
+                 (if (eq (car ivy-prescient-sort-commands) :not)
+                     (not (memq (plist-get args :caller)
+                                (cdr ivy-prescient-sort-commands)))
+                   (memq (plist-get args :caller)
+                         ivy-prescient-sort-commands))))
+    ;; Put it at the end so it doesn't override a value that's already
+    ;; there. (I.e., you can explicitly pass `:sort nil' to disable
+    ;; sorting.)
+    (setq args (append args '(:sort t))))
+  args)
 
 ;;;###autoload
 (define-minor-mode ivy-prescient-mode
