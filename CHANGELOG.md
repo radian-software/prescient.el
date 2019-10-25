@@ -23,6 +23,10 @@ The format is based on [Keep a Changelog].
 * User option `ivy-prescient-sort-commands` no longer has any effect,
   since all commands are forced to have their candidates sorted now.
 
+### Removed
+* Function `prescient-initials-regexp`, which was deprecated in
+  release 2.2 over a year ago.
+
 [2d840b]: https://github.com/abo-abo/swiper/commit/2d840b8be54fbc887a6b2a6a8178d27786d1421f
 [9da800]: https://github.com/abo-abo/swiper/commit/9da800306a82e85ac6d62d0b86baa731b394807e
 

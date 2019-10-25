@@ -334,13 +334,6 @@ data can be used to highlight the matched substrings."
                  with-groups)))
       (cdr chars) ""))))
 
-;; Remove this and do not document further changes in CHANGELOG after
-;; six months or two releases, whichever comes later.
-(define-obsolete-function-alias
-  'prescient-initials-regexp
-  'prescient--initials-regexp
-  "2018-07-29")
-
 ;;;; Sorting and filtering
 
 (defun prescient-filter-regexps (query &optional with-groups)
