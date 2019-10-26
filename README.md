@@ -84,13 +84,9 @@ different one by customizing `prescient-filter-method`.
   matching, regexp matching, fuzzy matching, or any combination of
   those. See the docstring for full details.
 
-* `ivy-prescient-sort-commands`: Some [Counsel] commands, like
-  `counsel-find-library`, intentionally disable sorting for their
-  candidates. You can override this preference and re-enable sorting
-  by adding such commands here. (To check if a command disables
-  sorting, inspect its source code and see if it calls `ivy-read` with
-  a nil value for the `:sort` keyword argument. If `:sort` is not
-  configured in `ivy-read`, then it also means sorting is disabled.)
+* `ivy-prescient-sort-commands`: By default, all commands have their
+  candidates sorted. You can override this behavior by customizing
+  `ivy-prescient-sort-commands`. See the docstring.
 
 * `ivy-prescient-retain-classic-highlighting`: By default, the
   highlighting behavior of `ivy-prescient.el` is slightly different
