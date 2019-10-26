@@ -11,7 +11,8 @@ The format is based on [Keep a Changelog].
   configure the behavior in `ivy-prescient-sort-commands`, which has a
   new default value and now also has the ability to specify a
   *blacklist* of commands (used in the new default, which excludes
-  `swiper`) in addition to a whitelist (used in the old default).
+  `swiper` and `ivy-switch-buffer`) in addition to a whitelist (used
+  in the old default).
 
 ### Bugs fixed
 * Recent commits to Counsel (including [`9da800`][9da800] and
