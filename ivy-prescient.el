@@ -5,7 +5,7 @@
 ;; Author: Radon Rosborough <radon.neon@gmail.com>
 ;; Homepage: https://github.com/raxod502/prescient.el
 ;; Keywords: extensions
-;; Created: 7 Aug 2017
+;; Created: 1 May 2018
 ;; Package-Requires: ((emacs "25.1") (prescient "3.3") (ivy "0.11.0"))
 ;; Version: 3.3
 
