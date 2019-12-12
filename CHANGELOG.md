@@ -14,15 +14,24 @@ The format is based on [Keep a Changelog].
   `swiper` and `ivy-switch-buffer`) in addition to a whitelist (used
   in the old default).
 
+### Added
+* New package `selectrum-prescient` provides integration with
+  [Selectrum], a modern alternative to Ivy and Helm. It provides a
+  single entry point, `selectrum-prescient-mode`, which may be enabled
+  in your init-file. This package is likely to be essentially bug-free
+  when compared to `ivy-prescient`, because of the vastly simpler API
+  on which it depends.
+
 ### Bugs fixed
 * Recent commits to Counsel (including [`9da800`][9da800] and
   [`2d840b`][2d840b]) resulted in candidates for many commands no
   longer being sorted. This has been fixed.
 
-
 ### Removed
 * Function `prescient-initials-regexp`, which was deprecated in
   release 2.2 over a year ago.
+
+[selectrum]: https://github.com/raxod502/selectrum
 
 [2d840b]: https://github.com/abo-abo/swiper/commit/2d840b8be54fbc887a6b2a6a8178d27786d1421f
 [9da800]: https://github.com/abo-abo/swiper/commit/9da800306a82e85ac6d62d0b86baa731b394807e

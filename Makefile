@@ -4,8 +4,8 @@ CMD ?=
 EMACS ?= emacs
 
 # The order is important for compilation.
-for_compile := prescient.el ivy-prescient.el company-prescient.el
-for_checkdoc := prescient.el ivy-prescient.el company-prescient.el
+for_compile := prescient.el $(wildcard *-prescient.el)
+for_checkdoc := prescient.el $(wildcard *-prescient.el)
 for_longlines := $(wildcard *.el *.md *.yml) Makefile
 
 .PHONY: help

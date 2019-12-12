@@ -32,13 +32,26 @@ The easiest way to install these packages is using
 However, you may install using any other package manager if you
 prefer.
 
+In addition to the three packages listed above, there is an
+experimental package providing integration with [Selectrum], called
+`selectrum-prescient`. This package is not currently available on
+MELPA. You may still install it with `straight.el`:
+
+    (straight-use-package
+      '(selectrum-prescient
+        :host github :repo "raxod502/prescient.el"
+        :files ("selectrum-prescient.el")))
+
 ## Usage
 
-To cause [Ivy] to use `prescient.el` sorting and filtering, enable
-`ivy-prescient-mode`. To cause [Company] to use `prescient.el`
-sorting, enable `company-prescient-mode`. To cause your usage
-statistics to be saved between Emacs sessions, enable
-`prescient-persist-mode`.
+* To cause [Ivy] to use `prescient.el` sorting and filtering, enable
+  `ivy-prescient-mode`.
+* To cause [Company] to use `prescient.el` sorting, enable
+  `company-prescient-mode`.
+* To cause [Selectrum] to use `prescient.el` sorting and filtering,
+  enable `selectrum-prescient-mode`.
+* To cause your usage statistics to be saved between Emacs sessions,
+  enable `prescient-persist-mode`.
 
 Please note that **you must load Counsel before `ivy-prescient.el`**.
 This is because loading Counsel results in a number of changes being
@@ -120,5 +133,6 @@ upgrade to release 0.11.0.
 [ivy]: https://github.com/abo-abo/swiper#ivy
 [ivy-release]: https://github.com/abo-abo/swiper/issues/1664
 [no-littering]: https://github.com/emacscollective/no-littering
+[selectrum]: https://github.com/raxod502/selectrum
 [smex]: https://github.com/nonsequitur/smex
 [straight.el]: https://github.com/raxod502/straight.el
