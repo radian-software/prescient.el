@@ -29,11 +29,11 @@
 
 ;;;; Minor mode
 
-(defvar selectrum-prescient--old-filter-function nil
-  "Previous value of `selectrum-candidate-filter-function'.")
+(defvar selectrum-prescient--old-refine-function nil
+  "Previous value of `selectrum-refine-candidates-function'.")
 
-(defvar selectrum-prescient--old-sort-function nil
-  "Previous value of `selectrum-candidate-sort-function'.")
+(defvar selectrum-prescient--old-preprocess-function nil
+  "Previous value of `selectrum-preprocess-candidates-function'.")
 
 (defun selectrum-prescient--remember (candidate &rest _)
   "Remember CANDIDATE in prescient.el.
@@ -66,7 +66,7 @@ For use on `selectrum-candidate-selected-hook'."
        candidates))))
 
 (defvar selectrum-prescient--old-highlight-function nil
-  "Previous value of `selectrum-candidate-highlight-function'.")
+  "Previous value of `selectrum-highlight-candidates-function'.")
 
 ;;;###autoload
 (define-minor-mode selectrum-prescient-mode
@@ -75,31 +75,31 @@ For use on `selectrum-candidate-selected-hook'."
   :group 'prescient
   (if selectrum-prescient-mode
       (progn
-        (setq selectrum-prescient--old-filter-function
-              selectrum-candidate-filter-function)
-        (setq selectrum-candidate-filter-function
+        (setq selectrum-prescient--old-refine-function
+              selectrum-refine-candidates-function)
+        (setq selectrum-refine-candidates-function
               #'prescient-filter)
-        (setq selectrum-prescient--old-sort-function
-              selectrum-candidate-sort-function)
-        (setq selectrum-candidate-sort-function
+        (setq selectrum-prescient--old-preprocess-function
+              selectrum-preprocess-candidates-function)
+        (setq selectrum-preprocess-candidates-function
               #'prescient-sort)
         (setq selectrum-prescient--old-highlight-function
-              selectrum-candidate-highlight-function)
-        (setq selectrum-candidate-highlight-function
+              selectrum-highlight-candidates-function)
+        (setq selectrum-highlight-candidates-function
               #'selectrum-prescient--highlight)
         (add-hook 'selectrum-candidate-selected-hook
                   #'selectrum-prescient--remember))
-    (when (eq selectrum-candidate-filter-function
+    (when (eq selectrum-refine-candidates-function
               #'prescient-filter)
-      (setq selectrum-candidate-filter-function
-            selectrum-prescient--old-filter-function))
-    (when (eq selectrum-candidate-sort-function
+      (setq selectrum-refine-candidates-function
+            selectrum-prescient--old-refine-function))
+    (when (eq selectrum-preprocess-candidates-function
               #'prescient-sort)
-      (setq selectrum-candidate-sort-function
-            selectrum-prescient--old-sort-function))
-    (when (eq selectrum-candidate-highlight-function
+      (setq selectrum-preprocess-candidates-function
+            selectrum-prescient--old-preprocess-function))
+    (when (eq selectrum-highlight-candidates-function
               #'selectrum-prescient--highlight)
-      (setq selectrum-candidate-highlight-function
+      (setq selectrum-highlight-candidates-function
             selectrum-prescient--old-highlight-function))
     (remove-hook 'selectrum-candidate-selected-hook
                  #'selectrum-prescient--remember)))

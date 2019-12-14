@@ -2,8 +2,8 @@
 ;; selectrum-prescient.el to be byte-compiled in the absence of
 ;; selectrum.el.
 
-(defvar selectrum-candidate-filter-function nil)
-(defvar selectrum-candidate-sort-function nil)
-(defvar selectrum-candidate-highlight-function nil)
+(defvar selectrum-refine-candidates-function nil)
+(defvar selectrum-preprocess-candidates-function nil)
+(defvar selectrum-highlight-candidates-function nil)
 
 (provide 'selectrum)
