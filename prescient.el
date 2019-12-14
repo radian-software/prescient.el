@@ -379,11 +379,11 @@ enclose literal substrings with capture groups."
   "Use QUERY to filter list of CANDIDATES.
 Split the query using `prescient-split-query'. Each candidate
 must match each subquery, either using substring or initialism
-matching. Discard any that do not, and return the resulting
-list. Do not modify CANDIDATES."
+matching. Discard any that do not, and return the resulting list.
+Do not modify CANDIDATES; always make a new copy of the list."
   (let ((regexps (prescient-filter-regexps query)))
     (save-match-data
-      (cl-remove-if-not
+      (cl-delete-if-not
        (lambda (candidate)
          (unless (stringp candidate)
            (setq candidate (format "%s" candidate)))
@@ -391,7 +391,7 @@ list. Do not modify CANDIDATES."
           (lambda (regexp)
             (string-match regexp candidate))
           regexps))
-       candidates))))
+       (copy-sequence candidates)))))
 
 (defun prescient-sort-compare (c1 c2)
   "Compare candidates C1 and C2 by usage and length.

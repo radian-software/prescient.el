@@ -22,6 +22,13 @@ The format is based on [Keep a Changelog].
   when compared to `ivy-prescient`, because of the vastly simpler API
   on which it depends.
 
+### Enhancements
+* The function `prescient-filter` usually made a new copy of the input
+  list, but didn't do this in the case that there was nothing to
+  filter out. That was subtle behavior with the potential for causing
+  bugs, so now `prescient-filter` is guaranteed to always make a copy
+  of the input list.
+
 ### Bugs fixed
 * Recent commits to Counsel (including [`9da800`][9da800] and
   [`2d840b`][2d840b]) resulted in candidates for many commands no
