@@ -5,5 +5,6 @@
 (defvar selectrum-refine-candidates-function nil)
 (defvar selectrum-preprocess-candidates-function nil)
 (defvar selectrum-highlight-candidates-function nil)
+(defvar selectrum-should-sort-p nil)
 
 (provide 'selectrum)

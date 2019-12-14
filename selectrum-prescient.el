@@ -29,11 +29,17 @@
 
 ;;;; Minor mode
 
-(defvar selectrum-prescient--old-refine-function nil
-  "Previous value of `selectrum-refine-candidates-function'.")
+(defun selectrum-prescient--preprocess (candidates)
+  "Sort CANDIDATES, unless `selectrum-should-sort-p' is nil."
+  (when selectrum-should-sort-p
+    (setq candidates (prescient-sort candidates)))
+  candidates)
 
 (defvar selectrum-prescient--old-preprocess-function nil
   "Previous value of `selectrum-preprocess-candidates-function'.")
+
+(defvar selectrum-prescient--old-refine-function nil
+  "Previous value of `selectrum-refine-candidates-function'.")
 
 (defun selectrum-prescient--remember (candidate &rest _)
   "Remember CANDIDATE in prescient.el.
@@ -82,7 +88,7 @@ For use on `selectrum-candidate-selected-hook'."
         (setq selectrum-prescient--old-preprocess-function
               selectrum-preprocess-candidates-function)
         (setq selectrum-preprocess-candidates-function
-              #'prescient-sort)
+              #'selectrum-prescient--preprocess)
         (setq selectrum-prescient--old-highlight-function
               selectrum-highlight-candidates-function)
         (setq selectrum-highlight-candidates-function
@@ -94,7 +100,7 @@ For use on `selectrum-candidate-selected-hook'."
       (setq selectrum-refine-candidates-function
             selectrum-prescient--old-refine-function))
     (when (eq selectrum-preprocess-candidates-function
-              #'prescient-sort)
+              #'selectrum-prescient--preprocess)
       (setq selectrum-preprocess-candidates-function
             selectrum-prescient--old-preprocess-function))
     (when (eq selectrum-highlight-candidates-function
