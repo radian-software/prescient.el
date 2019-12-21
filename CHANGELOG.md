@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 4.0 (released 2019-12-21)
 ### Breaking changes
 * Due to internal changes in Ivy and Counsel which make it extremely
   difficult and brittle to control sorting in a fine-grained manner,
