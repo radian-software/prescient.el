@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 4.0 (released 2019-12-21)
 ### Breaking changes
 * Due to internal changes in Ivy and Counsel which make it extremely
   difficult and brittle to control sorting in a fine-grained manner,
@@ -18,7 +18,6 @@ The format is based on [Keep a Changelog].
 * Recent commits to Counsel (including [`9da800`][9da800] and
   [`2d840b`][2d840b]) resulted in candidates for many commands no
   longer being sorted. This has been fixed.
-
 
 ### Removed
 * Function `prescient-initials-regexp`, which was deprecated in
