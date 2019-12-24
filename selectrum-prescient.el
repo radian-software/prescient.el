@@ -81,6 +81,10 @@ For use on `selectrum-candidate-selected-hook'."
   :group 'prescient
   (if selectrum-prescient-mode
       (progn
+        ;; Prevent messing up variables if we explicitly enable the
+        ;; mode when it's already on.
+        (selectrum-prescient-mode -1)
+        (setq selectrum-prescient-mode t)
         (setq selectrum-prescient--old-refine-function
               selectrum-refine-candidates-function)
         (setq selectrum-refine-candidates-function

@@ -60,6 +60,8 @@ This is for use on `company-completion-finished-hook'.")
   :group 'prescient
   (if company-prescient-mode
       (progn
+        (company-prescient-mode -1)
+        (setq company-prescient-mode t)
         (add-to-list 'company-transformers #'company-prescient-transformer)
         (add-hook 'company-completion-finished-hook
                   #'company-prescient-completion-finished))

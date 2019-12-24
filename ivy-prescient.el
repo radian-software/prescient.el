@@ -189,6 +189,8 @@ wasn't in the call to `ivy-read'."
   :group 'prescient
   (if ivy-prescient-mode
       (progn
+        (ivy-prescient-mode -1)
+        (setq ivy-prescient-mode t)
         (when ivy-prescient-enable-filtering
           (cl-shiftf ivy-prescient--old-re-builder
                      (alist-get t ivy-re-builders-alist)

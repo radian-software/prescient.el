@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Bugs fixed
+* Previously, if you explicitly enabled any of the minor modes
+  `ivy-prescient-mode`, `company-prescient-mode`, or
+  `selectrum-prescient-mode` when it was already on, then disabling
+  the mode would not work correctly (some variables would fail to be
+  reset). This has been fixed.
+
 ## 4.0 (released 2019-12-21)
 ### Breaking changes
 * Due to internal changes in Ivy and Counsel which make it extremely

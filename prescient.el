@@ -231,7 +231,10 @@ Usually this variable is dynamically bound to another value while
   :global t
   :group 'prescient
   (if prescient-persist-mode
-      (add-hook 'kill-emacs-hook #'prescient--save)
+      (progn
+        (prescient-persist-mode -1)
+        (setq prescient-persist-mode t)
+        (add-hook 'kill-emacs-hook #'prescient--save))
     (remove-hook 'kill-emacs-hook #'prescient--save)))
 
 ;;;; Utility functions
