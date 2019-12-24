@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
 ## Unreleased
+### Enhancements
+* Package `selectrum-prescient.el` now uses
+  `selectrum-candidate-inserted-hook` to update the frecency database
+  of `prescient.el` when using `TAB`
+  (`selectrum-insert-current-candidate`) to enter directories while
+  finding files with Selectrum.
+
 ### Bugs fixed
 * Previously, if you explicitly enabled any of the minor modes
   `ivy-prescient-mode`, `company-prescient-mode`, or

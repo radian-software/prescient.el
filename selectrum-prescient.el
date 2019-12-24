@@ -98,6 +98,8 @@ For use on `selectrum-candidate-selected-hook'."
         (setq selectrum-highlight-candidates-function
               #'selectrum-prescient--highlight)
         (add-hook 'selectrum-candidate-selected-hook
+                  #'selectrum-prescient--remember)
+        (add-hook 'selectrum-candidate-inserted-hook
                   #'selectrum-prescient--remember))
     (when (eq selectrum-refine-candidates-function
               #'prescient-filter)
@@ -112,6 +114,8 @@ For use on `selectrum-candidate-selected-hook'."
       (setq selectrum-highlight-candidates-function
             selectrum-prescient--old-highlight-function))
     (remove-hook 'selectrum-candidate-selected-hook
+                 #'selectrum-prescient--remember)
+    (remove-hook 'selectrum-candidate-inserted-hook
                  #'selectrum-prescient--remember)))
 
 ;;;; Closing remarks
