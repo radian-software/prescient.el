@@ -6,7 +6,7 @@
 ;; Homepage: https://github.com/raxod502/prescient.el
 ;; Keywords: extensions
 ;; Created: 8 Dec 2019
-;; Package-Requires: ((emacs "25.1") (prescient "3.3") (selectrum "0"))
+;; Package-Requires: ((emacs "25.1") (prescient "3.3") (selectrum "1.0"))
 ;; Version: 3.3
 
 ;;; Commentary:
