@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 4.1 (released 2020-03-31)
 ### Enhancements
 * Package `selectrum-prescient.el` now uses
   `selectrum-candidate-inserted-hook` to update the frecency database
