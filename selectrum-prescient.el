@@ -7,6 +7,7 @@
 ;; Keywords: extensions
 ;; Created: 8 Dec 2019
 ;; Package-Requires: ((emacs "25.1") (prescient "4.1") (selectrum "1.0"))
+;; SPDX-License-Identifier: MIT
 ;; Version: 4.1
 
 ;;; Commentary:
