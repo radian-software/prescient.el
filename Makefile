@@ -42,15 +42,7 @@ checkdoc: ## Check docstring style
 
 .PHONY: longlines
 longlines: ## Check for long lines
-	@echo "[longlines] $(for_longlines)"
-	@for file in $(for_longlines); do \
-	    cat "$$file" \
-	        | sed '/longlines-start/,/longlines-stop/d' \
-	        | grep -E '.{80}' \
-	        | grep -E -v '\[.+\]: (#|http)' \
-	        | sed "s/^/$$file:long line: /" \
-	        | grep . && exit 1 || true ;\
-	done
+	@scripts/check-line-length.bash
 
 .PHONY: clean
 clean: ## Remove build artifacts
