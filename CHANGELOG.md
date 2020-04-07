@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Breaking changes
+* Candidates which are not strings are no longer supported. This
+  improves performance by a few percent, and there was never any real
+  reason to support non-strings. (Frameworks like Selectrum should
+  convert candidates to strings before interfacing with
+  `prescient.el`.)
+
+### Performance
+* The speed of `prescient-sort` has been improved by a factor of 2x
+  for large collections. The speed of `prescient-filter` has been
+  improved by a factor of 3x.
+
 ## 4.1 (released 2020-03-31)
 ### Enhancements
 * Package `selectrum-prescient.el` now uses

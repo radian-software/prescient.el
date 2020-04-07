@@ -385,17 +385,36 @@ Split the query using `prescient-split-query'. Each candidate
 must match each subquery, either using substring or initialism
 matching. Discard any that do not, and return the resulting list.
 Do not modify CANDIDATES; always make a new copy of the list."
-  (let ((regexps (prescient-filter-regexps query)))
+  (let ((regexps (prescient-filter-regexps query))
+        (results nil))
     (save-match-data
-      (cl-delete-if-not
-       (lambda (candidate)
-         (unless (stringp candidate)
-           (setq candidate (format "%s" candidate)))
-         (cl-every
-          (lambda (regexp)
-            (string-match regexp candidate))
-          regexps))
-       (copy-sequence candidates)))))
+      ;; Use named block in case somebody loads `cl' accidentally
+      ;; which causes `dolist' to turn into `cl-dolist' which creates
+      ;; a nil block implicitly.
+      (dolist (candidate candidates)
+        (cl-block done
+          (dolist (regexp regexps)
+            (unless (string-match regexp candidate)
+              (cl-return-from done)))
+          (push candidate results)))
+      (nreverse results))))
+
+(defmacro prescient--sort-compare ()
+  "Hack used to cause the byte-compiler to produce faster code.
+Note that this macro must be used with several variables in
+lexical scope."
+  `(progn
+     (let* ((p1 (gethash c1 hist len))
+            (p2 (gethash c2 hist len)))
+       (or (< p1 p2)
+           (and (= p1 p2)
+                (let* ((f1 (gethash c1 freq 0))
+                       (f2 (gethash c2 freq 0)))
+                  (or (> f1 f2)
+                      (and (= f1 f2)
+                           prescient-sort-length-enable
+                           (< (length c1)
+                              (length c2))))))))))
 
 (defun prescient-sort-compare (c1 c2)
   "Compare candidates C1 and C2 by usage and length.
@@ -407,36 +426,35 @@ comparison.
 
 If `prescient-sort-length-enable' is nil, then do not sort by
 length."
-  (unless (stringp c1)
-    (setq c1 (format "%s" c1)))
-  (unless (stringp c2)
-    (setq c2 (format "%s" c2)))
   (when (and prescient-persist-mode (not prescient--cache-loaded))
     (prescient--load))
-  (let ((p1 (gethash c1 prescient--history prescient-history-length))
-        (p2 (gethash c2 prescient--history prescient-history-length)))
-    (or (< p1 p2)
-        (and (= p1 p2)
-             (let ((f1 (gethash c1 prescient--frequency 0))
-                   (f2 (gethash c2 prescient--frequency 0)))
-               (or (> f1 f2)
-                   (and (= f1 f2)
-                        prescient-sort-length-enable
-                        (< (length c1)
-                           (length c2)))))))))
+  (let ((hist prescient--history)
+        (len prescient-history-length)
+        (freq prescient--frequency))
+    (prescient--sort-compare)))
 
 (defun prescient-sort (candidates)
   "Sort CANDIDATES using frequency data.
 Return the sorted list. The original is modified destructively."
-  (sort candidates #'prescient-sort-compare))
+  (when (and prescient-persist-mode (not prescient--cache-loaded))
+    (prescient--load))
+  ;; Performance optimization revealed that reading dynamic variables
+  ;; multiple times was a bottleneck (yes, really), and by reading
+  ;; them into lexical variables which are much faster to access, we
+  ;; improve the speed of `prescient-sort' on large candidate lists by
+  ;; 2x.
+  (let ((hist prescient--history)
+        (len prescient-history-length)
+        (freq prescient--frequency))
+    (sort
+     candidates
+     (lambda (c1 c2)
+       (prescient--sort-compare)))))
 
 ;;;; Candidate selection
 
 (defun prescient-remember (candidate)
   "Record CANDIDATE in `prescient--history' and `prescient--frequency'."
-  ;; Convert to plain string.
-  (unless (stringp candidate)
-    (setq candidate (format "%s" candidate)))
   (setq candidate (substring-no-properties candidate))
   ;; Add to `prescient--history'.
   (let ((this-pos (gethash
