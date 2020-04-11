@@ -16,11 +16,13 @@ predictable, and faster.
 
 ## Installation
 
-`prescient.el` is available on MELPA as three separate packages:
+`prescient.el` is available on MELPA as four separate packages (one
+for the library, and the rest for integrating with other frameworks):
 
 * [`prescient`](https://melpa.org/#/prescient)
 * [`ivy-prescient`](https://melpa.org/#/ivy-prescient)
 * [`company-prescient`](https://melpa.org/#/company-prescient)
+* [`selectrum-prescient`](https://melpa.org/#/selectrum-prescient)
 
 The easiest way to install these packages is using
 [`straight.el`][straight.el]:
@@ -28,19 +30,10 @@ The easiest way to install these packages is using
     (straight-use-package 'prescient)
     (straight-use-package 'ivy-prescient)
     (straight-use-package 'company-prescient)
+    (straight-use-package 'selectrum-prescient)
 
 However, you may install using any other package manager if you
 prefer.
-
-In addition to the three packages listed above, there is an
-experimental package providing integration with [Selectrum], called
-`selectrum-prescient`. This package is not currently available on
-MELPA. You may still install it with `straight.el`:
-
-    (straight-use-package
-      '(selectrum-prescient
-        :host github :repo "raxod502/prescient.el"
-        :files ("selectrum-prescient.el")))
 
 ## Usage
 
