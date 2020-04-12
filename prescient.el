@@ -407,11 +407,11 @@ lexical scope."
      (let* ((p1 (gethash c1 hist len))
             (p2 (gethash c2 hist len)))
        (or (< p1 p2)
-           (and (= p1 p2)
+           (and (eq p1 p2)
                 (let* ((f1 (gethash c1 freq 0))
                        (f2 (gethash c2 freq 0)))
                   (or (> f1 f2)
-                      (and (= f1 f2)
+                      (and (eq f1 f2)
                            len-enable
                            (< (length c1)
                               (length c2))))))))))
