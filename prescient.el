@@ -412,7 +412,7 @@ lexical scope."
                        (f2 (gethash c2 freq 0)))
                   (or (> f1 f2)
                       (and (= f1 f2)
-                           prescient-sort-length-enable
+                           len-enable
                            (< (length c1)
                               (length c2))))))))))
 
@@ -430,7 +430,8 @@ length."
     (prescient--load))
   (let ((hist prescient--history)
         (len prescient-history-length)
-        (freq prescient--frequency))
+        (freq prescient--frequency)
+        (len-enable prescient-sort-length-enable))
     (prescient--sort-compare)))
 
 (defun prescient-sort (candidates)
@@ -445,7 +446,8 @@ Return the sorted list. The original is modified destructively."
   ;; 2x.
   (let ((hist prescient--history)
         (len prescient-history-length)
-        (freq prescient--frequency))
+        (freq prescient--frequency)
+        (len-enable prescient-sort-length-enable))
     (sort
      candidates
      (lambda (c1 c2)
