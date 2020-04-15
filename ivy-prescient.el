@@ -34,7 +34,8 @@
 
 ;;;; User options
 
-(defcustom ivy-prescient-sort-commands '(:not swiper ivy-switch-buffer)
+(defcustom ivy-prescient-sort-commands
+  '(:not swiper swiper-isearch ivy-switch-buffer)
   "Control which commands have their candidates sorted by `ivy-prescient'.
 If nil, then sorting is disabled for all commands. If t, then
 sorting is enabled for all commands. If a list of commands, then
