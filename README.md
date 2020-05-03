@@ -110,11 +110,10 @@ different one by customizing `prescient-filter-method`.
   the Ivy documentation for information on how Ivy sorts by default,
   and how to customize it manually.
 
-## Known bugs
+## Contributor guide
 
-If you are using release 0.10.0 of Ivy, you will notice a number of
-bugs and significantly degraded functionality. To fix these, please
-upgrade to release 0.11.0.
+Please see [the contributor guide for my
+projects](https://github.com/raxod502/contributor-guide).
 
 [company]: https://github.com/company-mode/company-mode
 [company-statistics]: https://github.com/company-mode/company-statistics
