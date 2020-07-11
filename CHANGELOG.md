@@ -16,10 +16,16 @@ The format is based on [Keep a Changelog].
   of each candidate will be highlighted in results from Selectrum or
   Ivy, rather than the maximum.
 
+### Bugs fixed
+* In `selectrum-prescient.el`, secondary highlighting now works
+  correctly when multiple filter methods are enabled ([#123]).
+
 ### Performance
 * The speed of `prescient-sort` has been improved by a factor of 2x
   for large collections. The speed of `prescient-filter` has been
   improved by a factor of 3x.
+
+[#123]: https://github.com/raxod502/selectrum/issues/123
 
 ## 4.1 (released 2020-03-31)
 ### Enhancements

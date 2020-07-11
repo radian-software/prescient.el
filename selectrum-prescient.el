@@ -60,16 +60,14 @@ For use on `selectrum-candidate-selected-hook'."
                (put-text-property
                 (match-beginning 0) (match-end 0)
                 'face 'selectrum-primary-highlight candidate)
-               (cl-block nil
-                 (let ((group 1))
-                   (while t
-                     (if-let ((start (match-beginning group)))
-                         (let ((end (match-end group)))
-                           (put-text-property
-                            start end
-                            'face 'selectrum-secondary-highlight candidate))
-                       (cl-return))
-                     (cl-incf group))))))))
+               (cl-loop
+                for (start end)
+                on (cddr (match-data))
+                by #'cddr
+                do (when (and start end)
+                     (put-text-property
+                      start end
+                      'face 'selectrum-secondary-highlight candidate)))))))
        candidates))))
 
 (defvar selectrum-prescient--old-highlight-function nil
