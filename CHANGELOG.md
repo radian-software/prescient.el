@@ -11,6 +11,11 @@ The format is based on [Keep a Changelog].
   convert candidates to strings before interfacing with
   `prescient.el`.)
 
+### Enhancements
+* Fuzzy matching now uses lazy wildcards, so only the minimum amount
+  of each candidate will be highlighted in results from Selectrum or
+  Ivy, rather than the maximum.
+
 ### Performance
 * The speed of `prescient-sort` has been improved by a factor of 2x
   for large collections. The speed of `prescient-filter` has been

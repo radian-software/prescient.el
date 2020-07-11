@@ -331,7 +331,7 @@ data can be used to highlight the matched substrings."
       with-groups)
      (mapconcat
       (lambda (char)
-        (format "[^%c\n]*%s" char
+        (format "[^%c\n]*?%s" char
                 (prescient--with-group
                  (regexp-quote
                   (char-to-string char))
