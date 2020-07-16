@@ -6,9 +6,9 @@
 ;; Homepage: https://github.com/raxod502/prescient.el
 ;; Keywords: extensions
 ;; Created: 8 Dec 2019
-;; Package-Requires: ((emacs "25.1") (prescient "4.1") (selectrum "1.0"))
+;; Package-Requires: ((emacs "25.1") (prescient "5.0") (selectrum "1.0"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 4.1
+;; Version: 5.0
 
 ;;; Commentary:
 
