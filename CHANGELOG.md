@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 5.0 (release 2020-07-16)
 ### Breaking changes
 * Candidates which are not strings are no longer supported. This
   improves performance by a few percent, and there was never any real
