@@ -87,7 +87,8 @@ using each subquery in turn. This variable affects how that
 filtering takes place.
 
 Value `literal' means the subquery must be a substring of the
-candidate.
+candidate. Supports char folding when `search-default-mode' is
+set to `char-fold-to-regexp'.
 
 Value `regexp' means the subquery is interpreted directly as a
 regular expression.
@@ -387,7 +388,9 @@ enclose literal substrings with capture groups."
           (pcase method
             (`literal
              (prescient--with-group
-              (regexp-quote subquery)
+              (if (eq search-default-mode #'char-fold-to-regexp)
+                  (char-fold-to-regexp (regexp-quote subquery))
+                (regexp-quote subquery))
               (eq with-groups 'all)))
             (`initialism
              (prescient--initials-regexp subquery with-groups))

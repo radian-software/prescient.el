@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog].
   difference is that you can't use `*` as a wildcard (it is instead
   taken literally), since you can achieve the same effect by
   separating queries with a space.
+* Literal matching now supports char folding when
+  `search-default-mode` is set to `char-fold-to-regexp`. This makes
+  filtering of Unicode text easier.
 
 ## 5.0 (release 2020-07-16)
 ### Breaking changes
