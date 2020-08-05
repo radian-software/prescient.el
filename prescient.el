@@ -348,20 +348,24 @@ match the QUERY characters in capture groups, so that the match
 data can be used to highlight the matched substrings."
 
   (prescient--with-group
-              (save-match-data
-                (cl-loop with str = query
-                         with start = 0
-                         while (string-match "[^[:word:]]" str start)
-                         do (progn
-                              ;; (message "Start: %d\nString: %s" start str)
-                              (setq start (+ 11 (match-end 0)))
-                              (setq str (replace-match
-                                         (concat ;; "\\W+"
-                                          "[[:word:]]+"
-                                          (match-string 0 str))
-                                         nil t str)))
-                         finally return (concat "\\<" str)))
-              with-groups))
+   (save-match-data
+     (cl-loop with str = query
+              with start = 0
+              with replacement = ""
+              while (string-match "[^[:word:]]" str start)
+              do (progn
+                   (setq replacement (concat "[[:word:]]+"
+                                             (regexp-quote
+                                              (match-string 0 str))))
+                   (setq start (+ (- (length replacement)
+                                     (length (match-string 0 str)))
+                                  (match-end 0)))
+                   (setq str (replace-match
+                              (concat "[[:word:]]+"
+                                      (match-string 0 str))
+                              nil t str)))
+              finally return (concat "\\<" str)))
+   with-groups))
 ;;;; Sorting and filtering
 
 (defun prescient-filter-regexps (query &optional with-groups)
