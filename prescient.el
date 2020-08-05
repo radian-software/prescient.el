@@ -360,7 +360,7 @@ E.g., \"fi--a-po\" matches \"find-file-at-point\",
        ;; `regexp-quote' (important for matching "."), we search
        ;; progressively through the query.
        (while (string-match "[^[:word:]]" query start)
-         (setq replacement (concat "[[:word:]]+"
+         (setq replacement (concat "[[:word:]]+?"
                                    (regexp-quote (match-string 0 query))))
          ;; Some separators will need to be escape while others won't,
          ;; so the length of the replacement can be different in
