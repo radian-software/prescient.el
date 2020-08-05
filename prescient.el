@@ -340,32 +340,40 @@ data can be used to highlight the matched substrings."
 
 (defun prescient--prefix-regexp (query &optional with-groups)
   "Return a regexp for matching the beginnings of words in QUERY.
-This is similar to `initialism', except that it considers more letters.
-E.g., \"fi-fi-a-po\" matches \"find-file-at-point\".
+This is similar to the `partial-completion' completion style provided
+by Emacs, except that non-word characters are taken literally
+\(i.e., one can't glob using \"*\").  Prescient already covers
+that case by separating queries with a space.
 
 If WITH-GROUPS is non-nil, enclose the parts of the regexp that
 match the QUERY characters in capture groups, so that the match
-data can be used to highlight the matched substrings."
+data can be used to highlight the matched substrings.
+
+E.g., \"fi--a-po\" matches \"find-file-at-point\",
+\"find-function-at-point\", and other similarly named symbols."
 
   (prescient--with-group
    (save-match-data
-     (cl-loop with str = query
-              with start = 0
-              with replacement = ""
-              while (string-match "[^[:word:]]" str start)
-              do (progn
-                   (setq replacement (concat "[[:word:]]+"
-                                             (regexp-quote
-                                              (match-string 0 str))))
-                   (setq start (+ (- (length replacement)
-                                     (length (match-string 0 str)))
-                                  (match-end 0)))
-                   (setq str (replace-match
-                              (concat "[[:word:]]+"
-                                      (match-string 0 str))
-                              nil t str)))
-              finally return (concat "\\<" str)))
+     (let ((start 0)
+           (replacement))
+       ;; In order to escape the non-word separator characters with
+       ;; `regexp-quote' (important for matching "."), we search
+       ;; progressively through the query.
+       (while (string-match "[^[:word:]]" query start)
+         (setq replacement (concat "[[:word:]]+"
+                                   (regexp-quote (match-string 0 query))))
+         ;; Some separators will need to be escape while others won't,
+         ;; so the length of the replacement can be different in
+         ;; different cases.
+         (setq start (+ (- (length replacement)
+                           (length (match-string 0 query)))
+                        (match-end 0)))
+         ;; Since we're escaping the separators, we need to make
+         ;; the replacements literal.  Otherwise, this will fail.
+         (setq query (replace-match replacement nil t query)))
+       query))
    with-groups))
+
 ;;;; Sorting and filtering
 
 (defun prescient-filter-regexps (query &optional with-groups)
