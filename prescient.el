@@ -371,7 +371,8 @@ E.g., \"fi--a-po\" matches \"find-file-at-point\",
          ;; Since we're escaping the separators, we need to make
          ;; the replacements literal.  Otherwise, this will fail.
          (setq query (replace-match replacement nil t query)))
-       query))
+       ;; Make sure that regexp begins at start of word.
+       (concat "\\<" query)))
    with-groups))
 
 ;;;; Sorting and filtering
