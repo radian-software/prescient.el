@@ -352,28 +352,17 @@ data can be used to highlight the matched substrings.
 E.g., \"fi--a-po\" matches \"find-file-at-point\",
 \"find-function-at-point\", and other similarly named symbols."
 
-  (prescient--with-group
-   (save-match-data
-     (let ((start 0)
-           (replacement))
-       ;; In order to escape the non-word separator characters with
-       ;; `regexp-quote' (important for matching "."), we search
-       ;; progressively through the query.
-       (while (string-match "[^[:word:]]" query start)
-         (setq replacement (concat "[[:word:]]+?"
-                                   (regexp-quote (match-string 0 query))))
-         ;; Some separators will need to be escape while others won't,
-         ;; so the length of the replacement can be different in
-         ;; different cases.
-         (setq start (+ (- (length replacement)
-                           (length (match-string 0 query)))
-                        (match-end 0)))
-         ;; Since we're escaping the separators, we need to make
-         ;; the replacements literal.  Otherwise, this will fail.
-         (setq query (replace-match replacement nil t query)))
-       ;; Make sure that regexp begins at start of word.
-       (concat "\\<" query)))
-   with-groups))
+  (when (string-match-p "[[:word:]][^[:word:]]" query)
+      (prescient--with-group
+       (concat "\\<"
+               (replace-regexp-in-string
+                "[^[:word:]]"
+                (lambda (s) (concat "[[:word:]]*" (regexp-quote s)))
+                query
+                ;; Since quoting the non-word character,
+                ;; must replace literally.
+                t t ))
+       with-groups)))
 
 ;;;; Sorting and filtering
 
