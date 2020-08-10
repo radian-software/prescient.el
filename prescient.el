@@ -99,6 +99,12 @@ Value `fuzzy' means the characters of the subquery must match
 some subset of those of the candidate, in the correct order but
 not necessarily contiguous.
 
+Value `prefix' means the words (substrings of only word
+characters) match the beginning of words found in the candidate,
+in order, separated by the same non-word characters that separate
+words in the query. This is similar to the completion style
+`partial'.
+
 Value can also be a list of any of the above methods, in which
 case each method will be applied in order until one matches.
 
@@ -109,7 +115,8 @@ be `literal+initialism', which equivalent to the list (`literal'
           (const :tag "Literal" literal)
           (const :tag "Regexp" regexp)
           (const :tag "Initialism" initialism)
-          (const :tag "Fuzzy" fuzzy)))
+          (const :tag "Fuzzy" fuzzy)
+          (const :tag "Prefix" prefix)))
 
 (defcustom prescient-sort-length-enable t
   "Whether to sort candidates by length.
