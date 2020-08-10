@@ -5,13 +5,16 @@ The format is based on [Keep a Changelog].
 
 ## Unreleased
 ### Enhancements
-* Prefix matching, similar to the completion style `partial`, has been
-  added. As is the case in default Emacs, `t-t-l` matches
+* Prefix matching, a new filtering method similar to the Emacs
+  completion style `partial`, was added. It can be enabled by adding
+  `prefix` to `prescient-filter-method`.
+
+  As is the case in partial completion, `t-t-l` matches
   `toggle-truncate-lines` and `fi--a-po` matches `find-file-at-point`,
   `find-function-at-point`, and other similarly named symbols. One
-  difference is that you can't use `*` as equivalent to the regexp
-  `.*` (it is instead taken literally), since you can already achieve
-  the same affect by separating your queries with a space.
+  difference is that you can't use `*` as a wildcard (it is instead
+  taken literally), since you can achieve the same effect by
+  separating queries with a space.
 
 ## 5.0 (release 2020-07-16)
 ### Breaking changes
