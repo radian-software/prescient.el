@@ -358,7 +358,7 @@ data can be used to highlight the matched substrings."
                 query
                 ;; Since quoting the non-word character,
                 ;; must replace literally.
-                t t ))
+                'fixed-case 'literal))
        with-groups)))
 
 ;;;; Sorting and filtering
