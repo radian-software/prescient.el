@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Enhancements
+* Prefix matching, a new filtering method similar to the Emacs
+  completion style `partial`, was added. It can be enabled by adding
+  `prefix` to `prescient-filter-method`.
+
+  As is the case in partial completion, `t-t-l` matches
+  `toggle-truncate-lines` and `fi--a-po` matches `find-file-at-point`,
+  `find-function-at-point`, and other similarly named symbols. One
+  difference is that you can't use `*` as a wildcard (it is instead
+  taken literally), since you can achieve the same effect by
+  separating queries with a space.
+
 ## 5.0 (release 2020-07-16)
 ### Breaking changes
 * Candidates which are not strings are no longer supported. This
