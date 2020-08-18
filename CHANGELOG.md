@@ -14,9 +14,12 @@ The format is based on [Keep a Changelog].
   `find-function-at-point`, and other similarly named symbols. One
   difference is that you can't use `*` as a wildcard (it is instead
   taken literally), since you can achieve the same effect by
-  separating queries with a space.
+  separating queries with a space. See [#67].
 * Literal matching now supports char folding making Unicode text
-  filtering much easier.
+  filtering much easier ([#66]).
+
+[#66]: https://github.com/raxod502/prescient.el/pull/66
+[#67]: https://github.com/raxod502/prescient.el/pull/67
 
 ## 5.0 (release 2020-07-16)
 ### Breaking changes
