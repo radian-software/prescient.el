@@ -119,10 +119,15 @@ For use on `selectrum-candidate-selected-hook'."
 
 ;;;; Commands
 (defvar selectrum-prescient-filter-toggle-map (make-sparse-keymap)
-  "A keymap containing commands to temporarily toggle the use of Prescient filters in Selectrum.")
+  "A keymap of commands for toggling Prescient filters in Selectrum.
+The toggling of commands is temporary and does not affect the
+default filtering settings determined by `prescient-filter-method'.")
 ;; Create a binding similar to the Isearch toggles.
-(define-key selectrum-minibuffer-map "\M-s" selectrum-prescient-filter-toggle-map)
+(defvar selectrum-minibuffer-map)
+(define-key selectrum-minibuffer-map
+  "\M-s" selectrum-prescient-filter-toggle-map)
 
+(declare-function selectrum-exhibit "selectrum")
 (defmacro selectrum--prescient-create-toggle-commands (filter-type key-string)
   "Create a command to toggle the use of FILTER-TYPE in Selectrum.
 FILTER-TYPE is an unquoted symbol which can be included in
@@ -135,8 +140,9 @@ passed to `kbd' which will be bound in
     `(progn
        (defun ,command-name
            () ; Arg list
-         ,(format "Toggle the use of Prescient's \"%s\" filter in the currently running Selectrum buffer."
-                  filter-type-name)
+         ,(format
+           "Toggle the \"%s\" filter."
+           filter-type-name)
          (interactive)
 
          ;; If needed, turn `prescient-filter-method' into a list of symbols.
