@@ -17,6 +17,22 @@ The format is based on [Keep a Changelog].
   separating queries with a space. See [#67].
 * Literal matching now supports char folding making Unicode text
   filtering much easier ([#66]).
+* For Selectrum, commands were added to toggle filter methods for the
+  running Selectrum buffer. This toggling does not change the default
+  filter settings determined by `prescient-filter-method`. You can use
+  a prefix argument to disable other filtering methods.
+  * In `selectrum-minibuffer-map`, `M-s` is now bound to
+    `selectrum-prescient-filter-toggle-map`. The following toggle
+    commands and their keys are as follows:
+
+    | Key   | Command                               |
+    |-------|---------------------------------------|
+    | M-s f | selectrum-prescient-toggle-fuzzy      |
+    | M-s i | selectrum-prescient-toggle-initialism |
+    | M-s l | selectrum-prescient-toggle-literal    |
+    | M-s p | selectrum-prescient-toggle-prefix     |
+    | M-s r | selectrum-prescient-toggle-regexp     |
+
 
 [#66]: https://github.com/raxod502/prescient.el/pull/66
 [#67]: https://github.com/raxod502/prescient.el/pull/67

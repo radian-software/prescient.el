@@ -90,6 +90,9 @@ different one by customizing `prescient-filter-method`.
   matching, regexp matching, fuzzy matching, prefix matching, or any
   combination of those. See the docstring for full details.
 
+### Ivy-Specific
+The following user options are specific to using Prescient with Ivy:
+
 * `ivy-prescient-sort-commands`: By default, all commands have their
   candidates sorted. You can override this behavior by customizing
   `ivy-prescient-sort-commands`. See the docstring.
@@ -109,6 +112,31 @@ different one by customizing `prescient-filter-method`.
   `ivy-prescient.el` does not apply `prescient.el` sorting to Ivy. See
   the Ivy documentation for information on how Ivy sorts by default,
   and how to customize it manually.
+
+### Selectrum-Specific
+In Selectrum, commands for toggling the filter methods used are bound
+to a `M-s` prefix. This is similar to toggling commands used with
+Isearch, such as `isearch-toggle-char-fold`, which is bound to `M-s '`
+in `isearch-mode-map`. These Selectrum commands are bound in
+`selectrum-prescient-filter-toggle-map`, and are:
+
+| Key   | Command                               |
+|-------|---------------------------------------|
+| M-s f | selectrum-prescient-toggle-fuzzy      |
+| M-s i | selectrum-prescient-toggle-initialism |
+| M-s l | selectrum-prescient-toggle-literal    |
+| M-s p | selectrum-prescient-toggle-prefix     |
+| M-s r | selectrum-prescient-toggle-regexp     |
+
+For example, if you wish to disable regexp filtering while inputting
+a complex string (maybe to search for it literally), you can press
+`M-s r` to toggle whether Selectrum uses Prescient's regexp
+filtering. If you wish to use *only* regexp filtering, you can use
+`C-u M-s r` to temporarily disable all other filter methods.
+
+This toggling only applies to the current Selectrum buffer, and
+doesn't affect the default filter settings (determined by
+`prescient-filter-method`).
 
 ## Contributor guide
 
