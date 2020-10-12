@@ -117,6 +117,60 @@ For use on `selectrum-candidate-selected-hook'."
     (remove-hook 'selectrum-candidate-inserted-hook
                  #'selectrum-prescient--remember)))
 
+;;;; Commands
+(defvar selectrum-prescient-filter-toggle-map (make-sparse-keymap)
+  "A keymap containing commands to temporarily toggle the use of Prescient filters in Selectrum.")
+;; Create a binding similar to the Isearch toggles.
+(define-key selectrum-minibuffer-map "\M-s" selectrum-prescient-filter-toggle-map)
+
+(defmacro selectrum--prescient-create-toggle-commands (filter-type key-string)
+  "Create a command to toggle the use of FILTER-TYPE in Selectrum.
+FILTER-TYPE is an unquoted symbol which can be included in
+`prescient-filter-method'.  KEY-STRING is a string that can be
+passed to `kbd' which will be bound in
+`selectrum-prescient-filter-toggle-map'."
+  (let* ((filter-type-name (symbol-name filter-type))
+         (command-name (intern (concat "selectrum-prescient-toggle-"
+                                       filter-type-name))))
+    `(progn
+       (defun ,command-name
+           () ; Arg list
+         ,(format "Toggle the use of Prescient's \"%s\" filter in the currently running Selectrum buffer."
+                  filter-type-name)
+         (interactive)
+
+         ;; If needed, turn `prescient-filter-method' into a list of symbols.
+         (unless (listp prescient-filter-method)
+           (setq-local prescient-filter-method
+                       (list prescient-filter-method)))
+
+         ;; Add or remove the filtering method from `prescient-filter-method'
+         ;; and tell the user what happened.
+         (if (memq (quote ,filter-type)
+                   prescient-filter-method)
+             (progn
+               (setq-local prescient-filter-method
+                           (remove (quote ,filter-type)
+                                   prescient-filter-method))
+               (message "%s filter toggled off."
+                        ,(capitalize filter-type-name)))
+           (setq-local prescient-filter-method
+                       (cons (quote ,filter-type)
+                             prescient-filter-method))
+           (message "%s filter toggled on."
+                    ,(capitalize filter-type-name)))
+
+         ;; Finally, update Selectrum's display.
+         (selectrum-exhibit))
+       (define-key selectrum-prescient-filter-toggle-map
+         (kbd ,key-string) (function ,command-name)))))
+
+(selectrum--prescient-create-toggle-commands fuzzy "f")
+(selectrum--prescient-create-toggle-commands initialism "i")
+(selectrum--prescient-create-toggle-commands literal "l")
+(selectrum--prescient-create-toggle-commands prefix "p")
+(selectrum--prescient-create-toggle-commands regexp "r")
+
 ;;;; Closing remarks
 
 (provide 'selectrum-prescient)
