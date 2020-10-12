@@ -139,32 +139,36 @@ passed to `kbd' which will be bound in
                                        filter-type-name))))
     `(progn
        (defun ,command-name
-           () ; Arg list
+           (arg) ; Arg list
          ,(format
-           "Toggle the \"%s\" filter."
+           "Toggle the \"%s\" filter. With ARG, use only this filter."
            filter-type-name)
-         (interactive)
+         (interactive "P")
 
-         ;; If needed, turn `prescient-filter-method' into a list of symbols.
-         (unless (listp prescient-filter-method)
-           (setq-local prescient-filter-method
-                       (list prescient-filter-method)))
+         (if arg
+             (setq-local prescient-filter-method
+                         (list (quote ,filter-type)))
 
-         ;; Add or remove the filtering method from `prescient-filter-method'
-         ;; and tell the user what happened.
-         (if (memq (quote ,filter-type)
-                   prescient-filter-method)
-             (progn
-               (setq-local prescient-filter-method
-                           (remove (quote ,filter-type)
-                                   prescient-filter-method))
-               (message "%s filter toggled off."
-                        ,(capitalize filter-type-name)))
-           (setq-local prescient-filter-method
-                       (cons (quote ,filter-type)
-                             prescient-filter-method))
-           (message "%s filter toggled on."
-                    ,(capitalize filter-type-name)))
+           ;; If needed, turn `prescient-filter-method' into a list of symbols.
+           (unless (listp prescient-filter-method)
+             (setq-local prescient-filter-method
+                         (list prescient-filter-method)))
+
+           ;; Add or remove the filtering method from `prescient-filter-method'
+           ;; and tell the user what happened.
+           (if (memq (quote ,filter-type)
+                     prescient-filter-method)
+               (progn
+                 (setq-local prescient-filter-method
+                             (remove (quote ,filter-type)
+                                     prescient-filter-method))
+                 (message "%s filter toggled off."
+                          ,(capitalize filter-type-name)))
+             (setq-local prescient-filter-method
+                         (cons (quote ,filter-type)
+                               prescient-filter-method))
+             (message "%s filter toggled on."
+                      ,(capitalize filter-type-name))))
 
          ;; Finally, update Selectrum's display.
          (selectrum-exhibit))
