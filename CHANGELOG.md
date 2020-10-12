@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog].
 * For Selectrum, commands were added to toggle filter methods for the
   running Selectrum buffer. This toggling does not change the default
   filter settings determined by `prescient-filter-method`. You can use
-  a prefix argument to disable other filtering methods.
+  a prefix argument to disable other filtering methods. See [#72].
   * In `selectrum-minibuffer-map`, `M-s` is now bound to
     `selectrum-prescient-filter-toggle-map`. The following toggle
     commands and their keys are as follows:
@@ -36,6 +36,7 @@ The format is based on [Keep a Changelog].
 
 [#66]: https://github.com/raxod502/prescient.el/pull/66
 [#67]: https://github.com/raxod502/prescient.el/pull/67
+[#72]: https://github.com/raxod502/prescient.el/pull/72
 
 ## 5.0 (release 2020-07-16)
 ### Breaking changes
