@@ -150,9 +150,9 @@ passed to `kbd' which will be bound in
              (setq-local prescient-filter-method
                          (list (quote ,filter-type)))
 
-           (unless (listp prescient-filter-method)
            ;; If needed, turn `prescient-filter-method' into a list of
            ;; symbols.
+           (when (nlistp prescient-filter-method)
              (setq-local prescient-filter-method
                          (list prescient-filter-method)))
 
