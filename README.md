@@ -64,7 +64,7 @@ ones, and then the remaining candidates are sorted by length. If you
 don't like the algorithm used for filtering, you can choose a
 different one by customizing `prescient-filter-method`.
 
-## Configuration
+## Configuration and Other Features
 
 * `prescient-history-length`: The number of recently selected
   candidates that are remembered and displayed at the top of the list.
@@ -114,11 +114,19 @@ The following user options are specific to using Prescient with Ivy:
   and how to customize it manually.
 
 ### Selectrum-Specific
-In Selectrum, commands for toggling the filter methods used are bound
-to a `M-s` prefix. This is similar to toggling commands used with
-Isearch, such as `isearch-toggle-char-fold`, which is bound to `M-s '`
-in `isearch-mode-map`. These Selectrum commands are bound in
-`selectrum-prescient-filter-toggle-map`, and are:
+For Selectrum, you can use special commands to toggle the current
+filters that you are using. For example, to toggle regexp filtering
+filtering on or off (perhaps you're searching for a long/complex
+candidate), you can press `M-s r`. If you wish to use *only* regexp
+filtering, you can use `C-u M-s r` to unconditionally turn on regexp
+filtering and turn off all other methods.
+
+These commands can be found in
+`selectrum-prescient-filter-toggle-map`,
+which is bound to `M-s` inside the Selectrum buffer. This is similar
+to Isearch's own toggling commands (such as
+`isearch-toggle-char-fold`, bound to `M-s '`), except that multiple
+filtering methods can be active at the same time.
 
 | Key   | Command                               |
 |-------|---------------------------------------|
@@ -128,15 +136,9 @@ in `isearch-mode-map`. These Selectrum commands are bound in
 | M-s p | selectrum-prescient-toggle-prefix     |
 | M-s r | selectrum-prescient-toggle-regexp     |
 
-For example, if you wish to disable regexp filtering while inputting
-a complex string (maybe to search for it literally), you can press
-`M-s r` to toggle whether Selectrum uses Prescient's regexp
-filtering. If you wish to use *only* regexp filtering, you can use
-`C-u M-s r` to temporarily disable all other filter methods.
-
-This toggling only applies to the current Selectrum buffer, and
-doesn't affect the default filter settings (determined by
-`prescient-filter-method`).
+These commands only affect the current Selectrum buffer, not the
+default filter settings. To permanently change your filter settings,
+you should customize `prescient-filter-method`.
 
 ## Contributor guide
 
