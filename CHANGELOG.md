@@ -17,13 +17,14 @@ The format is based on [Keep a Changelog].
   separating queries with a space. See [#67].
 * Literal matching now supports char folding making Unicode text
   filtering much easier ([#66]).
-* For Selectrum, commands were added to toggle filter methods for the
-  running Selectrum buffer. This toggling does not change the default
-  filter settings determined by `prescient-filter-method`. You can use
-  a prefix argument to disable other filtering methods. See [#72].
+* For Selectrum, commands were added to toggle filtering methods for
+  the running Selectrum buffer. This toggling does not change the
+  default filter settings determined by `prescient-filter-method`. You
+  can use a prefix argument to use only the filtering method
+  associated with that command. See [#72].
   * In `selectrum-minibuffer-map`, `M-s` is now bound to
     `selectrum-prescient-filter-toggle-map`. The following toggle
-    commands and their keys are as follows:
+    commands and their keys are:
 
     | Key   | Command                               |
     |-------|---------------------------------------|
