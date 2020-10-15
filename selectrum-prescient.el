@@ -128,7 +128,8 @@ default filtering settings determined by `prescient-filter-method'.")
   "\M-s" selectrum-prescient-filter-toggle-map)
 
 (declare-function selectrum-exhibit "selectrum")
-(defmacro selectrum--prescient-create-and-bind-toggle-command (filter-type key-string)
+(defmacro selectrum--prescient-create-and-bind-toggle-command
+    (filter-type key-string)
   "Create a command to toggle the use of FILTER-TYPE in Selectrum.
 FILTER-TYPE is an unquoted symbol which can be included in
 `prescient-filter-method'.  KEY-STRING is a string that can be
