@@ -150,13 +150,15 @@ passed to `kbd' which will be bound in
              (setq-local prescient-filter-method
                          (list (quote ,filter-type)))
 
-           ;; If needed, turn `prescient-filter-method' into a list of symbols.
            (unless (listp prescient-filter-method)
+           ;; If needed, turn `prescient-filter-method' into a list of
+           ;; symbols.
              (setq-local prescient-filter-method
                          (list prescient-filter-method)))
 
-           ;; Add or remove the filtering method from `prescient-filter-method'
-           ;; and tell the user what happened.
+           ;; Add or remove the filtering method from
+           ;; `prescient-filter-method' and tell the user what
+           ;; happened.
            (if (memq (quote ,filter-type)
                      prescient-filter-method)
                (progn
