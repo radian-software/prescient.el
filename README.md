@@ -115,11 +115,11 @@ The following user options are specific to using Prescient with Ivy:
 
 ### Selectrum-Specific
 For Selectrum, you can use special commands to toggle the current
-filters that you are using. For example, to toggle regexp filtering
-filtering on or off (perhaps you're searching for a long/complex
-candidate), you can press `M-s r`. If you wish to use *only* regexp
-filtering, you can use `C-u M-s r` to unconditionally turn on regexp
-filtering and turn off all other methods.
+filters that you are using. For example, to toggle regexp filtering on
+or off (perhaps you're searching for a long/complex candidate), you
+can press `M-s r`. If you wish to use *only* regexp filtering, you can
+use `C-u M-s r` to unconditionally turn on regexp filtering and turn
+off all other methods.
 
 These commands can be found in
 `selectrum-prescient-filter-toggle-map`,
