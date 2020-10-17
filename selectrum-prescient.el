@@ -91,6 +91,7 @@ passed to `kbd' which will be bound in
          (command-name (intern (concat "selectrum-prescient-toggle-"
                                        filter-type-name))))
     `(progn
+       ;; First we create the toggling command.
        (defun ,command-name
            (arg) ; Arg list
          ,(format
@@ -98,35 +99,51 @@ passed to `kbd' which will be bound in
            filter-type-name)
          (interactive "P")
 
-         (if arg
-             (setq-local prescient-filter-method
-                         (list (quote ,filter-type)))
+         ;; Make sure the user doesn't accidentally disable all
+         ;; filtering.
+         (if (or (equal prescient-filter-method
+                        (list (quote ,filter-type)))
+                 (eq prescient-filter-method
+                     (quote ,filter-type)))
+             (user-error
+              "Prescient.el: Can't disable only active filtering method")
 
-           ;; If needed, turn `prescient-filter-method' into a list of
-           ;; symbols.
-           (when (nlistp prescient-filter-method)
-             (setq-local prescient-filter-method
-                         (list prescient-filter-method)))
+           ;; Otherwise, change the buffer-local value of
+           ;; `prescient-filter-method'.
+           (if arg
+               ;; If user provides a prefix argument, set filtering to
+               ;; be a list of only one filter type.
+               (setq-local prescient-filter-method
+                           (list (quote ,filter-type)))
 
-           ;; Add or remove the filtering method from
-           ;; `prescient-filter-method' and tell the user what
-           ;; happened.
-           (if (memq (quote ,filter-type)
-                     prescient-filter-method)
-               (progn
+             ;; Without an argument, just add or remove `filter-type'
+             ;; from `prescient-filter-method'.
+
+             ;; First, if needed, turn `prescient-filter-method' into a
+             ;; list of symbols.
+             (when (nlistp prescient-filter-method)
+               (setq-local prescient-filter-method
+                           (list prescient-filter-method)))
+
+             ;; Second, change `prescient-filter-method'.
+             (if (memq (quote ,filter-type)
+                       prescient-filter-method)
                  (setq-local prescient-filter-method
                              (remove (quote ,filter-type)
                                      prescient-filter-method))
-                 (message "%s filter toggled off."
-                          ,(capitalize filter-type-name)))
-             (setq-local prescient-filter-method
-                         (cons (quote ,filter-type)
-                               prescient-filter-method))
-             (message "%s filter toggled on."
-                      ,(capitalize filter-type-name))))
+               (setq-local prescient-filter-method
+                           (cons (quote ,filter-type)
+                                 prescient-filter-method))))
 
-         ;; Finally, update Selectrum's display.
-         (selectrum-exhibit))
+           ;; Third, message the new value of `prescient-filter-method'.
+           (message "Filter now %S"
+                    prescient-filter-method)
+
+           ;; Finally, update Selectrum's display.
+           (selectrum-exhibit)))
+
+       ;; After defining the toggling command for `filter-type', bind
+       ;; it to the given `key-string'.
        (define-key selectrum-prescient-filter-toggle-map
          (kbd ,key-string) (function ,command-name)))))
 
