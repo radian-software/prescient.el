@@ -130,6 +130,7 @@ passed to `kbd' which will be bound in
        (define-key selectrum-prescient-filter-toggle-map
          (kbd ,key-string) (function ,command-name)))))
 
+(selectrum--prescient-create-and-bind-toggle-command anchored "a")
 (selectrum--prescient-create-and-bind-toggle-command fuzzy "f")
 (selectrum--prescient-create-and-bind-toggle-command initialism "i")
 (selectrum--prescient-create-and-bind-toggle-command literal "l")
