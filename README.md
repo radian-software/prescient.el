@@ -64,7 +64,7 @@ ones, and then the remaining candidates are sorted by length. If you
 don't like the algorithm used for filtering, you can choose a
 different one by customizing `prescient-filter-method`.
 
-## Configuration and Other Features
+## Configuration and other features
 
 * `prescient-history-length`: The number of recently selected
   candidates that are remembered and displayed at the top of the list.
@@ -90,7 +90,7 @@ different one by customizing `prescient-filter-method`.
   matching, regexp matching, fuzzy matching, prefix matching, or any
   combination of those. See the docstring for full details.
 
-### Ivy-Specific
+### Ivy-specific
 The following user options are specific to using Prescient with Ivy:
 
 * `ivy-prescient-sort-commands`: By default, all commands have their
@@ -113,7 +113,7 @@ The following user options are specific to using Prescient with Ivy:
   the Ivy documentation for information on how Ivy sorts by default,
   and how to customize it manually.
 
-### Selectrum-Specific
+### Selectrum-specific
 For Selectrum, you can use special commands to toggle the current
 filters that you are using. For example, to toggle regexp filtering on
 or off (perhaps you're searching for a long/complex candidate), you
