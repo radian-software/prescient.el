@@ -129,13 +129,13 @@ to Isearch's own toggling commands (such as
 `isearch-toggle-char-fold`, bound to `M-s '`), except that multiple
 filtering methods can be active at the same time.
 
-| Key   | Command                               |
-|-------|---------------------------------------|
-| M-s f | selectrum-prescient-toggle-fuzzy      |
-| M-s i | selectrum-prescient-toggle-initialism |
-| M-s l | selectrum-prescient-toggle-literal    |
-| M-s p | selectrum-prescient-toggle-prefix     |
-| M-s r | selectrum-prescient-toggle-regexp     |
+| Key   | Command                                 |
+|-------|-----------------------------------------|
+| M-s f | `selectrum-prescient-toggle-fuzzy`      |
+| M-s i | `selectrum-prescient-toggle-initialism` |
+| M-s l | `selectrum-prescient-toggle-literal`    |
+| M-s p | `selectrum-prescient-toggle-prefix`     |
+| M-s r | `selectrum-prescient-toggle-regexp`     |
 
 These commands only affect the current Selectrum buffer, not the
 default filter settings. To permanently change your filter settings,

@@ -26,13 +26,13 @@ The format is based on [Keep a Changelog].
     `selectrum-prescient-filter-toggle-map`. The following toggle
     commands and their keys are:
 
-    | Key   | Command                               |
-    |-------|---------------------------------------|
-    | M-s f | selectrum-prescient-toggle-fuzzy      |
-    | M-s i | selectrum-prescient-toggle-initialism |
-    | M-s l | selectrum-prescient-toggle-literal    |
-    | M-s p | selectrum-prescient-toggle-prefix     |
-    | M-s r | selectrum-prescient-toggle-regexp     |
+    | Key   | Command                                 |
+    |-------|-----------------------------------------|
+    | M-s f | `selectrum-prescient-toggle-fuzzy`      |
+    | M-s i | `selectrum-prescient-toggle-initialism` |
+    | M-s l | `selectrum-prescient-toggle-literal`    |
+    | M-s p | `selectrum-prescient-toggle-prefix`     |
+    | M-s r | `selectrum-prescient-toggle-regexp`     |
 
 
 [#66]: https://github.com/raxod502/prescient.el/pull/66
