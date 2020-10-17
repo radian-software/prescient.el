@@ -116,19 +116,24 @@ Ivy:
   and how to customize it manually.
 
 ### Selectrum-specific
-For Selectrum, you can use special commands to toggle the current
-filters that you are using. For example, to toggle regexp filtering on
-or off (perhaps you're searching for a long/complex candidate), you
-can press `M-s r`. If you wish to use *only* regexp filtering, you can
-use `C-u M-s r` to unconditionally turn on regexp filtering and turn
-off all other methods.
+`selectrum-prescient.el` provides special commands (see the table
+below) to adjust how `prescient.el` filters candidates in the current
+Selectrum buffer.
 
-These commands can be found in
-`selectrum-prescient-filter-toggle-map`,
-which is bound to `M-s` inside the Selectrum buffer. This is similar
-to Isearch's own toggling commands (such as
-`isearch-toggle-char-fold`, bound to `M-s '`), except that multiple
-filtering methods can be active at the same time.
+For example, to toggle regexp filtering on or off (perhaps you're
+searching for a long/complex candidate), you can press `M-s r`. If you
+wish to use *only* regexp filtering, you can use `C-u M-s r` to
+unconditionally turn on regexp filtering and turn off all other
+methods. This toggling is a buffer-local effect, and does not change
+the default filter settings. For that, customize
+`prescient-filter-method`.
+
+These commands are similar to Isearch's own toggling commands in
+usage, except that multiple filtering methods can be active at the
+same time. In the Selectrum buffer, `M-s` is bound to
+`selectrum-prescient-filter-toggle-map` when
+`selectrum-prescient-mode` is active, and is used as a prefix key to
+access the commands.
 
 | Key   | Command                                 |
 |-------|-----------------------------------------|
@@ -138,10 +143,6 @@ filtering methods can be active at the same time.
 | M-s l | `selectrum-prescient-toggle-literal`    |
 | M-s p | `selectrum-prescient-toggle-prefix`     |
 | M-s r | `selectrum-prescient-toggle-regexp`     |
-
-These commands only affect the current Selectrum buffer, not the
-default filter settings. To permanently change your filter settings,
-you should customize `prescient-filter-method`.
 
 ## Contributor guide
 
