@@ -130,8 +130,8 @@ passed to `kbd' which will be bound in
              (if (memq (quote ,filter-type)
                        prescient-filter-method)
                  (setq-local prescient-filter-method
-                             (remove (quote ,filter-type)
-                                     prescient-filter-method))
+                             (remq (quote ,filter-type)
+                                   prescient-filter-method))
                (setq-local prescient-filter-method
                            (cons (quote ,filter-type)
                                  prescient-filter-method))))
