@@ -136,7 +136,7 @@ passed to `kbd' which will be bound in
                                  prescient-filter-method))))
 
            ;; Third, message the new value of `prescient-filter-method'.
-           (message "Prescient.el filter now %s"
+           (message "Prescient.el filter is now %s"
                     prescient-filter-method)
 
            ;; Finally, update Selectrum's display.
