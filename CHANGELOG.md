@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog].
 
 ## Unreleased
 ### Enhancements
+* Anchored matching, a new filtering method that uses uppercase
+  letters and symbols as beginning of word, similar to initialism.
+  It can be enabled by adding `anchored` to
+  `prescient-filter-method`.
+  
+  For example `TTL` matches `toogle-truncate-lines` and `FiAPo`
+  or `fiAPo` match both `find-file-at-point` and
+  `find-function-at-point`. However `fiFiAPo` matches only the former
+  and `fiFuAPo` matches only the latter. See [#70].
 * Prefix matching, a new filtering method similar to the Emacs
   completion style `partial`, was added. It can be enabled by adding
   `prefix` to `prescient-filter-method`.
@@ -37,6 +46,7 @@ The format is based on [Keep a Changelog].
 
 [#66]: https://github.com/raxod502/prescient.el/pull/66
 [#67]: https://github.com/raxod502/prescient.el/pull/67
+[#70]: https://github.com/raxod502/prescient.el/pull/70
 [#72]: https://github.com/raxod502/prescient.el/pull/72
 
 ## 5.0 (release 2020-07-16)

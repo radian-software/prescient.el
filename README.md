@@ -87,8 +87,9 @@ different one by customizing `prescient-filter-method`.
 * `prescient-filter-method`: A list of algorithms to use for filtering
   candidates. The default is `literal`, `regexp`, and `initialism` as
   described above, but you can also use substring matching, initialism
-  matching, regexp matching, fuzzy matching, prefix matching, or any
-  combination of those. See the docstring for full details.
+  matching, regexp matching, fuzzy matching, prefix matching, anchored
+  matching or any combination of those. See the docstring for full
+  details.
 
 ### Ivy-specific
 The following user options are specific to using `prescient.el` with
