@@ -73,58 +73,12 @@ For use on `selectrum-candidate-selected-hook'."
 (defvar selectrum-prescient--old-highlight-function nil
   "Previous value of `selectrum-highlight-candidates-function'.")
 
-;;;###autoload
-(define-minor-mode selectrum-prescient-mode
-  "Minor mode to use prescient.el in Selectrum menus."
-  :global t
-  :group 'prescient
-  (if selectrum-prescient-mode
-      (progn
-        ;; Prevent messing up variables if we explicitly enable the
-        ;; mode when it's already on.
-        (selectrum-prescient-mode -1)
-        (setq selectrum-prescient-mode t)
-        (setq selectrum-prescient--old-refine-function
-              selectrum-refine-candidates-function)
-        (setq selectrum-refine-candidates-function
-              #'prescient-filter)
-        (setq selectrum-prescient--old-preprocess-function
-              selectrum-preprocess-candidates-function)
-        (setq selectrum-preprocess-candidates-function
-              #'selectrum-prescient--preprocess)
-        (setq selectrum-prescient--old-highlight-function
-              selectrum-highlight-candidates-function)
-        (setq selectrum-highlight-candidates-function
-              #'selectrum-prescient--highlight)
-        (add-hook 'selectrum-candidate-selected-hook
-                  #'selectrum-prescient--remember)
-        (add-hook 'selectrum-candidate-inserted-hook
-                  #'selectrum-prescient--remember))
-    (when (eq selectrum-refine-candidates-function
-              #'prescient-filter)
-      (setq selectrum-refine-candidates-function
-            selectrum-prescient--old-refine-function))
-    (when (eq selectrum-preprocess-candidates-function
-              #'selectrum-prescient--preprocess)
-      (setq selectrum-preprocess-candidates-function
-            selectrum-prescient--old-preprocess-function))
-    (when (eq selectrum-highlight-candidates-function
-              #'selectrum-prescient--highlight)
-      (setq selectrum-highlight-candidates-function
-            selectrum-prescient--old-highlight-function))
-    (remove-hook 'selectrum-candidate-selected-hook
-                 #'selectrum-prescient--remember)
-    (remove-hook 'selectrum-candidate-inserted-hook
-                 #'selectrum-prescient--remember)))
-
-;;;; Commands
+;;;;; Toggling Commands
 (defvar selectrum-prescient-filter-toggle-map (make-sparse-keymap)
   "A keymap of commands for toggling Prescient filters in Selectrum.
 The toggling of commands is temporary and does not affect the
 default filtering settings determined by `prescient-filter-method'.")
 ;; Create a binding similar to the Isearch toggles.
-(define-key selectrum-minibuffer-map
-  "\M-s" selectrum-prescient-filter-toggle-map)
 
 (defmacro selectrum--prescient-create-and-bind-toggle-command
     (filter-type key-string)
@@ -181,6 +135,55 @@ passed to `kbd' which will be bound in
 (selectrum--prescient-create-and-bind-toggle-command literal "l")
 (selectrum--prescient-create-and-bind-toggle-command prefix "p")
 (selectrum--prescient-create-and-bind-toggle-command regexp "r")
+
+;;;###autoload
+(define-minor-mode selectrum-prescient-mode
+  "Minor mode to use prescient.el in Selectrum menus."
+  :global t
+  :group 'prescient
+  (if selectrum-prescient-mode
+      (progn
+        ;; Prevent messing up variables if we explicitly enable the
+        ;; mode when it's already on.
+        (selectrum-prescient-mode -1)
+        (setq selectrum-prescient-mode t)
+        (setq selectrum-prescient--old-refine-function
+              selectrum-refine-candidates-function)
+        (setq selectrum-refine-candidates-function
+              #'prescient-filter)
+        (setq selectrum-prescient--old-preprocess-function
+              selectrum-preprocess-candidates-function)
+        (setq selectrum-preprocess-candidates-function
+              #'selectrum-prescient--preprocess)
+        (setq selectrum-prescient--old-highlight-function
+              selectrum-highlight-candidates-function)
+        (setq selectrum-highlight-candidates-function
+              #'selectrum-prescient--highlight)
+        (add-hook 'selectrum-candidate-selected-hook
+                  #'selectrum-prescient--remember)
+        (add-hook 'selectrum-candidate-inserted-hook
+                  #'selectrum-prescient--remember)
+        (define-key selectrum-minibuffer-map
+          (kbd "M-s") selectrum-prescient-filter-toggle-map))
+    (when (eq selectrum-refine-candidates-function
+              #'prescient-filter)
+      (setq selectrum-refine-candidates-function
+            selectrum-prescient--old-refine-function))
+    (when (eq selectrum-preprocess-candidates-function
+              #'selectrum-prescient--preprocess)
+      (setq selectrum-preprocess-candidates-function
+            selectrum-prescient--old-preprocess-function))
+    (when (eq selectrum-highlight-candidates-function
+              #'selectrum-prescient--highlight)
+      (setq selectrum-highlight-candidates-function
+            selectrum-prescient--old-highlight-function))
+    (remove-hook 'selectrum-candidate-selected-hook
+                 #'selectrum-prescient--remember)
+    (remove-hook 'selectrum-candidate-inserted-hook
+                 #'selectrum-prescient--remember)
+    (when (equal (lookup-key selectrum-minibuffer-map (kbd "M-s"))
+                 selectrum-prescient-filter-toggle-map)
+      (define-key selectrum-minibuffer-map (kbd "M-s") nil))))
 
 ;;;; Closing remarks
 
