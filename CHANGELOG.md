@@ -37,12 +37,12 @@ The format is based on [Keep a Changelog].
 
     | Key   | Command                                 |
     |-------|-----------------------------------------|
+    | M-s a | `selectrum-prescient-toggle-anchored`   |
     | M-s f | `selectrum-prescient-toggle-fuzzy`      |
     | M-s i | `selectrum-prescient-toggle-initialism` |
     | M-s l | `selectrum-prescient-toggle-literal`    |
     | M-s p | `selectrum-prescient-toggle-prefix`     |
     | M-s r | `selectrum-prescient-toggle-regexp`     |
-
 
 [#66]: https://github.com/raxod502/prescient.el/pull/66
 [#67]: https://github.com/raxod502/prescient.el/pull/67

@@ -132,6 +132,7 @@ filtering methods can be active at the same time.
 
 | Key   | Command                                 |
 |-------|-----------------------------------------|
+| M-s a | `selectrum-prescient-toggle-anchored`   |
 | M-s f | `selectrum-prescient-toggle-fuzzy`      |
 | M-s i | `selectrum-prescient-toggle-initialism` |
 | M-s l | `selectrum-prescient-toggle-literal`    |
