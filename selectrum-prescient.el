@@ -74,7 +74,7 @@ For use on `selectrum-candidate-selected-hook'."
   "Previous value of `selectrum-highlight-candidates-function'.")
 
 ;;;;; Toggling Commands
-(defvar selectrum-prescient-filter-toggle-map (make-sparse-keymap)
+(defvar selectrum-prescient-toggle-map (make-sparse-keymap)
   "A keymap of commands for toggling Prescient filters in Selectrum.
 The toggling of commands is temporary and does not affect the
 default filtering settings determined by `prescient-filter-method'.")
@@ -86,7 +86,7 @@ default filtering settings determined by `prescient-filter-method'.")
 FILTER-TYPE is an unquoted symbol which can be included in
 `prescient-filter-method'.  KEY-STRING is a string that can be
 passed to `kbd' which will be bound in
-`selectrum-prescient-filter-toggle-map'."
+`selectrum-prescient-toggle-map'."
   (let* ((filter-type-name (symbol-name filter-type))
          (command-name (intern (concat "selectrum-prescient-toggle-"
                                        filter-type-name))))
@@ -144,7 +144,7 @@ passed to `kbd' which will be bound in
 
        ;; After defining the toggling command for `filter-type', bind
        ;; it to the given `key-string'.
-       (define-key selectrum-prescient-filter-toggle-map
+       (define-key selectrum-prescient-toggle-map
          (kbd ,key-string) (function ,command-name)))))
 
 (selectrum--prescient-create-and-bind-toggle-command anchored "a")
@@ -182,7 +182,7 @@ passed to `kbd' which will be bound in
         (add-hook 'selectrum-candidate-inserted-hook
                   #'selectrum-prescient--remember)
         (define-key selectrum-minibuffer-map
-          (kbd "M-s") selectrum-prescient-filter-toggle-map))
+          (kbd "M-s") selectrum-prescient-toggle-map))
     (when (eq selectrum-refine-candidates-function
               #'prescient-filter)
       (setq selectrum-refine-candidates-function
@@ -200,7 +200,7 @@ passed to `kbd' which will be bound in
     (remove-hook 'selectrum-candidate-inserted-hook
                  #'selectrum-prescient--remember)
     (when (equal (lookup-key selectrum-minibuffer-map (kbd "M-s"))
-                 selectrum-prescient-filter-toggle-map)
+                 selectrum-prescient-toggle-map)
       (define-key selectrum-minibuffer-map (kbd "M-s") nil))))
 
 ;;;; Closing remarks

@@ -131,9 +131,8 @@ the default filter settings. For that, customize
 These commands are similar to Isearch's own toggling commands in
 usage, except that multiple filtering methods can be active at the
 same time. In the Selectrum buffer, `M-s` is bound to
-`selectrum-prescient-filter-toggle-map` when
-`selectrum-prescient-mode` is active, and is used as a prefix key to
-access the commands.
+`selectrum-prescient-toggle-map` when `selectrum-prescient-mode` is
+active, and is used as a prefix key to access the commands.
 
 | Key   | Command                                 |
 |-------|-----------------------------------------|
