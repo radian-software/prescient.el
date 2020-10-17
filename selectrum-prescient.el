@@ -99,44 +99,38 @@ passed to `kbd' which will be bound in
            filter-type-name)
          (interactive "P")
 
-         ;; Make sure the user doesn't accidentally disable all
-         ;; filtering.
-         (if (or (equal prescient-filter-method
-                        (list (quote ,filter-type)))
-                 (eq prescient-filter-method
-                     (quote ,filter-type)))
-             (user-error
-              "prescient.el: Can't toggle only filter method: %s"
-              ,filter-type-name)
+         ;; Make `prescient-filter-method' buffer-local in the
+         ;; Selectrum buffer. We don't want to accidentally change the
+         ;; user's default settings.
+         (make-local-variable 'prescient-filter-method)
 
-           ;; Otherwise, change the buffer-local value of
-           ;; `prescient-filter-method'.
-           (if arg
-               ;; If user provides a prefix argument, set filtering to
-               ;; be a list of only one filter type.
-               (setq-local prescient-filter-method
-                           (list (quote ,filter-type)))
+         (if arg
+             ;; If user provides a prefix argument, set filtering to
+             ;; be a list of only one filter type.
+             (setq prescient-filter-method
+                   (list (quote ,filter-type)))
 
-             ;; Without an argument, just add or remove `filter-type'
-             ;; from `prescient-filter-method'.
+           ;; Otherwise, if we need to add or remove from the list,
+           ;; make sure it's actually a list.
+           (when (nlistp prescient-filter-method)
+             (setq prescient-filter-method
+                   (list prescient-filter-method)))
 
-             ;; First, if needed, turn `prescient-filter-method' into a
-             ;; list of symbols.
-             (when (nlistp prescient-filter-method)
-               (setq-local prescient-filter-method
-                           (list prescient-filter-method)))
+           (if (equal prescient-filter-method '(,filter-type))
+               ;; Make sure the user doesn't accidentally disable all
+               ;; filtering.
+               (user-error
+                "prescient.el: Can't toggle only filter method: %s"
+                ,filter-type-name)
 
-             ;; Second, change `prescient-filter-method'.
-             (if (memq (quote ,filter-type)
-                       prescient-filter-method)
-                 (setq-local prescient-filter-method
-                             (remq (quote ,filter-type)
-                                   prescient-filter-method))
-               (setq-local prescient-filter-method
-                           (cons (quote ,filter-type)
-                                 prescient-filter-method))))
+             (setq
+              prescient-filter-method
+              (if (memq ',filter-type prescient-filter-method)
+                  (remq ',filter-type prescient-filter-method)
+                (cons ',filter-type prescient-filter-method))))
 
-           ;; Third, message the new value of `prescient-filter-method'.
+           ;; After changing `prescient-filter-method', tell user the
+           ;; new value.
            (message "prescient.el filter is now %s"
                     prescient-filter-method)
 
