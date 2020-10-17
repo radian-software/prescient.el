@@ -116,7 +116,8 @@ be `literal+initialism', which equivalent to the list (`literal'
           (const :tag "Regexp" regexp)
           (const :tag "Initialism" initialism)
           (const :tag "Fuzzy" fuzzy)
-          (const :tag "Prefix" prefix)))
+          (const :tag "Prefix" prefix)
+          (const :tag "Anchored" anchored)))
 
 (defcustom prescient-sort-length-enable t
   "Whether to sort candidates by length.
@@ -321,6 +322,31 @@ capture groups matching \"f\" and \"a\"."
              query
              "\\W*"))
 
+(defun prescient--anchored-regexp (query &optional with-groups)
+  "Return a regexp matching QUERY with anchors.
+This means uppercase and symbols will be used as begin of words.
+
+If WITH-GROUPS is non-nil, enclose the parts of the regexp that
+match the actual initials in capture groups, so that the match
+data can be used to highlight the initials of the match.
+
+To illustrate, \"FiFiAt\" matches \"find-file-at-point\" with
+the entire match being \"file-find-at\" and with three groups
+\"find\", \"file\", and \"at\".
+
+A similar match can be achieve with \"fi-fi-at\", or \"FFA\",
+or \"find-f-a\"."
+  (let ((case-fold-search nil)
+        (expr (if with-groups
+                  "\\(\\b%s\\)[^\\/]*?"
+                "\\b%s[^\\/]*?")))
+    (replace-regexp-in-string
+     "[[:upper:]][[:lower:]]*\\|\\W[[:lower:]]*\\|[[:lower:]]+"
+     (lambda (s) (format expr (regexp-quote (downcase s))))
+     query
+     'fixed-case
+     'literal)))
+
 (defun prescient--fuzzy-regexp (query &optional with-groups)
   "Return a regexp for fuzzy-matching QUERY.
 This means that the regexp will only match a given string if
@@ -399,7 +425,9 @@ enclose literal substrings with capture groups."
             (`fuzzy
              (prescient--fuzzy-regexp subquery with-groups))
             (`prefix
-             (prescient--prefix-regexp subquery with-groups))))
+             (prescient--prefix-regexp subquery with-groups))
+            (`anchored
+             (prescient--anchored-regexp subquery with-groups))))
         (pcase prescient-filter-method
           ;; We support `literal+initialism' for backwards
           ;; compatibility.
