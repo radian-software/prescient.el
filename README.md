@@ -91,7 +91,8 @@ different one by customizing `prescient-filter-method`.
   combination of those. See the docstring for full details.
 
 ### Ivy-specific
-The following user options are specific to using Prescient with Ivy:
+The following user options are specific to using `prescient.el` with
+Ivy:
 
 * `ivy-prescient-sort-commands`: By default, all commands have their
   candidates sorted. You can override this behavior by customizing
