@@ -123,11 +123,9 @@ For use on `selectrum-candidate-selected-hook'."
 The toggling of commands is temporary and does not affect the
 default filtering settings determined by `prescient-filter-method'.")
 ;; Create a binding similar to the Isearch toggles.
-(defvar selectrum-minibuffer-map)
 (define-key selectrum-minibuffer-map
   "\M-s" selectrum-prescient-filter-toggle-map)
 
-(declare-function selectrum-exhibit "ext:selectrum")
 (defmacro selectrum--prescient-create-and-bind-toggle-command
     (filter-type key-string)
   "Create a command to toggle the use of FILTER-TYPE in Selectrum.
