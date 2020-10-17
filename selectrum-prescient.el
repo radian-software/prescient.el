@@ -106,7 +106,8 @@ passed to `kbd' which will be bound in
                  (eq prescient-filter-method
                      (quote ,filter-type)))
              (user-error
-              "Prescient.el: Can't disable only active filtering method")
+              "prescient.el: Can't toggle only filter method: %s"
+              ,filter-type-name)
 
            ;; Otherwise, change the buffer-local value of
            ;; `prescient-filter-method'.
@@ -136,7 +137,7 @@ passed to `kbd' which will be bound in
                                  prescient-filter-method))))
 
            ;; Third, message the new value of `prescient-filter-method'.
-           (message "Prescient.el filter is now %s"
+           (message "prescient.el filter is now %s"
                     prescient-filter-method)
 
            ;; Finally, update Selectrum's display.
