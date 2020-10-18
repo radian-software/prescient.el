@@ -108,8 +108,7 @@ passed to `kbd', whose output will be bound in
          (if arg
              ;; If user provides a prefix argument, set filtering to
              ;; be a list of only one filter type.
-             (setq prescient-filter-method
-                   (list (quote ,filter-type)))
+             (setq prescient-filter-method '(,filter-type))
 
            ;; Otherwise, if we need to add or remove from the list,
            ;; make sure it's actually a list.
