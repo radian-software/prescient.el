@@ -123,18 +123,15 @@ passed to `kbd', whose output will be bound in
                 "Prescient.el: Can't toggle only filter method: %s"
                 ,filter-type-name)
 
-             (setq
-              prescient-filter-method
-              (if (memq ',filter-type prescient-filter-method)
-                  (remq ',filter-type prescient-filter-method)
-                (cons ',filter-type prescient-filter-method))))
+             (setq prescient-filter-method
+                   (if (memq ',filter-type prescient-filter-method)
+                       (remq ',filter-type prescient-filter-method)
+                     (cons ',filter-type prescient-filter-method))))
 
-           ;; After changing `prescient-filter-method', tell user the
-           ;; new value.
+           ;; After changing `prescient-filter-method', tell the user
+           ;; the new value and update Selectrum's display.
            (message "Prescient.el filter is now %s"
                     prescient-filter-method)
-
-           ;; Finally, update Selectrum's display.
            (selectrum-exhibit)))
 
        ;; After defining the toggling command for `filter-type', bind
