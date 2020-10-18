@@ -111,8 +111,8 @@ passed to `kbd', whose output will be bound in
              (setq prescient-filter-method '(,filter-type))
 
            ;; Otherwise, if we need to add or remove from the list,
-           ;; make sure it's actually a list.
-           (when (nlistp prescient-filter-method)
+           ;; make sure it's actually a list and not just a symbol.
+           (when (symbolp prescient-filter-method)
              (setq prescient-filter-method
                    (list prescient-filter-method)))
 
