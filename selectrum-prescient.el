@@ -88,12 +88,12 @@ FILTER-TYPE is an unquoted symbol that can be used in
 `prescient-filter-method'.  KEY-STRING is a string that can be
 passed to `kbd', whose output will be bound in
 `selectrum-prescient-toggle-map' to the created command."
-  (let* ((filter-type-name (symbol-name filter-type))
-         (command-name (intern (concat "selectrum-prescient-toggle-"
-                                       filter-type-name))))
-    `(progn
-       ;; First we create the toggling command.
-       (defun ,command-name
+  (let* ((filter-type-name (symbol-name filter-type)))
+
+    `(define-key selectrum-prescient-toggle-map
+       (kbd ,key-string)
+       (defun ,(intern (concat "selectrum-prescient-toggle-"
+                               filter-type-name))
            (arg) ; Arg list
          ,(format
            "Toggle the \"%s\" filter. With ARG, use only this filter."
@@ -132,12 +132,7 @@ passed to `kbd', whose output will be bound in
            ;; the new value and update Selectrum's display.
            (message "Prescient.el filter is now %s"
                     prescient-filter-method)
-           (selectrum-exhibit)))
-
-       ;; After defining the toggling command for `filter-type', bind
-       ;; it to the given `key-string'.
-       (define-key selectrum-prescient-toggle-map
-         (kbd ,key-string) (function ,command-name)))))
+           (selectrum-exhibit))))))
 
 (selectrum--prescient-create-and-bind-toggle-command anchored "a")
 (selectrum--prescient-create-and-bind-toggle-command fuzzy "f")
