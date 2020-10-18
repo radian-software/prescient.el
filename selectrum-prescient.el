@@ -120,7 +120,7 @@ passed to `kbd', whose output will be bound in
                ;; Make sure the user doesn't accidentally disable all
                ;; filtering.
                (user-error
-                "Prescient.el: Can't toggle only filter method: %s"
+                "Prescient.el: Can't toggle off only active filter method: %s"
                 ,filter-type-name)
 
              (setq prescient-filter-method
