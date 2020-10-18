@@ -126,13 +126,13 @@ passed to `kbd', whose output will be bound in
              (setq prescient-filter-method
                    (if (memq ',filter-type prescient-filter-method)
                        (remq ',filter-type prescient-filter-method)
-                     (cons ',filter-type prescient-filter-method))))
+                     (cons ',filter-type prescient-filter-method)))))
 
-           ;; After changing `prescient-filter-method', tell the user
-           ;; the new value and update Selectrum's display.
-           (message "Prescient.el filter is now %s"
-                    prescient-filter-method)
-           (selectrum-exhibit))))))
+         ;; After changing `prescient-filter-method', tell the user
+         ;; the new value and update Selectrum's display.
+         (message "Prescient.el filter is now %s"
+                  prescient-filter-method)
+         (selectrum-exhibit)))))
 
 (selectrum--prescient-create-and-bind-toggle-command anchored "a")
 (selectrum--prescient-create-and-bind-toggle-command fuzzy "f")
