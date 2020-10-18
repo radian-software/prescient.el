@@ -82,11 +82,12 @@ default filtering settings determined by `prescient-filter-method'.")
 
 (defmacro selectrum--prescient-create-and-bind-toggle-command
     (filter-type key-string)
-  "Create a command to toggle the use of FILTER-TYPE in Selectrum.
-FILTER-TYPE is an unquoted symbol which can be included in
+  "Create and bind a command to toggle the use of FILTER-TYPE in Selectrum.
+
+FILTER-TYPE is an unquoted symbol that can be used in
 `prescient-filter-method'.  KEY-STRING is a string that can be
-passed to `kbd' which will be bound in
-`selectrum-prescient-toggle-map'."
+passed to `kbd', whose output will be bound in
+`selectrum-prescient-toggle-map' to the created command."
   (let* ((filter-type-name (symbol-name filter-type))
          (command-name (intern (concat "selectrum-prescient-toggle-"
                                        filter-type-name))))
@@ -120,7 +121,7 @@ passed to `kbd' which will be bound in
                ;; Make sure the user doesn't accidentally disable all
                ;; filtering.
                (user-error
-                "prescient.el: Can't toggle only filter method: %s"
+                "Prescient.el: Can't toggle only filter method: %s"
                 ,filter-type-name)
 
              (setq
@@ -131,7 +132,7 @@ passed to `kbd' which will be bound in
 
            ;; After changing `prescient-filter-method', tell user the
            ;; new value.
-           (message "prescient.el filter is now %s"
+           (message "Prescient.el filter is now %s"
                     prescient-filter-method)
 
            ;; Finally, update Selectrum's display.
