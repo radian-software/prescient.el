@@ -32,8 +32,8 @@ The format is based on [Keep a Changelog].
   can use a prefix argument to use only the filtering method
   associated with that command. See [#72].
   * In `selectrum-minibuffer-map`, `M-s` is now bound to
-    `selectrum-prescient-toggle-map`. The following toggle commands
-    and their keys are:
+    `selectrum-prescient-toggle-map`. The toggling commands and their
+    keys bindings are:
 
     | Key   | Command                                 |
     |-------|-----------------------------------------|

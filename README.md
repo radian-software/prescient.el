@@ -128,11 +128,11 @@ methods. This toggling is a buffer-local effect, and does not change
 the default filter settings. For that, customize
 `prescient-filter-method`.
 
-These commands are similar to Isearch's own toggling commands in
-usage, except that multiple filtering methods can be active at the
-same time. In the Selectrum buffer, `M-s` is bound to
-`selectrum-prescient-toggle-map` when `selectrum-prescient-mode` is
-active, and is used as a prefix key to access the commands.
+These commands are similar in usage to Isearch's own toggling
+commands, except that multiple filtering methods can be active at the
+same time. While `selectrum-prescient-mode` is enabled, `M-s` is bound
+to `selectrum-prescient-toggle-map` in the Selectrum buffer, and is
+used as a prefix key to access the commands.
 
 | Key   | Command                                 |
 |-------|-----------------------------------------|
