@@ -134,14 +134,14 @@ same time. While `selectrum-prescient-mode` is enabled, `M-s` is bound
 to `selectrum-prescient-toggle-map` in the Selectrum buffer, and is
 used as a prefix key to access the commands.
 
-| Key   | Command                                 |
-|-------|-----------------------------------------|
-| M-s a | `selectrum-prescient-toggle-anchored`   |
-| M-s f | `selectrum-prescient-toggle-fuzzy`      |
-| M-s i | `selectrum-prescient-toggle-initialism` |
-| M-s l | `selectrum-prescient-toggle-literal`    |
-| M-s p | `selectrum-prescient-toggle-prefix`     |
-| M-s r | `selectrum-prescient-toggle-regexp`     |
+| Key     | Command                                 |
+|---------|-----------------------------------------|
+| `M-s a` | `selectrum-prescient-toggle-anchored`   |
+| `M-s f` | `selectrum-prescient-toggle-fuzzy`      |
+| `M-s i` | `selectrum-prescient-toggle-initialism` |
+| `M-s l` | `selectrum-prescient-toggle-literal`    |
+| `M-s p` | `selectrum-prescient-toggle-prefix`     |
+| `M-s r` | `selectrum-prescient-toggle-regexp`     |
 
 ## Contributor guide
 
