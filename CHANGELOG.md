@@ -28,8 +28,8 @@ The format is based on [Keep a Changelog].
   filtering much easier ([#66]).
 * In `selectrum-prescient.el`, commands were added for toggling the
   active filtering methods in the Selectrum buffer. See [#72].
-  * This toggling is a buffer-local effect, and does not change the
-    default filter settings determined by `prescient-filter-method`.
+  * This toggling is a buffer-local effect, and doesn't change the
+    default behavior (determined by `prescient-filter-method`).
   * With a prefix argument, a command unconditionally toggles on its
     respective filtering method and toggles off all others.
   * While `selectrum-prescient-mode` is enabled, `M-s` is bound to

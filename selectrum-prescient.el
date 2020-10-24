@@ -76,13 +76,16 @@ For use on `selectrum-candidate-selected-hook'."
 ;;;;; Toggling Commands
 (defvar selectrum-prescient-toggle-map (make-sparse-keymap)
   "A keymap of commands for toggling Prescient filters in Selectrum.
-The toggling of commands is temporary and does not affect the
-default filtering settings determined by `prescient-filter-method'.")
-;; Create a binding similar to the Isearch toggles.
+Such commands are created and automatically bound in this map by
+`selectrum--prescient-create-and-bind-toggle-command'.")
 
 (defmacro selectrum--prescient-create-and-bind-toggle-command
     (filter-type key-string)
-  "Create and bind a command to toggle the use of FILTER-TYPE in Selectrum.
+  "Create and bind a command to toggle the use of a filter method in Selectrum.
+
+The created command toggles the FILTER-TYPE algorithm on or off
+buffer-locally, and doesn't affect the default
+behavior (determined by `prescient-filter-method').
 
 FILTER-TYPE is an unquoted symbol that can be used in
 `prescient-filter-method'.  KEY-STRING is a string that can be
@@ -96,13 +99,15 @@ passed to `kbd', whose output will be bound in
                                filter-type-name))
            (arg) ; Arg list
          ,(format
-           "Toggle the \"%s\" filter. With ARG, use only this filter."
+           "Toggle the \"%s\" filter. With ARG, use only this filter.
+This toggling is buffer-local, and doesn't affect the default
+behavior (determined by `prescient-filter-method')."
            filter-type-name)
          (interactive "P")
 
          ;; Make `prescient-filter-method' buffer-local in the
          ;; Selectrum buffer. We don't want to accidentally change the
-         ;; user's default settings.
+         ;; user's default behavior.
          (make-local-variable 'prescient-filter-method)
 
          (if arg

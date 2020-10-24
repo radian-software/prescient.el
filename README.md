@@ -125,7 +125,7 @@ searching for a long/complex candidate), you can press `M-s r`. If you
 wish to use *only* regexp filtering, you can use `C-u M-s r` to
 unconditionally turn on regexp filtering and turn off all other
 methods. This toggling is a buffer-local effect, and does not change
-the default filter settings. For that, customize
+the default filter behavior. For that, customize
 `prescient-filter-method`.
 
 These commands are similar in usage to Isearch's own toggling
