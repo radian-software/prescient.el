@@ -88,7 +88,7 @@ buffer-locally, and doesn't affect the default
 behavior (determined by `prescient-filter-method').
 
 FILTER-TYPE is an unquoted symbol that can be used in
-`prescient-filter-method'.  KEY-STRING is a string that can be
+`prescient-filter-method'. KEY-STRING is a string that can be
 passed to `kbd', whose output will be bound in
 `selectrum-prescient-toggle-map' to the created command."
   (let* ((filter-type-name (symbol-name filter-type)))
@@ -99,10 +99,10 @@ passed to `kbd', whose output will be bound in
                                filter-type-name))
            (arg) ; Arg list
          ,(format
-           "Toggle the \"%s\" filter. With ARG, use only this filter.
-This toggling is buffer-local, and doesn't affect the default
-behavior (determined by `prescient-filter-method')."
-           filter-type-name)
+           "Toggle the \"%s\" filter on or off. With ARG, use only this filter.
+This toggling only affects filtering in the current Selectrum
+buffer. It does not affect the default behavior (determined by
+`prescient-filter-method')."  filter-type-name)
          (interactive "P")
 
          ;; Make `prescient-filter-method' buffer-local in the
