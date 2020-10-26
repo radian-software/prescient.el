@@ -26,10 +26,29 @@ The format is based on [Keep a Changelog].
   separating queries with a space. See [#67].
 * Literal matching now supports char folding making Unicode text
   filtering much easier ([#66]).
+* In `selectrum-prescient.el`, commands were added for toggling the
+  active filtering methods in the Selectrum buffer. See [#72].
+  * This toggling is a buffer-local effect, and doesn't change the
+    default behavior (determined by `prescient-filter-method`).
+  * With a prefix argument, a command unconditionally toggles on its
+    respective filtering method and toggles off all others.
+  * While `selectrum-prescient-mode` is enabled, `M-s` is bound to
+    `selectrum-prescient-toggle-map` in the Selectrum buffer, and is
+    used as a prefix key to access the commands.
+
+    | Key     | Command                                 |
+    |---------|-----------------------------------------|
+    | `M-s a` | `selectrum-prescient-toggle-anchored`   |
+    | `M-s f` | `selectrum-prescient-toggle-fuzzy`      |
+    | `M-s i` | `selectrum-prescient-toggle-initialism` |
+    | `M-s l` | `selectrum-prescient-toggle-literal`    |
+    | `M-s p` | `selectrum-prescient-toggle-prefix`     |
+    | `M-s r` | `selectrum-prescient-toggle-regexp`     |
 
 [#66]: https://github.com/raxod502/prescient.el/pull/66
 [#67]: https://github.com/raxod502/prescient.el/pull/67
 [#70]: https://github.com/raxod502/prescient.el/pull/70
+[#72]: https://github.com/raxod502/prescient.el/pull/72
 
 ## 5.0 (release 2020-07-16)
 ### Breaking changes

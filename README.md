@@ -64,7 +64,7 @@ ones, and then the remaining candidates are sorted by length. If you
 don't like the algorithm used for filtering, you can choose a
 different one by customizing `prescient-filter-method`.
 
-## Configuration
+## Configuration and other features
 
 * `prescient-history-length`: The number of recently selected
   candidates that are remembered and displayed at the top of the list.
@@ -91,6 +91,10 @@ different one by customizing `prescient-filter-method`.
   matching or any combination of those. See the docstring for full
   details.
 
+### Ivy-specific
+The following user options are specific to using `prescient.el` with
+Ivy:
+
 * `ivy-prescient-sort-commands`: By default, all commands have their
   candidates sorted. You can override this behavior by customizing
   `ivy-prescient-sort-commands`. See the docstring.
@@ -110,6 +114,34 @@ different one by customizing `prescient-filter-method`.
   `ivy-prescient.el` does not apply `prescient.el` sorting to Ivy. See
   the Ivy documentation for information on how Ivy sorts by default,
   and how to customize it manually.
+
+### Selectrum-specific
+`selectrum-prescient.el` provides special commands (see the table
+below) to adjust how `prescient.el` filters candidates in the current
+Selectrum buffer.
+
+For example, to toggle regexp filtering on or off (perhaps you're
+searching for a long/complex candidate), you can press `M-s r`. If you
+wish to use *only* regexp filtering, you can use `C-u M-s r` to
+unconditionally turn on regexp filtering and turn off all other
+methods. This toggling is a buffer-local effect, and does not change
+the default filter behavior. For that, customize
+`prescient-filter-method`.
+
+These commands are similar in usage to Isearch's own toggling
+commands, except that multiple filtering methods can be active at the
+same time. While `selectrum-prescient-mode` is enabled, `M-s` is bound
+to `selectrum-prescient-toggle-map` in the Selectrum buffer, and is
+used as a prefix key to access the commands.
+
+| Key     | Command                                 |
+|---------|-----------------------------------------|
+| `M-s a` | `selectrum-prescient-toggle-anchored`   |
+| `M-s f` | `selectrum-prescient-toggle-fuzzy`      |
+| `M-s i` | `selectrum-prescient-toggle-initialism` |
+| `M-s l` | `selectrum-prescient-toggle-literal`    |
+| `M-s p` | `selectrum-prescient-toggle-prefix`     |
+| `M-s r` | `selectrum-prescient-toggle-regexp`     |
 
 ## Contributor guide
 
