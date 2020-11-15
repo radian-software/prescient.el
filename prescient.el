@@ -105,6 +105,10 @@ in order, separated by the same non-word characters that separate
 words in the query. This is similar to the completion style
 `partial'.
 
+Value `anchored' means words are separated by capital letters or
+symbols, with capital letters being the start of a new word. This
+is similar to `prefix', but allows for less typing.
+
 Value can also be a list of any of the above methods, in which
 case each method will be applied in order until one matches.
 
