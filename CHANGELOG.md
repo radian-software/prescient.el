@@ -51,12 +51,13 @@ The format is based on [Keep a Changelog].
   regular expressions for matching candidates. Users can create their
   own filter methods by adding a symbol-function pair to
   `prescient-filter-alist` and use that custom method by adding the
-  symbol to `prescient-filter-method`.
+  symbol to `prescient-filter-method`. See [#77].
 
 [#66]: https://github.com/raxod502/prescient.el/pull/66
 [#67]: https://github.com/raxod502/prescient.el/pull/67
 [#70]: https://github.com/raxod502/prescient.el/pull/70
 [#72]: https://github.com/raxod502/prescient.el/pull/72
+[#77]: https://github.com/raxod502/prescient.el/pull/77
 
 ## 5.0 (release 2020-07-16)
 ### Breaking changes
