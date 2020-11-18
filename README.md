@@ -149,6 +149,17 @@ used as a prefix key to access the commands.
 | `M-s p` | `selectrum-prescient-toggle-prefix`     |
 | `M-s r` | `selectrum-prescient-toggle-regexp`     |
 
+When defining custom filter methods, you can create new bindings using
+`selectrum-prescient-create-and-bind-toggle-command`, which takes an
+unquoted filter symbol and a string that can be used by `kbd`. For
+example,
+
+``` emacs-lisp
+(selectrum-prescient-create-and-bind-toggle-command my-foo "M-f")
+```
+
+will bind a command to toggle the `my-foo` filter to `M-s M-f`.
+
 ## Contributor guide
 
 Please see [the contributor guide for my
