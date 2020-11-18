@@ -329,6 +329,13 @@ capture groups matching \"f\" and \"a\"."
              query
              "\\W*"))
 
+(defun prescient--regexp-regexp (query &optional _)
+  "Unless using the regexp QUERY would return an error, return QUERY."
+  (ignore-errors
+    ;; Ignore regexp if it's malformed.
+    (string-match-p query "")
+    query))
+
 (defun prescient--anchored-regexp (query &optional with-groups)
   "Return a regexp matching QUERY with anchors.
 This means uppercase and symbols will be used as begin of words.
@@ -423,10 +430,7 @@ enclose literal substrings with capture groups."
             (`initialism
              (prescient--initials-regexp subquery with-groups))
             (`regexp
-             (ignore-errors
-               ;; Ignore regexp if it's malformed.
-               (string-match-p subquery "")
-               subquery))
+             (prescient--regexp-regexp subquery with-groups))
             (`fuzzy
              (prescient--fuzzy-regexp subquery with-groups))
             (`prefix
