@@ -302,6 +302,13 @@ as a sub-query delimiter."
       (format "\\(%s\\)" regexp)
     regexp))
 
+(defun prescient--literal-regexp (query &optional with-groups)
+  "Return a regexp matching QUERY with character folding.
+If WITH-GROUPS is `all', enclose the match in a capture group."
+  (prescient--with-group
+   (char-fold-to-regexp query)
+   (eq with-groups 'all)))
+
 (defun prescient--initials-regexp (query &optional with-groups)
   "Return a regexp matching QUERY as an initialism.
 This means that the regexp will only match a given string if
@@ -412,9 +419,7 @@ enclose literal substrings with capture groups."
         (lambda (method)
           (pcase method
             (`literal
-             (prescient--with-group
-              (char-fold-to-regexp subquery)
-              (eq with-groups 'all)))
+             (prescient--literal-regexp subquery with-groups))
             (`initialism
              (prescient--initials-regexp subquery with-groups))
             (`regexp
