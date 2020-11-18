@@ -385,26 +385,17 @@ that case by separating queries with a space.
 If WITH-GROUPS is non-nil, enclose the parts of the regexp that
 match the QUERY characters in capture groups, so that the match
 data can be used to highlight the matched substrings."
-  (if with-groups
-      ;; This might put capture groups around empty strings in some
-      ;; cases, but that shouldn't matter.
-      (concat "\\<\\("
-              (replace-regexp-in-string
-               "[^[:word:]]"
-               (lambda (s) (concat "\\)[[:word:]]*"
-                                   (regexp-quote s)
-                                   "\\("))
-               query
-               ;; Since quoting the non-word character, must replace
-               ;; literally.
-               'fixed-case 'literal)
-              "\\)")
-    (concat "\\<"
-            (replace-regexp-in-string
-             "[^[:word:]]"
-             (lambda (s) (concat "[[:word:]]*" (regexp-quote s)))
-             query
-             'fixed-case 'literal))))
+  (replace-regexp-in-string
+   "[[:word:]]+"
+   (if with-groups
+       (lambda (s) (concat "\\(" s "\\)[[:word:]]*"))
+     "\\&[[:word:]]*")
+   ;; Quote non-word characters so that they're taken
+   ;; literally.
+   (replace-regexp-in-string "[^[:word:]]"
+                             (lambda (s) (regexp-quote s))
+                             query 'fixed-case 'literal)
+   'fixed-case with-groups))
 
 ;;;; Sorting and filtering
 
