@@ -45,6 +45,14 @@ The format is based on [Keep a Changelog].
     | `M-s p` | `selectrum-prescient-toggle-prefix`     |
     | `M-s r` | `selectrum-prescient-toggle-regexp`     |
 
+* The custom variable `prescient-filter-alist` was added, which
+  describes the relationship between the symbols in
+  `prescient-filter-list` and the corresponding functions that produce
+  regular expressions for matching candidates. Users can create their
+  own filter methods by adding a symbol-function pair to
+  `prescient-filter-alist` and use that custom method by adding the
+  symbol to `prescient-filter-method`.
+
 [#66]: https://github.com/raxod502/prescient.el/pull/66
 [#67]: https://github.com/raxod502/prescient.el/pull/67
 [#70]: https://github.com/raxod502/prescient.el/pull/70
