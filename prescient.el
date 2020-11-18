@@ -119,6 +119,25 @@ be `literal+initialism', which equivalent to the list (`literal'
           (const :tag "Prefix" prefix)
           (const :tag "Anchored" anchored)))
 
+(defcustom prescient-filter-alist
+  '((literal . prescient--literal-regexp)
+    (initialism . prescient--initials-regexp)
+    (regexp . prescient--regexp-regexp)
+    (fuzzy . prescient--fuzzy-regexp)
+    (prefix . prescient--prefix-regexp)
+    (anchored . prescient--anchored-regexp))
+  "An alist of filter methods and their functions.
+
+These symbols can be included `prescient-filter-method', and
+their corresponding functions will be used to create regexps for
+matching candidates.
+
+A function should take two arguments: the query for which it is
+to create a regexp, and a boolean that describes whether it
+should enclose matched text in capture groups (such as with
+`prescient--with-group')."
+  :type '(alist :key-type symbol :value-type function))
+
 (defcustom prescient-sort-length-enable t
   "Whether to sort candidates by length.
 If non-nil, then candidates with identical recency and frequency
@@ -424,19 +443,13 @@ enclose literal substrings with capture groups."
        nil
        (mapcar
         (lambda (method)
-          (pcase method
-            (`literal
-             (prescient--literal-regexp subquery with-groups))
-            (`initialism
-             (prescient--initials-regexp subquery with-groups))
-            (`regexp
-             (prescient--regexp-regexp subquery with-groups))
-            (`fuzzy
-             (prescient--fuzzy-regexp subquery with-groups))
-            (`prefix
-             (prescient--prefix-regexp subquery with-groups))
-            (`anchored
-             (prescient--anchored-regexp subquery with-groups))))
+          (if-let ((func (alist-get method prescient-filter-alist)))
+              (funcall func subquery with-groups)
+            ;; Don't throw error if function doesn't exist, but do
+            ;; warn user.
+            (message
+             "No function in `prescient-filter-alist' for method: %s"
+             method)))
         (pcase prescient-filter-method
           ;; We support `literal+initialism' for backwards
           ;; compatibility.
