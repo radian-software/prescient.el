@@ -105,6 +105,10 @@ in order, separated by the same non-word characters that separate
 words in the query. This is similar to the completion style
 `partial'.
 
+Value `anchored' means words are separated by capital letters or
+symbols, with capital letters being the start of a new word. This
+is similar to `prefix', but allows for less typing.
+
 Value can also be a list of any of the above methods, in which
 case each method will be applied in order until one matches.
 
@@ -381,17 +385,23 @@ that case by separating queries with a space.
 If WITH-GROUPS is non-nil, enclose the parts of the regexp that
 match the QUERY characters in capture groups, so that the match
 data can be used to highlight the matched substrings."
-  (when (string-match-p "[[:word:]][^[:word:]]" query)
-      (prescient--with-group
-       (concat "\\<"
-               (replace-regexp-in-string
-                "[^[:word:]]"
-                (lambda (s) (concat "[[:word:]]*" (regexp-quote s)))
-                query
-                ;; Since quoting the non-word character,
-                ;; must replace literally.
-                'fixed-case 'literal))
-       with-groups)))
+  (let ((str (replace-regexp-in-string
+              "[[:word:]]+"
+              ;; Choose whether to wrap sequences of word characters.
+              (if with-groups
+                  (lambda (s) (concat "\\(" s "\\)[[:word:]]*"))
+                "\\&[[:word:]]*")
+              ;; Quote non-word characters so that they're taken
+              ;; literally.
+              (replace-regexp-in-string "[^[:word:]]"
+                                        (lambda (s) (regexp-quote s))
+                                        query 'fixed-case 'literal)
+              'fixed-case with-groups)))
+    ;; If regexp begins with a word character, make sure regexp
+    ;; doesn't start matching in the middle of a word.
+    (if (= 0 (string-match-p "[[:word:]]" str))
+        (concat "\\<" str)
+      str)))
 
 ;;;; Sorting and filtering
 
