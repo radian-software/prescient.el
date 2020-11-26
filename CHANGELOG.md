@@ -48,7 +48,7 @@ The format is based on [Keep a Changelog].
     | `M-s p` | `selectrum-prescient-toggle-prefix`     |
     | `M-s r` | `selectrum-prescient-toggle-regexp`     |
 
-* The custom variable `prescient-filter-alist` was added, which
+* The user option `prescient-filter-alist` was added, which
   describes the relationship between the symbols in
   `prescient-filter-list` and the corresponding functions that produce
   regular expressions for matching candidates. Users can create their
