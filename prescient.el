@@ -120,22 +120,22 @@ be `literal+initialism', which equivalent to the list (`literal'
           (const :tag "Anchored" anchored)))
 
 (defcustom prescient-filter-alist
-  '((literal . prescient--literal-regexp)
-    (initialism . prescient--initials-regexp)
-    (regexp . prescient--regexp-regexp)
-    (fuzzy . prescient--fuzzy-regexp)
-    (prefix . prescient--prefix-regexp)
-    (anchored . prescient--anchored-regexp))
+  '((literal . prescient-literal-regexp)
+    (initialism . prescient-initials-regexp)
+    (regexp . prescient-regexp-regexp)
+    (fuzzy . prescient-fuzzy-regexp)
+    (prefix . prescient-prefix-regexp)
+    (anchored . prescient-anchored-regexp))
   "An alist of filter methods and their functions.
 
-These symbols can be included `prescient-filter-method', and
+These symbols can be included in `prescient-filter-method', and
 their corresponding functions will be used to create regexps for
 matching candidates.
 
 A function should take two arguments: the query for which it is
 to create a regexp, and a boolean that describes whether it
 should enclose matched text in capture groups (such as with
-`prescient--with-group')."
+`prescient-with-group')."
   :type '(alist :key-type symbol :value-type function))
 
 (defcustom prescient-sort-length-enable t
@@ -315,20 +315,20 @@ as a sub-query delimiter."
       ;; We added the subqueries in reverse order.
       (nreverse subqueries))))
 
-(defun prescient--with-group (regexp with-group)
+(defun prescient-with-group (regexp with-group)
   "Wrap REGEXP in a capture group, but only if WITH-GROUP is non-nil."
   (if with-group
       (format "\\(%s\\)" regexp)
     regexp))
 
-(defun prescient--literal-regexp (query &optional with-groups)
+(defun prescient-literal-regexp (query &optional with-groups)
   "Return a regexp matching QUERY with character folding.
 If WITH-GROUPS is `all', enclose the match in a capture group."
-  (prescient--with-group
+  (prescient-with-group
    (char-fold-to-regexp query)
    (eq with-groups 'all)))
 
-(defun prescient--initials-regexp (query &optional with-groups)
+(defun prescient-initials-regexp (query &optional with-groups)
   "Return a regexp matching QUERY as an initialism.
 This means that the regexp will only match a given string if
 QUERY is a substring of the initials of the string.
@@ -348,14 +348,14 @@ capture groups matching \"f\" and \"a\"."
              query
              "\\W*"))
 
-(defun prescient--regexp-regexp (query &optional _)
+(defun prescient-regexp-regexp (query &optional _)
   "Unless using the regexp QUERY would return an error, return QUERY."
   (ignore-errors
     ;; Ignore regexp if it's malformed.
     (string-match-p query "")
     query))
 
-(defun prescient--anchored-regexp (query &optional with-groups)
+(defun prescient-anchored-regexp (query &optional with-groups)
   "Return a regexp matching QUERY with anchors.
 This means uppercase and symbols will be used as begin of words.
 
@@ -380,7 +380,7 @@ or \"find-f-a\"."
      'fixed-case
      'literal)))
 
-(defun prescient--fuzzy-regexp (query &optional with-groups)
+(defun prescient-fuzzy-regexp (query &optional with-groups)
   "Return a regexp for fuzzy-matching QUERY.
 This means that the regexp will only match a given string if
 all characters in QUERY are present anywhere in the string in
@@ -391,20 +391,20 @@ match the QUERY characters in capture groups, so that the match
 data can be used to highlight the matched substrings."
   (let ((chars (string-to-list query)))
     (concat
-     (prescient--with-group
+     (prescient-with-group
       (regexp-quote
        (char-to-string (car chars)))
       with-groups)
      (mapconcat
       (lambda (char)
         (format "[^%c\n]*?%s" char
-                (prescient--with-group
+                (prescient-with-group
                  (regexp-quote
                   (char-to-string char))
                  with-groups)))
       (cdr chars) ""))))
 
-(defun prescient--prefix-regexp (query &optional with-groups)
+(defun prescient-prefix-regexp (query &optional with-groups)
   "Return a regexp for matching the beginnings of words in QUERY.
 This is similar to the `partial-completion' completion style provided
 by Emacs, except that non-word characters are taken literally
@@ -415,7 +415,7 @@ If WITH-GROUPS is non-nil, enclose the parts of the regexp that
 match the QUERY characters in capture groups, so that the match
 data can be used to highlight the matched substrings."
   (when (string-match-p "[[:word:]][^[:word:]]" query)
-      (prescient--with-group
+      (prescient-with-group
        (concat "\\<"
                (replace-regexp-in-string
                 "[^[:word:]]"
