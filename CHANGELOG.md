@@ -34,7 +34,10 @@ The format is based on [Keep a Changelog].
     respective filtering method and toggles off all others.
   * While `selectrum-prescient-mode` is enabled, `M-s` is bound to
     `selectrum-prescient-toggle-map` in the Selectrum buffer, and is
-    used as a prefix key to access the commands.
+    used as a prefix key to access the commands. The macro
+    `selectrum-prescient-create-and-bind-toggle-command` can be used
+    to create a toggling command for a filter, and bind that command
+    in `selectrum-prescient-toggle-map`.
 
     | Key     | Command                                 |
     |---------|-----------------------------------------|
