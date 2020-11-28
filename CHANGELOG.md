@@ -9,11 +9,11 @@ The format is based on [Keep a Changelog].
   letters and symbols as beginning of word, similar to initialism.
   It can be enabled by adding `anchored` to
   `prescient-filter-method`.
-  
+
   For example `TTL` matches `toogle-truncate-lines` and `FiAPo`
   or `fiAPo` match both `find-file-at-point` and
   `find-function-at-point`. However `fiFiAPo` matches only the former
-  and `fiFuAPo` matches only the latter. See [#70].
+  and `fiFuAPo` matches only the latter. See [#70] and [#76].
 * Prefix matching, a new filtering method similar to the Emacs
   completion style `partial`, was added. It can be enabled by adding
   `prefix` to `prescient-filter-method`.
@@ -23,7 +23,7 @@ The format is based on [Keep a Changelog].
   `find-function-at-point`, and other similarly named symbols. One
   difference is that you can't use `*` as a wildcard (it is instead
   taken literally), since you can achieve the same effect by
-  separating queries with a space. See [#67].
+  separating queries with a space. See [#67] and [#76].
 * Literal matching now supports char folding making Unicode text
   filtering much easier ([#66]).
 * In `selectrum-prescient.el`, commands were added for toggling the
@@ -70,6 +70,7 @@ The format is based on [Keep a Changelog].
 [#67]: https://github.com/raxod502/prescient.el/pull/67
 [#70]: https://github.com/raxod502/prescient.el/pull/70
 [#72]: https://github.com/raxod502/prescient.el/pull/72
+[#76]: https://github.com/raxod502/prescient.el/pull/76
 [#77]: https://github.com/raxod502/prescient.el/pull/77
 
 ## 5.0 (release 2020-07-16)
