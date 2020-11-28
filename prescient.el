@@ -135,7 +135,9 @@ matching candidates.
 A function should take two arguments: the query for which it is
 to create a regexp, and a boolean that describes whether it
 should enclose matched text in capture groups (such as with
-`prescient-with-group')."
+`prescient-with-group'). Additionally, if the boolean is the
+symbol `all', then literal substrings should be enclosed in
+capture groups."
   :type '(alist :key-type symbol :value-type function))
 
 (defcustom prescient-sort-length-enable t
