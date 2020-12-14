@@ -58,13 +58,13 @@ The format is based on [Keep a Changelog].
 
   The functions that produce the regexps used for searching candidates
   are now considered public. They are
-  - prescient-anchored-regexp
-  - prescient-fuzzy-regexp
-  - prescient-initials-regexp
-  - prescient-literal-regexp
-  - prescient-prefix-regexp
-  - prescient-regexp-regexp
-  - prescient-with-group
+    - `prescient-anchored-regexp`
+    - `prescient-fuzzy-regexp`
+    - `prescient-initials-regexp`
+    - `prescient-literal-regexp`
+    - `prescient-prefix-regexp`
+    - `prescient-regexp-regexp`
+    - `prescient-with-group`
 
 [#66]: https://github.com/raxod502/prescient.el/pull/66
 [#67]: https://github.com/raxod502/prescient.el/pull/67
