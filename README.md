@@ -154,7 +154,7 @@ When defining custom filter methods, you can create new bindings using
 unquoted filter symbol and a string that can be used by `kbd`. For
 example,
 
-``` emacs-lisp
+```emacs-lisp
 (selectrum-prescient-create-and-bind-toggle-command my-foo "M-f")
 ```
 
