@@ -88,8 +88,8 @@ different one by customizing `prescient-filter-method`.
   candidates. The default is `literal`, `regexp`, and `initialism` as
   described above, but you can also use substring matching, initialism
   matching, regexp matching, fuzzy matching, prefix matching, anchored
-  matching or any combination of those. See the docstring for full
-  details.
+  matching, literal-prefix matching, or any combination of those. See
+  the docstring for full details.
 
 * `prescient-filter-alist`: An alist of symbol-function pairs that
   associate a symbol in `prescient-filter-method` with a function that
