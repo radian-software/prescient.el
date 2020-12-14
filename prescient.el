@@ -434,7 +434,7 @@ data can be used to highlight the matched substrings."
               'fixed-case with-groups)))
     ;; If regexp begins with a word character, make sure regexp
     ;; doesn't start matching in the middle of a word.
-    (if (= 0 (string-match-p "[[:word:]]" str))
+    (if (eql 0 (string-match-p "[[:word:]]" str))
         (concat "\\<" str)
       str)))
 
