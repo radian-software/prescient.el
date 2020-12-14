@@ -34,7 +34,10 @@ The format is based on [Keep a Changelog].
     respective filtering method and toggles off all others.
   * While `selectrum-prescient-mode` is enabled, `M-s` is bound to
     `selectrum-prescient-toggle-map` in the Selectrum buffer, and is
-    used as a prefix key to access the commands.
+    used as a prefix key to access the commands. The macro
+    `selectrum-prescient-create-and-bind-toggle-command` can be used
+    to create a toggling command for a filter, and bind that command
+    in `selectrum-prescient-toggle-map`.
 
     | Key     | Command                                 |
     |---------|-----------------------------------------|
@@ -45,11 +48,30 @@ The format is based on [Keep a Changelog].
     | `M-s p` | `selectrum-prescient-toggle-prefix`     |
     | `M-s r` | `selectrum-prescient-toggle-regexp`     |
 
+* The user option `prescient-filter-alist` was added, which
+  describes the relationship between the symbols in
+  `prescient-filter-list` and the corresponding functions that produce
+  regular expressions for matching candidates. Users can create their
+  own filter methods by adding a symbol-function pair to
+  `prescient-filter-alist` and use that custom method by adding the
+  symbol to `prescient-filter-method`. See [#77].
+
+  The functions that produce the regexps used for searching candidates
+  are now considered public. They are
+    - `prescient-anchored-regexp`
+    - `prescient-fuzzy-regexp`
+    - `prescient-initials-regexp`
+    - `prescient-literal-regexp`
+    - `prescient-prefix-regexp`
+    - `prescient-regexp-regexp`
+    - `prescient-with-group`
+
 [#66]: https://github.com/raxod502/prescient.el/pull/66
 [#67]: https://github.com/raxod502/prescient.el/pull/67
 [#70]: https://github.com/raxod502/prescient.el/pull/70
 [#72]: https://github.com/raxod502/prescient.el/pull/72
 [#76]: https://github.com/raxod502/prescient.el/pull/76
+[#77]: https://github.com/raxod502/prescient.el/pull/77
 
 ## 5.0 (release 2020-07-16)
 ### Breaking changes

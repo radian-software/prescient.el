@@ -79,7 +79,7 @@ For use on `selectrum-candidate-selected-hook'."
 Such commands are created and automatically bound in this map by
 `selectrum--prescient-create-and-bind-toggle-command'.")
 
-(defmacro selectrum--prescient-create-and-bind-toggle-command
+(defmacro selectrum-prescient-create-and-bind-toggle-command
     (filter-type key-string)
   "Create and bind a command to toggle the use of a filter method in Selectrum.
 
@@ -139,12 +139,12 @@ buffer. It does not affect the default behavior (determined by
                   prescient-filter-method)
          (selectrum-exhibit)))))
 
-(selectrum--prescient-create-and-bind-toggle-command anchored "a")
-(selectrum--prescient-create-and-bind-toggle-command fuzzy "f")
-(selectrum--prescient-create-and-bind-toggle-command initialism "i")
-(selectrum--prescient-create-and-bind-toggle-command literal "l")
-(selectrum--prescient-create-and-bind-toggle-command prefix "p")
-(selectrum--prescient-create-and-bind-toggle-command regexp "r")
+(selectrum-prescient-create-and-bind-toggle-command anchored "a")
+(selectrum-prescient-create-and-bind-toggle-command fuzzy "f")
+(selectrum-prescient-create-and-bind-toggle-command initialism "i")
+(selectrum-prescient-create-and-bind-toggle-command literal "l")
+(selectrum-prescient-create-and-bind-toggle-command prefix "p")
+(selectrum-prescient-create-and-bind-toggle-command regexp "r")
 
 ;;;###autoload
 (define-minor-mode selectrum-prescient-mode

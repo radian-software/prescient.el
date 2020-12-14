@@ -91,6 +91,12 @@ different one by customizing `prescient-filter-method`.
   matching or any combination of those. See the docstring for full
   details.
 
+* `prescient-filter-alist`: An alist of symbol-function pairs that
+  associate a symbol in `prescient-filter-method` with a function that
+  creates a regexp for matching a candidate. You can add to this alist
+  to define your own custom filter methods, and use them by adding the
+  appropriate symbol to `prescient-filter-method`.
+
 ### Ivy-specific
 The following user options are specific to using `prescient.el` with
 Ivy:
@@ -142,6 +148,17 @@ used as a prefix key to access the commands.
 | `M-s l` | `selectrum-prescient-toggle-literal`    |
 | `M-s p` | `selectrum-prescient-toggle-prefix`     |
 | `M-s r` | `selectrum-prescient-toggle-regexp`     |
+
+When defining custom filter methods, you can create new bindings using
+`selectrum-prescient-create-and-bind-toggle-command`, which takes an
+unquoted filter symbol and a string that can be used by `kbd`. For
+example,
+
+```emacs-lisp
+(selectrum-prescient-create-and-bind-toggle-command my-foo "M-f")
+```
+
+will bind a command to toggle the `my-foo` filter to `M-s M-f`.
 
 ## Contributor guide
 
