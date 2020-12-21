@@ -97,6 +97,21 @@ different one by customizing `prescient-filter-method`.
   to define your own custom filter methods, and use them by adding the
   appropriate symbol to `prescient-filter-method`.
 
+### Company-specific
+
+* `company-prescient-sort-length-enable`: By default, the standard
+  `prescient.el` sorting algorithm is used for all Company completions
+  when `company-prescient-mode` is enabled. However, this algorithm is
+  inappropriate in some situations. In particular, some Company
+  backends return fuzzy-matched candidates with an intelligent sorting
+  pre-applied. In this case, the fallback sorting by length that
+  `prescient.el` does will just make a giant mess of things. By
+  customizing this user option to nil for such Company backends (see
+  [Radian][radian-sort-length-enable] for an example), you can avoid
+  the problem. Then `prescient.el` will helpfully move recently and
+  frequently used candidates to the top of the completions list, but
+  otherwise leave candidate ordering alone.
+
 ### Ivy-specific
 The following user options are specific to using `prescient.el` with
 Ivy:
@@ -175,6 +190,7 @@ projects](https://github.com/raxod502/contributor-guide).
 [ivy]: https://github.com/abo-abo/swiper#ivy
 [ivy-release]: https://github.com/abo-abo/swiper/issues/1664
 [no-littering]: https://github.com/emacscollective/no-littering
+[radian-sort-length-enable]: https://github.com/raxod502/radian/blob/d7386a56a501dacdb707a67735eb5aff1eba2f79/emacs/radian.el#L2515-L2534
 [selectrum]: https://github.com/raxod502/selectrum
 [smex]: https://github.com/nonsequitur/smex
 [straight.el]: https://github.com/raxod502/straight.el
