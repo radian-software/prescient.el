@@ -190,7 +190,7 @@ projects](https://github.com/raxod502/contributor-guide).
 [ivy]: https://github.com/abo-abo/swiper#ivy
 [ivy-release]: https://github.com/abo-abo/swiper/issues/1664
 [no-littering]: https://github.com/emacscollective/no-littering
-[radian-sort-length-enable]: https://github.com/raxod502/radian/blob/d7386a56a501dacdb707a67735eb5aff1eba2f79/emacs/radian.el#L2515-L2534
+[radian-sort-length-enable]: https://github.com/raxod502/radian/blob/06f2a30258deacb719a195221747ce1d528fc2fe/emacs/radian.el#L2513-L2532
 [selectrum]: https://github.com/raxod502/selectrum
 [smex]: https://github.com/nonsequitur/smex
 [straight.el]: https://github.com/raxod502/straight.el
