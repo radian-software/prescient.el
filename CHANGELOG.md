@@ -5,6 +5,20 @@ The format is based on [Keep a Changelog].
 
 ## Unreleased
 ### Enhancements
+* Literal-prefix matching, a new filter method whose behavior is that
+  the first subquery must be the prefix of the candidate and the
+  remaining subqueries must be prefixes of words in the
+  candidate. Supports char folding just like `literal`.
+  
+  For example, if the input is `foo bar`, then the candidate must
+  begin with `foo`, and it must also contain a word starting with
+  `bar`.  That means it would match `foo-and-bar` or `fooboo-barquux`
+  but not `bar-foo` (because that doesn't start with `foo`) or
+  `foo-qbar` (because `bar` is no prefix of some word).
+  
+  It can be enabled by adding `literal-prefix` to
+  `prescient-filter-method`.
+
 * Anchored matching, a new filtering method that uses uppercase
   letters and symbols as beginning of word, similar to initialism.
   It can be enabled by adding `anchored` to

@@ -89,6 +89,10 @@ filtering takes place.
 Value `literal' means the subquery must be a substring of the
 candidate. Supports char folding.
 
+Value `literal-prefix' means the first subquery must be the
+prefix of the candidate and the remaining subqueries must be
+prefixes of words in the candidate. Supports char folding.
+
 Value `regexp' means the subquery is interpreted directly as a
 regular expression.
 
@@ -117,6 +121,7 @@ be `literal+initialism', which equivalent to the list (`literal'
 `initialism')."
   :type '(set
           (const :tag "Literal" literal)
+          (const :tag "Literal Prefix" literal-prefix)
           (const :tag "Regexp" regexp)
           (const :tag "Initialism" initialism)
           (const :tag "Fuzzy" fuzzy)
@@ -125,6 +130,7 @@ be `literal+initialism', which equivalent to the list (`literal'
 
 (defcustom prescient-filter-alist
   '((literal . prescient-literal-regexp)
+    (literal-prefix . prescient-literal-prefix-regexp)
     (initialism . prescient-initials-regexp)
     (regexp . prescient-regexp-regexp)
     (fuzzy . prescient-fuzzy-regexp)
@@ -136,12 +142,26 @@ These symbols can be included in `prescient-filter-method', and
 their corresponding functions will be used to create regexps for
 matching candidates.
 
-A function should take two arguments: the query for which it is
-to create a regexp, and a boolean that describes whether it
-should enclose matched text in capture groups (such as with
-`prescient-with-group'). Additionally, if the boolean is the
+A function should take the sub-query for which it should create a
+regexp, and keyword arguments of which there are currently:
+
+    with-group      <bool-value-or-all>
+    subquery-number <int-value>
+
+The boolean keyword argument WITH-GROUP describes whether the
+function should enclose matched text in a capture group (such as
+with `prescient-with-group').  Additionally, if the value is the
 symbol `all', then literal substrings should be enclosed in
-capture groups."
+capture groups.
+
+The integer keyword argument SUBQUERY-NUMBER states the order of
+how the input has been split into individual subqueries (starting
+with 0).  For example, if the input was \"foo bar baz\" the
+function will be called three times:
+
+    (fn \"foo\" :subquery-number 0)
+    (fn \"bar\" :subquery-number 1)
+    (fn \"baz\" :subquery-number 2)"
   :type '(alist :key-type symbol :value-type function))
 
 (defcustom prescient-sort-length-enable t
@@ -327,19 +347,38 @@ as a sub-query delimiter."
       (format "\\(%s\\)" regexp)
     regexp))
 
-(defun prescient-literal-regexp (query &optional with-groups)
+(cl-defun prescient-literal-regexp (query &key with-group
+                                          &allow-other-keys)
   "Return a regexp matching QUERY with character folding.
-If WITH-GROUPS is `all', enclose the match in a capture group."
+If WITH-GROUP is `all', enclose the match in a capture group."
   (prescient-with-group
    (char-fold-to-regexp query)
-   (eq with-groups 'all)))
+   (eq with-group 'all)))
 
-(defun prescient-initials-regexp (query &optional with-groups)
+(cl-defun prescient-literal-prefix-regexp
+    (query &key with-group subquery-number
+           &allow-other-keys)
+  "Return a regexp matching QUERY with character folding.
+If WITH-GROUP is `all', enclose the match in a capture group.
+Anchor the QUERY at the beginning of the candidate if
+SUBQUERY-NUMBER equals 0."
+  (prescient-with-group
+   (concat (if (= subquery-number 0)
+               ;; 1. subquery => anchor at the beginning of candidate.
+               "^"
+             ;; Otherwise, just anchor at the beginning of some word
+             ;; in the candidate.
+             "\\b")
+           (char-fold-to-regexp query))
+   (eq with-group 'all)))
+
+(cl-defun prescient-initials-regexp (query &key with-group
+                                           &allow-other-keys)
   "Return a regexp matching QUERY as an initialism.
 This means that the regexp will only match a given string if
 QUERY is a substring of the initials of the string.
 
-If WITH-GROUPS is non-nil, enclose the parts of the regexp that
+If WITH-GROUP is non-nil, enclose the parts of the regexp that
 match the actual initials in capture groups, so that the match
 data can be used to highlight the initials of the match.
 
@@ -348,35 +387,36 @@ entire match will be the text \"file-at\", and there will be two
 capture groups matching \"f\" and \"a\"."
   (mapconcat (lambda (char)
                (let ((r (regexp-quote (char-to-string char))))
-                 (when with-groups
+                 (when with-group
                    (setq r (format "\\(%s\\)" r)))
                  (format "\\b%s\\w*" r)))
              query
              "\\W*"))
 
-(defun prescient-regexp-regexp (query &optional _)
+(cl-defun prescient-regexp-regexp (query &rest _ignore)
   "Unless using the regexp QUERY would return an error, return QUERY."
   (ignore-errors
     ;; Ignore regexp if it's malformed.
     (string-match-p query "")
     query))
 
-(defun prescient-anchored-regexp (query &optional with-groups)
+(cl-defun prescient-anchored-regexp (query &key with-group
+                                           &allow-other-keys)
   "Return a regexp matching QUERY with anchors.
 This means uppercase and symbols will be used as begin of words.
 
-If WITH-GROUPS is non-nil, enclose the parts of the regexp that
+If WITH-GROUP is non-nil, enclose the parts of the regexp that
 match the actual initials in capture groups, so that the match
 data can be used to highlight the initials of the match.
 
-To illustrate, \"FiFiAt\" matches \"find-file-at-point\" with
-the entire match being \"file-find-at\" and with three groups
+To illustrate, \"FiFiAt\" matches \"find-file-at-point\" with the
+entire match being \"file-find-at\" and with three groups
 \"find\", \"file\", and \"at\".
 
 A similar match can be achieve with \"fi-fi-at\", or \"FFA\",
 or \"find-f-a\"."
   (let ((case-fold-search nil)
-        (expr (if with-groups
+        (expr (if with-group
                   "\\(\\b%s\\)[^\\/]*?"
                 "\\b%s[^\\/]*?")))
     (replace-regexp-in-string
@@ -386,13 +426,14 @@ or \"find-f-a\"."
      'fixed-case
      'literal)))
 
-(defun prescient-fuzzy-regexp (query &optional with-groups)
+(cl-defun prescient-fuzzy-regexp (query &key with-group
+                                        &allow-other-keys)
   "Return a regexp for fuzzy-matching QUERY.
-This means that the regexp will only match a given string if
-all characters in QUERY are present anywhere in the string in
-the specified order.
+This means that the regexp will only match a given string if all
+characters in QUERY are present anywhere in the string in the
+specified order.
 
-If WITH-GROUPS is non-nil, enclose the parts of the regexp that
+If WITH-GROUP is non-nil, enclose the parts of the regexp that
 match the QUERY characters in capture groups, so that the match
 data can be used to highlight the matched substrings."
   (let ((chars (string-to-list query)))
@@ -400,30 +441,31 @@ data can be used to highlight the matched substrings."
      (prescient-with-group
       (regexp-quote
        (char-to-string (car chars)))
-      with-groups)
+      with-group)
      (mapconcat
       (lambda (char)
         (format "[^%c\n]*?%s" char
                 (prescient-with-group
                  (regexp-quote
                   (char-to-string char))
-                 with-groups)))
+                 with-group)))
       (cdr chars) ""))))
 
-(defun prescient-prefix-regexp (query &optional with-groups)
+(cl-defun prescient-prefix-regexp (query &key with-group
+                                         &allow-other-keys)
   "Return a regexp for matching the beginnings of words in QUERY.
-This is similar to the `partial-completion' completion style provided
-by Emacs, except that non-word characters are taken literally
-\(i.e., one can't glob using \"*\").  Prescient already covers
-that case by separating queries with a space.
+This is similar to the `partial-completion' completion style
+provided by Emacs, except that non-word characters are taken
+literally \(i.e., one can't glob using \"*\").  Prescient already
+covers that case by separating queries with a space.
 
-If WITH-GROUPS is non-nil, enclose the parts of the regexp that
+If WITH-GROUP is non-nil, enclose the parts of the regexp that
 match the QUERY characters in capture groups, so that the match
 data can be used to highlight the matched substrings."
   (let ((str (replace-regexp-in-string
               "[[:word:]]+"
               ;; Choose whether to wrap sequences of word characters.
-              (if with-groups
+              (if with-group
                   (lambda (s) (concat "\\(" s "\\)[[:word:]]*"))
                 "\\&[[:word:]]*")
               ;; Quote non-word characters so that they're taken
@@ -431,7 +473,7 @@ data can be used to highlight the matched substrings."
               (replace-regexp-in-string "[^[:word:]]"
                                         (lambda (s) (regexp-quote s))
                                         query 'fixed-case 'literal)
-              'fixed-case with-groups)))
+              'fixed-case with-group)))
     ;; If regexp begins with a word character, make sure regexp
     ;; doesn't start matching in the middle of a word.
     (if (eql 0 (string-match-p "[[:word:]]" str))
@@ -448,29 +490,33 @@ match the QUERY.
 If WITH-GROUPS is non-nil, enclose the initials in initialisms
 with capture groups. If it is the symbol `all', additionally
 enclose literal substrings with capture groups."
-  (mapcar
-   (lambda (subquery)
-     (string-join
-      (cl-remove
-       nil
-       (mapcar
-        (lambda (method)
-          (if-let ((func (alist-get method prescient-filter-alist)))
-              (funcall func subquery with-groups)
-            ;; Don't throw error if function doesn't exist, but do
-            ;; warn user.
-            (message
-             "No function in `prescient-filter-alist' for method: %s"
-             method)))
-        (pcase prescient-filter-method
-          ;; We support `literal+initialism' for backwards
-          ;; compatibility.
-          (`literal+initialism '(literal initialism))
-          ((and (pred listp) x) x)
-          (x (list x))))
-       :test #'eq)
-      "\\|"))
-   (prescient-split-query query)))
+  (let ((subquery-number 0))
+    (mapcar
+     (lambda (subquery)
+       (prog1 (string-join
+               (cl-remove
+                nil
+                (mapcar
+                 (lambda (method)
+                   (if-let ((func (alist-get method prescient-filter-alist)))
+                       (funcall func subquery
+                                :with-groups with-groups
+                                :subquery-number subquery-number)
+                     ;; Don't throw error if function doesn't exist, but do
+                     ;; warn user.
+                     (message
+                      "No function in `prescient-filter-alist' for method: %s"
+                      method)))
+                 (pcase prescient-filter-method
+                   ;; We support `literal+initialism' for backwards
+                   ;; compatibility.
+                   (`literal+initialism '(literal initialism))
+                   ((and (pred listp) x) x)
+                   (x (list x))))
+                :test #'eq)
+               "\\|")
+         (cl-incf subquery-number)))
+     (prescient-split-query query))))
 
 (defun prescient-filter (query candidates)
   "Use QUERY to filter list of CANDIDATES.
