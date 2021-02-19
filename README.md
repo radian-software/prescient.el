@@ -97,6 +97,10 @@ different one by customizing `prescient-filter-method`.
   to define your own custom filter methods, and use them by adding the
   appropriate symbol to `prescient-filter-method`.
 
+* `prescient-sort-full-matches-first`: Whether `prescient.el` sorts
+  candidates that are fully matched before candidates that are
+  partially matched.
+
 ### Company-specific
 
 * `company-prescient-sort-length-enable`: By default, the standard
