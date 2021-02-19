@@ -80,12 +80,18 @@ The format is based on [Keep a Changelog].
     - `prescient-regexp-regexp`
     - `prescient-with-group`
 
+* The user option `prescient-sort-full-matches-first` was added. If
+  non-nil, candidates that are fully matched are sorted before
+  partially matched candidates, though all candidates still follow the
+  order of recency, frequency, and length. See [#95].
+
 [#66]: https://github.com/raxod502/prescient.el/pull/66
 [#67]: https://github.com/raxod502/prescient.el/pull/67
 [#70]: https://github.com/raxod502/prescient.el/pull/70
 [#72]: https://github.com/raxod502/prescient.el/pull/72
 [#76]: https://github.com/raxod502/prescient.el/pull/76
 [#77]: https://github.com/raxod502/prescient.el/pull/77
+[#95]: https://github.com/raxod502/prescient.el/pull/95
 
 ## 5.0 (release 2020-07-16)
 ### Breaking changes
