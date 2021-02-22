@@ -9,16 +9,15 @@ The format is based on [Keep a Changelog].
   the first subquery must be the prefix of the candidate and the
   remaining subqueries must be prefixes of words in the
   candidate. Supports char folding just like `literal`.
-  
+
   For example, if the input is `foo bar`, then the candidate must
   begin with `foo`, and it must also contain a word starting with
   `bar`.  That means it would match `foo-and-bar` or `fooboo-barquux`
   but not `bar-foo` (because that doesn't start with `foo`) or
   `foo-qbar` (because `bar` is no prefix of some word).
-  
+
   It can be enabled by adding `literal-prefix` to
   `prescient-filter-method`.
-
 * Anchored matching, a new filtering method that uses uppercase
   letters and symbols as beginning of word, similar to initialism.
   It can be enabled by adding `anchored` to
@@ -79,6 +78,9 @@ The format is based on [Keep a Changelog].
     - `prescient-prefix-regexp`
     - `prescient-regexp-regexp`
     - `prescient-with-group`
+* The faces `selectrum-primary-highlight` and
+  `selectrum-secondary-highlight` are now a part of
+  `selectrum-prescient.el` rather than Selectrum proper ([#94])
 
 * The user option `prescient-sort-full-matches-first` was added. If
   non-nil, candidates that are fully matched are sorted before
@@ -91,6 +93,7 @@ The format is based on [Keep a Changelog].
 [#72]: https://github.com/raxod502/prescient.el/pull/72
 [#76]: https://github.com/raxod502/prescient.el/pull/76
 [#77]: https://github.com/raxod502/prescient.el/pull/77
+[#94]: https://github.com/raxod502/prescient.el/pull/94
 [#95]: https://github.com/raxod502/prescient.el/pull/95
 
 ## 5.0 (release 2020-07-16)

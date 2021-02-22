@@ -28,6 +28,20 @@
 
 (require 'subr-x)
 
+;;;; Faces
+
+(defface selectrum-primary-highlight
+  '((t :weight bold))
+  "Face used to highlight the parts of candidates that match the input."
+  :group 'selectrum-faces)
+
+(defface selectrum-secondary-highlight
+  '((t :inherit selectrum-primary-highlight :underline t))
+  "Additional face used to highlight parts of candidates.
+May be used to highlight parts of candidates that match specific
+parts of the input."
+  :group 'selectrum-faces)
+
 ;;;; Minor mode
 
 (defun selectrum-prescient--preprocess (candidates)
