@@ -533,43 +533,28 @@ Split the query using `prescient-split-query'. Each candidate
 must match each subquery, either using substring or initialism
 matching. Discard any that do not, and return the resulting list.
 Do not modify CANDIDATES; always make a new copy of the list."
-  (if prescient-sort-full-matches-first
-      (let ((regexps (prescient-filter-regexps query))
-            (fully-matched-results nil)
-            (partially-matched-results nil))
-        (save-match-data
-          ;; Use named block in case somebody loads `cl' accidentally
-          ;; which causes `dolist' to turn into `cl-dolist' which
-          ;; creates a nil block implicitly.
-          (dolist (candidate candidates)
-            (cl-block done
-              (let ((fully-matched nil))
-                (dolist (regexp regexps)
-                  (if (string-match regexp candidate)
-                      ;; A `fully-matched' candidate must be fully
-                      ;; matched by all regexps.
-                      (setq fully-matched
-                            (equal candidate
-                                   (match-string 0 candidate)))
-                    (cl-return-from done)))
-                (if fully-matched
-                    (push candidate fully-matched-results)
-                  (push candidate partially-matched-results)))))
-          (nreverse (nconc partially-matched-results
-                           fully-matched-results))))
-    (let ((regexps (prescient-filter-regexps query))
-          (results nil))
-      (save-match-data
-        ;; Use named block in case somebody loads `cl' accidentally
-        ;; which causes `dolist' to turn into `cl-dolist' which
-        ;; creates a nil block implicitly.
-        (dolist (candidate candidates)
-          (cl-block done
+  (let ((regexps (prescient-filter-regexps query))
+        (results nil)
+        (prioritized-results nil))
+    (save-match-data
+      ;; Use named block in case somebody loads `cl' accidentally
+      ;; which causes `dolist' to turn into `cl-dolist' which
+      ;; creates a nil block implicitly.
+      (dolist (candidate candidates)
+        (cl-block done
+          (let ((fully-matched nil))
             (dolist (regexp regexps)
               (unless (string-match regexp candidate)
-                (cl-return-from done)))
-            (push candidate results)))
-        (nreverse results)))))
+                (cl-return-from done))
+              (when (and
+                     prescient-sort-full-matches-first
+                     (equal (length candidate)
+                            (length (match-string 0 candidate))))
+                (setq fully-matched t)))
+            (if fully-matched
+                (push candidate prioritized-results)
+              (push candidate results)))))
+      (nconc (nreverse prioritized-results) (nreverse results)))))
 
 (defmacro prescient--sort-compare ()
   "Hack used to cause the byte-compiler to produce faster code.
