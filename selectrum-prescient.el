@@ -28,19 +28,35 @@
 
 (require 'subr-x)
 
-;;;; Faces
+;;;; Customization
 
-(defface selectrum-primary-highlight
+(defgroup selectrum-prescient nil
+  "Prescient adapter for Selectrum."
+  :group 'convenience
+  :prefix "selectrum-prescient"
+  :link '(url-link "https://github.com/raxod502/prescient.el"))
+
+(define-obsolete-face-alias
+  'selectrum-primary-highlight
+  'selectrum-prescient-primary-highlight
+  t)
+
+(define-obsolete-face-alias
+  'selectrum-secondary-highlight
+  'selectrum-prescient-secondary-highlight
+  t)
+
+(defface selectrum-prescient-primary-highlight
   '((t :weight bold))
   "Face used to highlight the parts of candidates that match the input."
-  :group 'selectrum-faces)
+  :group 'selectrum-prescient)
 
-(defface selectrum-secondary-highlight
-  '((t :inherit selectrum-primary-highlight :underline t))
+(defface selectrum-prescient-secondary-highlight
+  '((t :inherit selectrum-prescient-primary-highlight :underline t))
   "Additional face used to highlight parts of candidates.
 May be used to highlight parts of candidates that match specific
 parts of the input."
-  :group 'selectrum-faces)
+  :group 'selectrum-prescient)
 
 ;;;; Minor mode
 
@@ -73,7 +89,7 @@ For use on `selectrum-candidate-selected-hook'."
              (when (string-match regexp candidate)
                (put-text-property
                 (match-beginning 0) (match-end 0)
-                'face 'selectrum-primary-highlight candidate)
+                'face 'selectrum-prescient-primary-highlight candidate)
                (cl-loop
                 for (start end)
                 on (cddr (match-data))
@@ -81,7 +97,8 @@ For use on `selectrum-candidate-selected-hook'."
                 do (when (and start end)
                      (put-text-property
                       start end
-                      'face 'selectrum-secondary-highlight candidate)))))))
+                      'face 'selectrum-prescient-secondary-highlight
+                      candidate)))))))
        candidates))))
 
 (defvar selectrum-prescient--old-highlight-function nil

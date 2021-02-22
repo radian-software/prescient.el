@@ -78,9 +78,12 @@ The format is based on [Keep a Changelog].
     - `prescient-prefix-regexp`
     - `prescient-regexp-regexp`
     - `prescient-with-group`
-* The faces `selectrum-primary-highlight` and
-  `selectrum-secondary-highlight` are now a part of
-  `selectrum-prescient.el` rather than Selectrum proper ([#94])
+* To configure match highlighting you can use the faces
+`selectrum-prescient-primary-highlight` and
+`selectrum-prescient-secondary-highlight`. The previously used
+Selectrum faces `selectrum-primary-highlight` and
+`selectrum-secondary-highlight` will get removed from Selectrum proper
+([#94], [#97]).
 
 * The user option `prescient-sort-full-matches-first` was added. If
   non-nil, candidates that are fully matched are sorted before
@@ -95,6 +98,7 @@ The format is based on [Keep a Changelog].
 [#77]: https://github.com/raxod502/prescient.el/pull/77
 [#94]: https://github.com/raxod502/prescient.el/pull/94
 [#95]: https://github.com/raxod502/prescient.el/pull/95
+[#97]: https://github.com/raxod502/prescient.el/pull/97
 
 ## 5.0 (release 2020-07-16)
 ### Breaking changes

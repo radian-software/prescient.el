@@ -179,6 +179,35 @@ example,
 
 will bind a command to toggle the `my-foo` filter to `M-s M-f`.
 
+The part of each candidate that matches your input is highlighted with
+the face `selectrum-prescient-primary-highlight`. There is also
+`selectrum-prescient-secondary-highlight` for additional highlighting of
+specific matched parts of the input.
+
+The following example shows customizing these faces, I use the
+[Zerodark](https://github.com/NicolasPetton/zerodark-theme) color
+theme, which includes colors for Ivy, but not for Selectrum. I
+inspected the theme source code to see what colors were being used for
+Ivy, and copied them to be used for Selectrum as well:
+
+```elisp
+(require 'zerodark-theme)
+
+(let ((class '((class color) (min-colors 89))))
+  (custom-theme-set-faces
+   'zerodark
+   `(selectrum-current-candidate
+     ((,class (:background "#48384c"
+                           :weight bold
+                           :foreground "#c678dd"))))
+   `(selectrum-prescient-primary-highlight
+   ((,class (:foreground "#da8548"))))
+   `(selectrum-prescient-secondary-highlight
+   ((,class (:foreground "#98be65"))))))
+
+(enable-theme 'zerodark)
+```
+
 ## Contributor guide
 
 Please see [the contributor guide for my
