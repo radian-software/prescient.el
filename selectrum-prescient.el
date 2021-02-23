@@ -174,6 +174,7 @@ buffer. It does not affect the default behavior (determined by
 (selectrum-prescient-create-and-bind-toggle-command fuzzy "f")
 (selectrum-prescient-create-and-bind-toggle-command initialism "i")
 (selectrum-prescient-create-and-bind-toggle-command literal "l")
+(selectrum-prescient-create-and-bind-toggle-command literal-prefix "P")
 (selectrum-prescient-create-and-bind-toggle-command prefix "p")
 (selectrum-prescient-create-and-bind-toggle-command regexp "r")
 
