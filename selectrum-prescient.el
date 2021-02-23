@@ -177,6 +177,25 @@ buffer. It does not affect the default behavior (determined by
 (selectrum-prescient-create-and-bind-toggle-command prefix "p")
 (selectrum-prescient-create-and-bind-toggle-command regexp "r")
 
+(defun selectrum-prescient-toggle-char-fold ()
+  "Toggle character folding in the current Selectrum buffer.
+
+See the customizable variable `prescient-use-char-folding'."
+  (interactive)
+  ;; Make sure that this change is local only to the current Selectrum
+  ;; buffer.
+  (setq-local prescient-use-char-folding
+              (not prescient-use-char-folding))
+  ;; After changing `prescient-use-char-folding', tell the user
+  ;; the new value and update Selectrum's display.
+  (message "Character folding toggled %s"
+           (if prescient-use-char-folding "on" "off"))
+  (selectrum-exhibit))
+
+;; Matches `isearch-toggle-char-fold'.
+(define-key selectrum-prescient-toggle-map (kbd "'")
+  #'selectrum-prescient-toggle-char-fold)
+
 ;;;###autoload
 (define-minor-mode selectrum-prescient-mode
   "Minor mode to use prescient.el in Selectrum menus."
