@@ -94,7 +94,7 @@ Selectrum faces `selectrum-primary-highlight` and
 
 * The user option `prescient-use-char-folding` was added. If non-nil,
   the `literal` and `literal-prefix` filter methods will use character
-  folding.
+  folding. See [#98].
 
 [#66]: https://github.com/raxod502/prescient.el/pull/66
 [#67]: https://github.com/raxod502/prescient.el/pull/67
@@ -105,6 +105,7 @@ Selectrum faces `selectrum-primary-highlight` and
 [#94]: https://github.com/raxod502/prescient.el/pull/94
 [#95]: https://github.com/raxod502/prescient.el/pull/95
 [#97]: https://github.com/raxod502/prescient.el/pull/97
+[#98]: https://github.com/raxod502/prescient.el/pull/98
 
 ## 5.0 (release 2020-07-16)
 ### Breaking changes
