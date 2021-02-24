@@ -183,12 +183,8 @@ buffer. It does not affect the default behavior (determined by
 
 See the customizable variable `prescient-use-char-folding'."
   (interactive)
-  ;; Make sure that this change is local only to the current Selectrum
-  ;; buffer.
   (setq-local prescient-use-char-folding
               (not prescient-use-char-folding))
-  ;; After changing `prescient-use-char-folding', tell the user
-  ;; the new value and update Selectrum's display.
   (message "Character folding toggled %s"
            (if prescient-use-char-folding "on" "off"))
   (selectrum-exhibit))
