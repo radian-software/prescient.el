@@ -101,6 +101,9 @@ different one by customizing `prescient-filter-method`.
   candidates that are fully matched before candidates that are
   partially matched.
 
+* `prescient-use-char-folding`: Whether the `literal` and
+  `literal-prefix` filter methods use character folding.
+
 ### Company-specific
 
 * `company-prescient-sort-length-enable`: By default, the standard
@@ -159,14 +162,16 @@ same time. While `selectrum-prescient-mode` is enabled, `M-s` is bound
 to `selectrum-prescient-toggle-map` in the Selectrum buffer, and is
 used as a prefix key to access the commands.
 
-| Key     | Command                                 |
-|---------|-----------------------------------------|
-| `M-s a` | `selectrum-prescient-toggle-anchored`   |
-| `M-s f` | `selectrum-prescient-toggle-fuzzy`      |
-| `M-s i` | `selectrum-prescient-toggle-initialism` |
-| `M-s l` | `selectrum-prescient-toggle-literal`    |
-| `M-s p` | `selectrum-prescient-toggle-prefix`     |
-| `M-s r` | `selectrum-prescient-toggle-regexp`     |
+| Key     | Command                                     |
+|---------|---------------------------------------------|
+| `M-s a` | `selectrum-prescient-toggle-anchored`       |
+| `M-s f` | `selectrum-prescient-toggle-fuzzy`          |
+| `M-s i` | `selectrum-prescient-toggle-initialism`     |
+| `M-s l` | `selectrum-prescient-toggle-literal`        |
+| `M-s p` | `selectrum-prescient-toggle-prefix`         |
+| `M-s P` | `selectrum-prescient-toggle-literal-prefix` |
+| `M-s r` | `selectrum-prescient-toggle-regexp`         |
+| `M-s '` | `selectrum-prescient-toggle-char-fold`      |
 
 When defining custom filter methods, you can create new bindings using
 `selectrum-prescient-create-and-bind-toggle-command`, which takes an
