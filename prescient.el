@@ -198,8 +198,9 @@ still be sorted like normal."
 
 This affects the `literal' and `literal-prefix' filtering methods.
 
-See also the customizable variables `char-fold-include',
-`char-fold-exclude', and `char-fold-symmetric'."
+In Emacs versions 27 or greater, see also the customizable
+variables `char-fold-include', `char-fold-exclude', and
+`char-fold-symmetric'."
   :type 'boolean)
 
 ;;;; Caches
