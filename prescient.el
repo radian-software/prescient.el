@@ -681,7 +681,3 @@ Return the sorted list. The original is modified destructively."
 (provide 'prescient)
 
 ;;; prescient.el ends here
-
-;; Local Variables:
-;; outline-regexp: ";;;;* "
-;; End:
