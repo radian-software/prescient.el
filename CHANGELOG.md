@@ -81,11 +81,11 @@ The format is based on [Keep a Changelog].
     - `prescient-regexp-regexp`
     - `prescient-with-group`
 * To configure match highlighting you can use the faces
-`selectrum-prescient-primary-highlight` and
-`selectrum-prescient-secondary-highlight`. The previously used
-Selectrum faces `selectrum-primary-highlight` and
-`selectrum-secondary-highlight` will get removed from Selectrum proper
-([#94], [#97]).
+  `selectrum-prescient-primary-highlight` and
+  `selectrum-prescient-secondary-highlight`. The previously used
+  Selectrum faces `selectrum-primary-highlight` and
+  `selectrum-secondary-highlight` will get removed from Selectrum
+  proper ([#94], [#97]).
 
 * The user option `prescient-sort-full-matches-first` was added. If
   non-nil, candidates that are fully matched are sorted before
