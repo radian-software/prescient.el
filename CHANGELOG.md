@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
 ## Unreleased
+### New features
+* New command `selectrum-prescient-toggle-char-fold`, bound to `M-s '`
+  in the minibuffer.
+* To configure match highlighting you can use the faces
+  `selectrum-prescient-primary-highlight` and
+  `selectrum-prescient-secondary-highlight`. The previously used
+  Selectrum faces `selectrum-primary-highlight` and
+  `selectrum-secondary-highlight` will get removed from Selectrum
+  proper ([#94], [#97]).
+* The user option `prescient-sort-full-matches-first` was added. If
+  non-nil, candidates that are fully matched are sorted before
+  partially matched candidates, though all candidates still follow the
+  order of recency, frequency, and length. See [#95].
+* The user option `prescient-use-char-folding` was added. If non-nil,
+  the `literal` and `literal-prefix` filter methods will use character
+  folding. See [#98]. This can be used to help avoid the problems
+  reported in [#92] and [#93].
+
+[#92]: https://github.com/raxod502/prescient.el/issues/92
+[#93]: https://github.com/raxod503/prescient.el/issues/93
+[#94]: https://github.com/raxod502/prescient.el/pull/94
+[#95]: https://github.com/raxod502/prescient.el/pull/95
+[#97]: https://github.com/raxod502/prescient.el/pull/97
+[#98]: https://github.com/raxod502/prescient.el/pull/98
+
+## 5.1 (released 2021-02-26)
 ### Enhancements
 * Literal-prefix matching, a new filter method whose behavior is that
   the first subquery must be the prefix of the candidate and the
@@ -61,7 +87,7 @@ The format is based on [Keep a Changelog].
     | `M-s p` | `selectrum-prescient-toggle-prefix`         |
     | `M-s P` | `selectrum-prescient-toggle-literal-prefix` |
     | `M-s r` | `selectrum-prescient-toggle-regexp`         |
-    | `M-s '` | `selectrum-prescient-toggle-char-fold`      |
+    | `M-s '` |       |
 
 * The user option `prescient-filter-alist` was added, which
   describes the relationship between the symbols in
@@ -80,22 +106,6 @@ The format is based on [Keep a Changelog].
     - `prescient-prefix-regexp`
     - `prescient-regexp-regexp`
     - `prescient-with-group`
-* To configure match highlighting you can use the faces
-  `selectrum-prescient-primary-highlight` and
-  `selectrum-prescient-secondary-highlight`. The previously used
-  Selectrum faces `selectrum-primary-highlight` and
-  `selectrum-secondary-highlight` will get removed from Selectrum
-  proper ([#94], [#97]).
-
-* The user option `prescient-sort-full-matches-first` was added. If
-  non-nil, candidates that are fully matched are sorted before
-  partially matched candidates, though all candidates still follow the
-  order of recency, frequency, and length. See [#95].
-
-* The user option `prescient-use-char-folding` was added. If non-nil,
-  the `literal` and `literal-prefix` filter methods will use character
-  folding. See [#98]. This can be used to help avoid the problems
-  reported in [#92] and [#93].
 
 [#66]: https://github.com/raxod502/prescient.el/pull/66
 [#67]: https://github.com/raxod502/prescient.el/pull/67
@@ -103,14 +113,8 @@ The format is based on [Keep a Changelog].
 [#72]: https://github.com/raxod502/prescient.el/pull/72
 [#76]: https://github.com/raxod502/prescient.el/pull/76
 [#77]: https://github.com/raxod502/prescient.el/pull/77
-[#92]: https://github.com/raxod502/prescient.el/issues/92
-[#93]: https://github.com/raxod503/prescient.el/issues/93
-[#94]: https://github.com/raxod502/prescient.el/pull/94
-[#95]: https://github.com/raxod502/prescient.el/pull/95
-[#97]: https://github.com/raxod502/prescient.el/pull/97
-[#98]: https://github.com/raxod502/prescient.el/pull/98
 
-## 5.0 (release 2020-07-16)
+## 5.0 (released 2020-07-16)
 ### Breaking changes
 * Candidates which are not strings are no longer supported. This
   improves performance by a few percent, and there was never any real
