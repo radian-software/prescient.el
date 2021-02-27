@@ -3,19 +3,19 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 5.1 (released 2021-02-26)
 ### Enhancements
 * Literal-prefix matching, a new filter method whose behavior is that
   the first subquery must be the prefix of the candidate and the
   remaining subqueries must be prefixes of words in the
   candidate. Supports char folding just like `literal`.
-  
+
   For example, if the input is `foo bar`, then the candidate must
   begin with `foo`, and it must also contain a word starting with
   `bar`.  That means it would match `foo-and-bar` or `fooboo-barquux`
   but not `bar-foo` (because that doesn't start with `foo`) or
   `foo-qbar` (because `bar` is no prefix of some word).
-  
+
   It can be enabled by adding `literal-prefix` to
   `prescient-filter-method`.
 
@@ -87,7 +87,7 @@ The format is based on [Keep a Changelog].
 [#76]: https://github.com/raxod502/prescient.el/pull/76
 [#77]: https://github.com/raxod502/prescient.el/pull/77
 
-## 5.0 (release 2020-07-16)
+## 5.0 (released 2020-07-16)
 ### Breaking changes
 * Candidates which are not strings are no longer supported. This
   improves performance by a few percent, and there was never any real
