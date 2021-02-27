@@ -6,7 +6,7 @@
 ;; Homepage: https://github.com/raxod502/prescient.el
 ;; Keywords: extensions
 ;; Created: 8 Dec 2019
-;; Package-Requires: ((emacs "25.1") (prescient "5.1") (selectrum "1.0"))
+;; Package-Requires: ((emacs "25.1") (prescient "5.1") (selectrum "3.1"))
 ;; SPDX-License-Identifier: MIT
 ;; Version: 5.1
 
@@ -61,8 +61,8 @@ parts of the input."
 ;;;; Minor mode
 
 (defun selectrum-prescient--preprocess (candidates)
-  "Sort CANDIDATES, unless `selectrum-should-sort-p' is nil."
-  (when selectrum-should-sort-p
+  "Sort CANDIDATES, unless `selectrum-should-sort' is nil."
+  (when selectrum-should-sort
     (setq candidates (prescient-sort candidates)))
   candidates)
 

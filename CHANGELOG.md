@@ -29,6 +29,10 @@ The format is based on [Keep a Changelog].
 [#97]: https://github.com/raxod502/prescient.el/pull/97
 [#98]: https://github.com/raxod502/prescient.el/pull/98
 
+### Removed
+* Use `selectrum-should-sort`, introduced in Selectrum 3.1, over the
+  obsolete alias `selectrum-should-sort-p`.
+
 ## 5.1 (released 2021-02-26)
 ### Enhancements
 * Literal-prefix matching, a new filter method whose behavior is that
