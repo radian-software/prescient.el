@@ -51,6 +51,9 @@ This is because loading Counsel results in a number of changes being
 made to the user options of Ivy, which `ivy-prescient.el` must then
 undo.
 
+The modes handle sorting and filtering by default. See the package
+specific sections for options to configure this.
+
 ## Algorithm
 
 `prescient.el` takes as input a list of candidates, and a query that
@@ -144,6 +147,19 @@ Ivy:
   and how to customize it manually.
 
 ### Selectrum-specific
+The following user options are specific to using `prescient.el` with
+Selectrum:
+
+* `selectrum-prescient-enable-filtering`: If set to nil, then
+  `selectrum-prescient.el` does not change filtering of Selectrum. See
+  the Selectrum documentation for information on how Selectrum
+  configures filtering by default, and how to customize it manually.
+
+* `selectrum-prescient-enable-sorting`: If set to nil, then
+  `selectrum-prescient.el` does not change sorting of Selectrum. See
+  the Selectrum documentation for information on how Selectrum
+  configures sorting by default, and how to customize it manually.
+
 `selectrum-prescient.el` provides special commands (see the table
 below) to adjust how `prescient.el` filters candidates in the current
 Selectrum buffer.
@@ -184,10 +200,11 @@ example,
 
 will bind a command to toggle the `my-foo` filter to `M-s M-f`.
 
-The part of each candidate that matches your input is highlighted with
-the face `selectrum-prescient-primary-highlight`. There is also
-`selectrum-prescient-secondary-highlight` for additional highlighting of
-specific matched parts of the input.
+With `selectrum-prescient-enable-filtering` set, the part of each
+candidate that matches your input is highlighted with the face
+`selectrum-prescient-primary-highlight`. There is also
+`selectrum-prescient-secondary-highlight` for additional highlighting
+of specific matched parts of the input.
 
 The following example shows customizing these faces, I use the
 [Zerodark](https://github.com/NicolasPetton/zerodark-theme) color

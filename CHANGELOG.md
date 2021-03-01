@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog].
 
 ## Unreleased
 ### New features
+* Two new user options, `selectrum-prescient-enable-filtering` and
+  `selectrum-prescient-enable-sorting`, which allow the user to
+  selectively disable the filtering or sorting functionalities of
+  `selectrum-prescient.el` ([#100]).
 * New command `selectrum-prescient-toggle-char-fold`, bound to `M-s '`
   in the minibuffer.
 * To configure match highlighting you can use the faces
@@ -28,6 +32,7 @@ The format is based on [Keep a Changelog].
 [#95]: https://github.com/raxod502/prescient.el/pull/95
 [#97]: https://github.com/raxod502/prescient.el/pull/97
 [#98]: https://github.com/raxod502/prescient.el/pull/98
+[#100]: https://github.com/raxod502/prescient.el/pull/100
 
 ## 5.1 (released 2021-02-26)
 ### Enhancements
