@@ -22,16 +22,18 @@ The format is based on [Keep a Changelog].
   folding. See [#98]. This can be used to help avoid the problems
   reported in [#92] and [#93].
 
+### Internal changes
+* The user option `selectrum-should-sort-p` was deprecated in
+  Selectrum 3.1 in favor of `selectrum-should-sort`.
+  `selectrum-prescient.el` now uses the updated option name ([#99]).
+
 [#92]: https://github.com/raxod502/prescient.el/issues/92
 [#93]: https://github.com/raxod503/prescient.el/issues/93
 [#94]: https://github.com/raxod502/prescient.el/pull/94
 [#95]: https://github.com/raxod502/prescient.el/pull/95
 [#97]: https://github.com/raxod502/prescient.el/pull/97
 [#98]: https://github.com/raxod502/prescient.el/pull/98
-
-### Removed
-* Use `selectrum-should-sort`, introduced in Selectrum 3.1, over the
-  obsolete alias `selectrum-should-sort-p`.
+[#99]: https://github.com/raxod502/prescient.el/pull/99
 
 ## 5.1 (released 2021-02-26)
 ### Enhancements
