@@ -250,13 +250,13 @@ See the customizable variable `prescient-use-char-folding'."
               #'selectrum-prescient--highlight)
       (setq selectrum-highlight-candidates-function
             selectrum-prescient--old-highlight-function))
+    (when (equal (lookup-key selectrum-minibuffer-map (kbd "M-s"))
+                 selectrum-prescient-toggle-map)
+      (define-key selectrum-minibuffer-map (kbd "M-s") nil))
     (remove-hook 'selectrum-candidate-selected-hook
                  #'selectrum-prescient--remember)
     (remove-hook 'selectrum-candidate-inserted-hook
                  #'selectrum-prescient--remember)
-    (when (equal (lookup-key selectrum-minibuffer-map (kbd "M-s"))
-                 selectrum-prescient-toggle-map)
-      (define-key selectrum-minibuffer-map (kbd "M-s") nil))
     (when (eq selectrum-preprocess-candidates-function
               #'selectrum-prescient--preprocess)
       (setq selectrum-preprocess-candidates-function
