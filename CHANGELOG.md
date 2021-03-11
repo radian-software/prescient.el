@@ -26,6 +26,11 @@ The format is based on [Keep a Changelog].
   folding. See [#98]. This can be used to help avoid the problems
   reported in [#92] and [#93].
 
+### Enhancements
+* Match faces are now combined with faces that might be already
+  present on candidates instead of replacing them which gives better
+  visual results in these cases ([#101], [#103]).
+
 ### Internal changes
 * The user option `selectrum-should-sort-p` was deprecated in
   Selectrum 3.1 in favor of `selectrum-should-sort`.
@@ -39,6 +44,8 @@ The format is based on [Keep a Changelog].
 [#98]: https://github.com/raxod502/prescient.el/pull/98
 [#99]: https://github.com/raxod502/prescient.el/pull/99
 [#100]: https://github.com/raxod502/prescient.el/pull/100
+[#101]: https://github.com/raxod503/prescient.el/issues/101
+[#103]: https://github.com/raxod502/prescient.el/pull/103
 
 ## 5.1 (released 2021-02-26)
 ### Enhancements

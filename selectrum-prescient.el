@@ -107,7 +107,7 @@ For use on `selectrum-candidate-selected-hook'."
          (prog1 candidate
            (dolist (regexp regexps)
              (when (string-match regexp candidate)
-               (put-text-property
+               (font-lock-prepend-text-property
                 (match-beginning 0) (match-end 0)
                 'face 'selectrum-prescient-primary-highlight candidate)
                (cl-loop
@@ -115,7 +115,7 @@ For use on `selectrum-candidate-selected-hook'."
                 on (cddr (match-data))
                 by #'cddr
                 do (when (and start end)
-                     (put-text-property
+                     (font-lock-prepend-text-property
                       start end
                       'face 'selectrum-prescient-secondary-highlight
                       candidate)))))))
