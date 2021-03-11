@@ -27,9 +27,10 @@ The format is based on [Keep a Changelog].
   reported in [#92] and [#93].
 
 ### Enhancements
-* Match faces are now combined with faces that might be already
-  present on candidates instead of replacing them which gives better
-  visual results in these cases ([#101], [#103]).
+* `selectrum-prescient.el`: Match faces are now combined with faces
+  that might be already present on candidates instead of replacing
+  them which gives better visual results in these cases ([#101],
+  [#103]).
 
 ### Internal changes
 * The user option `selectrum-should-sort-p` was deprecated in
