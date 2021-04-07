@@ -194,6 +194,7 @@ used as a prefix key to access the commands.
 | `M-s P` | `selectrum-prescient-toggle-literal-prefix` |
 | `M-s r` | `selectrum-prescient-toggle-regexp`         |
 | `M-s '` | `selectrum-prescient-toggle-char-fold`      |
+| `M-s c` | `selectrum-prescient-toggle-case-fold`      |
 
 When defining custom filter methods, you can create new bindings using
 `selectrum-prescient-create-and-bind-toggle-command`, which takes an
