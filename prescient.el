@@ -203,6 +203,17 @@ variables `char-fold-include', `char-fold-exclude', and
 `char-fold-symmetric'."
   :type 'boolean)
 
+(defcustom prescient-use-case-folding 'smart
+  "Whether filtering methods are case folding.
+
+If t, always use case folding.  If nil, never use case folding.
+If `smart' (the default), use case folding only when the query
+contains no upper-case letters."
+  :type '(choice
+          (const :tag "Always" t)
+          (const :tag "Never" nil)
+          (const :tag "Unless using upper-case letters" smart)))
+
 ;;;; Caches
 
 (defvar prescient--history (make-hash-table :test 'equal)
@@ -555,7 +566,14 @@ matching. Discard any that do not, and return the resulting list.
 Do not modify CANDIDATES; always make a new copy of the list."
   (let ((regexps (prescient-filter-regexps query))
         (results nil)
-        (prioritized-results nil))
+        (prioritized-results nil)
+        (case-fold-search (if (eq prescient-use-case-folding 'smart)
+                              (let ((case-fold-search nil))
+                                ;; If using upper-case characters,
+                                ;; then don't fold case.
+                                (not (string-match-p "[[:upper:]]"
+                                                     query)))
+                            prescient-use-case-folding)))
     (save-match-data
       ;; Use named block in case somebody loads `cl' accidentally
       ;; which causes `dolist' to turn into `cl-dolist' which

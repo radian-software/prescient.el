@@ -107,6 +107,12 @@ different one by customizing `prescient-filter-method`.
 * `prescient-use-char-folding`: Whether the `literal` and
   `literal-prefix` filter methods use character folding.
 
+* `prescient-use-case-folding`: Whether filtering methods use case
+  folding (in non-Emacs terms, whether they are not case-sensitive).
+  This can be one of `nil`, `t`, or `smart` (the default).  If
+  `smart`, then case folding is disabled when upper-case characters
+  are sought.
+
 ### Company-specific
 
 * `company-prescient-sort-length-enable`: By default, the standard
