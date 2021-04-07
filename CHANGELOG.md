@@ -25,6 +25,12 @@ The format is based on [Keep a Changelog].
   the `literal` and `literal-prefix` filter methods will use character
   folding. See [#98]. This can be used to help avoid the problems
   reported in [#92] and [#93].
+* The user option `prescient-use-case-folding` was added.  This
+  feature affects the use of all filters.  It can be one of `nil`,
+  `t`, or `smart` (the default).  If `smart`, then case folding is
+  disabled when upper-case characters are sought.  In Selectrum, the
+  toggling command `selectrum-prescient-toggle-case-fold` was bound to
+  `M-s c`.  See [#PR].
 
 ### Enhancements
 * `selectrum-prescient.el`: Match faces are now combined with faces
