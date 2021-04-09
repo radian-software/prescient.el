@@ -230,19 +230,21 @@ Otherwise, this toggles between normal case folding and no case
 folding."
   (interactive)
   (setq-local prescient-use-case-folding
-              (if prescient-use-case-folding
-                  (progn
-                    (message "Case folding toggled off")
-                    nil)
-                (if (eq (default-toplevel-value 'prescient-use-case-folding)
-                        'smart)
-                    (progn
-                      (message "Smart case folding toggled on")
-                      'smart)
-                  (message "Case folding toggled on")
-                  t)))
+              (cond
+               (prescient-use-case-folding
+                (message "Case folding toggled off")
+                nil)
+               ((eq (default-toplevel-value 'prescient-use-case-folding)
+                    'smart)
+                (message "Smart case folding toggled on")
+                'smart)
+               (t
+                (message "Case folding toggled on")
+                t)))
+
   (selectrum-exhibit))
 
+;; This is the same binding used by `isearch-toggle-case-fold'.
 (define-key selectrum-prescient-toggle-map (kbd "c")
   #'selectrum-prescient-toggle-case-fold)
 
