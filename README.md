@@ -107,6 +107,12 @@ different one by customizing `prescient-filter-method`.
 * `prescient-use-char-folding`: Whether the `literal` and
   `literal-prefix` filter methods use character folding.
 
+* `prescient-use-case-folding`: Whether filtering methods use case
+  folding (in non-Emacs terms, whether they are not case-sensitive).
+  This can be one of `nil`, `t`, or `smart` (the default).  If
+  `smart`, then case folding is disabled when upper-case characters
+  are sought.
+
 ### Company-specific
 
 * `company-prescient-sort-length-enable`: By default, the standard
@@ -188,6 +194,7 @@ used as a prefix key to access the commands.
 | `M-s P` | `selectrum-prescient-toggle-literal-prefix` |
 | `M-s r` | `selectrum-prescient-toggle-regexp`         |
 | `M-s '` | `selectrum-prescient-toggle-char-fold`      |
+| `M-s c` | `selectrum-prescient-toggle-case-fold`      |
 
 When defining custom filter methods, you can create new bindings using
 `selectrum-prescient-create-and-bind-toggle-command`, which takes an

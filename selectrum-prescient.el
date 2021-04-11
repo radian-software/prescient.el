@@ -99,7 +99,15 @@ For use on `selectrum-candidate-selected-hook'."
 
 (defun selectrum-prescient--highlight (input candidates)
   "According to INPUT, return list of propertized CANDIDATES."
-  (let ((regexps (prescient-filter-regexps input 'with-groups)))
+  (let ((regexps (prescient-filter-regexps input 'with-groups))
+        (case-fold-search (if (eq prescient-use-case-folding
+                                  'smart)
+                              (let ((case-fold-search nil))
+                                ;; If using upper-case characters,
+                                ;; then don't fold case.
+                                (not (string-match-p "[[:upper:]]"
+                                                     input)))
+                            prescient-use-case-folding)))
     (save-match-data
       (mapcar
        (lambda (candidate)
@@ -212,6 +220,33 @@ See the customizable variable `prescient-use-char-folding'."
 ;; This is the same binding used by `isearch-toggle-char-fold'.
 (define-key selectrum-prescient-toggle-map (kbd "'")
   #'selectrum-prescient-toggle-char-fold)
+
+(defun selectrum-prescient-toggle-case-fold ()
+  "Toggle case folding in the current Selectrum buffer.
+
+If `prescient-use-case-folding' is set to `smart', then this
+toggles whether to use smart case folding or no case folding.
+Otherwise, this toggles between normal case folding and no case
+folding."
+  (interactive)
+  (setq-local prescient-use-case-folding
+              (cond
+               (prescient-use-case-folding
+                (message "Case folding toggled off")
+                nil)
+               ((eq (default-toplevel-value 'prescient-use-case-folding)
+                    'smart)
+                (message "Smart case folding toggled on")
+                'smart)
+               (t
+                (message "Case folding toggled on")
+                t)))
+
+  (selectrum-exhibit))
+
+;; This is the same binding used by `isearch-toggle-case-fold'.
+(define-key selectrum-prescient-toggle-map (kbd "c")
+  #'selectrum-prescient-toggle-case-fold)
 
 ;;;###autoload
 (define-minor-mode selectrum-prescient-mode
