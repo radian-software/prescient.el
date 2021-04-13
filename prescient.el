@@ -540,7 +540,7 @@ enclose literal substrings with capture groups."
                  (lambda (method)
                    (if-let ((func (alist-get method prescient-filter-alist)))
                        (funcall func subquery
-                                :with-groups with-groups
+                                :with-group with-groups
                                 :subquery-number subquery-number)
                      ;; Don't throw error if function doesn't exist, but do
                      ;; warn user.
