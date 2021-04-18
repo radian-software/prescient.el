@@ -43,7 +43,7 @@ The format is based on [Keep a Changelog].
   Selectrum 3.1 in favor of `selectrum-should-sort`.
   `selectrum-prescient.el` now uses the updated option name ([#99]).
 
-### Bugs Fixes
+### Bugs fixed
 * A typo was fixed that prevented secondary highlighting (such as the
   initials in `initialism` matching) from being applied.  Functions in
   `prescient-filter-alist` were being passed the keyword argument
