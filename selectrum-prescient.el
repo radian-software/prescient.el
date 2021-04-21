@@ -99,7 +99,7 @@ For use on `selectrum-candidate-selected-hook'."
 
 (defun selectrum-prescient--highlight (input candidates)
   "According to INPUT, return list of propertized CANDIDATES."
-  (let ((regexps (prescient-filter-regexps input 'with-groups))
+  (let ((regexps (prescient-filter-regexps input 'with-group))
         (case-fold-search (if (eq prescient-use-case-folding
                                   'smart)
                               (let ((case-fold-search nil))
