@@ -522,12 +522,12 @@ data can be used to highlight the matched substrings."
 
 ;;;; Sorting and filtering
 
-(defun prescient-filter-regexps (query &optional with-groups)
+(defun prescient-filter-regexps (query &optional with-group)
   "Convert QUERY to list of regexps.
 Each regexp must match the candidate in order for a candidate to
 match the QUERY.
 
-If WITH-GROUPS is non-nil, enclose the initials in initialisms
+If WITH-GROUP is non-nil, enclose the initials in initialisms
 with capture groups. If it is the symbol `all', additionally
 enclose literal substrings with capture groups."
   (let ((subquery-number 0))
@@ -540,7 +540,7 @@ enclose literal substrings with capture groups."
                  (lambda (method)
                    (if-let ((func (alist-get method prescient-filter-alist)))
                        (funcall func subquery
-                                :with-groups with-groups
+                                :with-group with-group
                                 :subquery-number subquery-number)
                      ;; Don't throw error if function doesn't exist, but do
                      ;; warn user.

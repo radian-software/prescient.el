@@ -43,6 +43,14 @@ The format is based on [Keep a Changelog].
   Selectrum 3.1 in favor of `selectrum-should-sort`.
   `selectrum-prescient.el` now uses the updated option name ([#99]).
 
+### Bugs fixed
+* A typo was fixed that prevented secondary highlighting (such as the
+  initials in `initialism` matching) from being applied.  Functions in
+  `prescient-filter-alist` were being passed the keyword argument
+  `:with-groups` instead of the correct `:with-group`.  For
+  consistency, the `with-groups` argument of
+  `prescient-filter-regexps` was changed to `with-group`.  See [#106].
+
 [#92]: https://github.com/raxod502/prescient.el/issues/92
 [#93]: https://github.com/raxod503/prescient.el/issues/93
 [#94]: https://github.com/raxod502/prescient.el/pull/94
@@ -54,6 +62,7 @@ The format is based on [Keep a Changelog].
 [#101]: https://github.com/raxod503/prescient.el/issues/101
 [#103]: https://github.com/raxod502/prescient.el/pull/103
 [#105]: https://github.com/raxod502/prescient.el/pull/105
+[#106]: https://github.com/raxod502/prescient.el/pull/106
 
 ## 5.1 (released 2021-02-26)
 ### Enhancements

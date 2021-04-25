@@ -103,7 +103,7 @@ This is for use in `ivy-re-builders-alist'."
        query
        (if ivy-prescient-retain-classic-highlighting
            'all
-         'with-groups)))
+         'with-group)))
      ;; For some reason, Ivy doesn't seem to like to be given an empty
      ;; list of regexps. Instead, it wants an empty string.
      "")))
