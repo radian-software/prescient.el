@@ -691,7 +691,7 @@ Return the sorted list. The original is modified destructively."
   (cl-incf prescient--serial-number)
   ;; Save the cache data.
   (when (and prescient-persist-mode
-	     prescient-aggressive-file-save)
+             prescient-aggressive-file-save)
     (prescient--save)))
 
 ;;;; Closing remarks
