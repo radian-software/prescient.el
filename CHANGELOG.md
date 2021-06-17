@@ -31,6 +31,8 @@ The format is based on [Keep a Changelog].
   disabled when upper-case characters are sought.  In Selectrum, the
   toggling command `selectrum-prescient-toggle-case-fold` was bound to
   `M-s c`.  See [#105].
+* The command `prescient-forget` was added. When used, `prescient.el`
+  will immediately forget a candidate ([#109]).
 
 ### Enhancements
 * `selectrum-prescient.el`: Match faces are now combined with faces
@@ -63,6 +65,7 @@ The format is based on [Keep a Changelog].
 [#103]: https://github.com/raxod502/prescient.el/pull/103
 [#105]: https://github.com/raxod502/prescient.el/pull/105
 [#106]: https://github.com/raxod502/prescient.el/pull/106
+[#109]: https://github.com/raxod502/prescient.el/pull/109
 
 ## 5.1 (released 2021-02-26)
 ### Enhancements

@@ -67,6 +67,9 @@ ones, and then the remaining candidates are sorted by length. If you
 don't like the algorithm used for filtering, you can choose a
 different one by customizing `prescient-filter-method`.
 
+If you would like `prescient.el` to forget about a candidate, use the
+command `prescient-forget`.
+
 ## Configuration and other features
 
 * `prescient-history-length`: The number of recently selected
