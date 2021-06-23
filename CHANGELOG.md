@@ -33,6 +33,8 @@ The format is based on [Keep a Changelog].
   `M-s c`.  See [#105].
 
 ### Enhancements
+* `prescient-filter-method` accepts a function which returns the
+  desired filter methods ([#110])
 * `selectrum-prescient.el`: Match faces are now combined with faces
   that might be already present on candidates instead of replacing
   them which gives better visual results in these cases ([#101],
