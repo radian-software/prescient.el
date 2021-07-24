@@ -255,6 +255,20 @@ This is used to determine which set of changes to the save file
 should \"win\" when two concurrent Emacs sessions want to modify
 it.")
 
+(defun prescient-forget (candidate)
+  "Remove CANDIDATE from recency and frequency records."
+  (interactive
+   (list (completing-read "Forget candidate: "
+                          ;; Since candidates are shared, select from
+                          ;; the table with the most candidates.
+                          (if (> (hash-table-size prescient--frequency)
+                                 (hash-table-size prescient--history))
+                              prescient--frequency
+                            prescient--history)
+                          nil t)))
+  (remhash candidate prescient--history)
+  (remhash candidate prescient--frequency))
+
 ;;;; Persistence
 
 (defvar prescient--cache-version 5
@@ -697,7 +711,7 @@ Return the sorted list. The original is modified destructively."
   (cl-incf prescient--serial-number)
   ;; Save the cache data.
   (when (and prescient-persist-mode
-	     prescient-aggressive-file-save)
+             prescient-aggressive-file-save)
     (prescient--save)))
 
 ;;;; Closing remarks
