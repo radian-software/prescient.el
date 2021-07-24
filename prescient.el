@@ -116,6 +116,9 @@ is similar to `prefix', but allows for less typing.
 Value can also be a list of any of the above methods, in which
 case each method will be applied in order until one matches.
 
+Value can also be a function which returns any of the allowable
+values documented above.
+
 For backwards compatibility, the value of this variable can also
 be `literal+initialism', which equivalent to the list (`literal'
 `initialism')."
@@ -561,7 +564,10 @@ enclose literal substrings with capture groups."
                      (message
                       "No function in `prescient-filter-alist' for method: %s"
                       method)))
-                 (pcase prescient-filter-method
+                 (pcase
+                     (if (functionp prescient-filter-method)
+                         (funcall prescient-filter-method)
+                       prescient-filter-method)
                    ;; We support `literal+initialism' for backwards
                    ;; compatibility.
                    (`literal+initialism '(literal initialism))

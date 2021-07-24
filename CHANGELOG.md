@@ -35,6 +35,8 @@ The format is based on [Keep a Changelog].
   will immediately forget a candidate ([#109]).
 
 ### Enhancements
+* `prescient-filter-method` accepts a function which returns the
+  desired filter methods ([#110]).
 * `selectrum-prescient.el`: Match faces are now combined with faces
   that might be already present on candidates instead of replacing
   them which gives better visual results in these cases ([#101],
@@ -66,6 +68,7 @@ The format is based on [Keep a Changelog].
 [#105]: https://github.com/raxod502/prescient.el/pull/105
 [#106]: https://github.com/raxod502/prescient.el/pull/106
 [#109]: https://github.com/raxod502/prescient.el/pull/109
+[#110]: https://github.com/raxod502/prescient.el/pull/110
 
 ## 5.1 (released 2021-02-26)
 ### Enhancements

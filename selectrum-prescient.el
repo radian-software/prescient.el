@@ -174,8 +174,14 @@ buffer. It does not affect the default behavior (determined by
              ;; be a list of only one filter type.
              (setq prescient-filter-method '(,filter-type))
 
-           ;; Otherwise, if we need to add or remove from the list,
-           ;; make sure it's actually a list and not just a symbol.
+           ;; Otherwise, if the current setting is a function,
+           ;; evaluate it to get the value.
+           (when (functionp prescient-filter-method)
+             (setq prescient-filter-method
+                   (funcall prescient-filter-method)))
+
+           ;; If we need to add or remove from the list, make sure
+           ;; it's actually a list and not just a symbol.
            (when (symbolp prescient-filter-method)
              (setq prescient-filter-method
                    (list prescient-filter-method)))
