@@ -25,8 +25,14 @@
 
 (require 'prescient)
 (require 'selectrum)
-
 (require 'subr-x)
+
+(declare-function prescient--highlight-matches "prescient"
+                  (input candidates))
+(declare-function prescient-sort-full-matches-first "prescient"
+                  (candidates regexps ignore-case))
+(declare-function prescient-ignore-case-p "prescient"
+                  (input))
 
 ;;;; Customization
 
@@ -35,28 +41,6 @@
   :group 'convenience
   :prefix "selectrum-prescient"
   :link '(url-link "https://github.com/raxod502/prescient.el"))
-
-(define-obsolete-face-alias
-  'selectrum-primary-highlight
-  'selectrum-prescient-primary-highlight
-  t)
-
-(define-obsolete-face-alias
-  'selectrum-secondary-highlight
-  'selectrum-prescient-secondary-highlight
-  t)
-
-(defface selectrum-prescient-primary-highlight
-  '((t :weight bold))
-  "Face used to highlight the parts of candidates that match the input."
-  :group 'selectrum-prescient)
-
-(defface selectrum-prescient-secondary-highlight
-  '((t :inherit selectrum-prescient-primary-highlight :underline t))
-  "Additional face used to highlight parts of candidates.
-May be used to highlight parts of candidates that match specific
-parts of the input."
-  :group 'selectrum-prescient)
 
 (defcustom selectrum-prescient-enable-filtering t
   "Whether to enable filtering by `selectrum-prescient'.
@@ -86,6 +70,29 @@ this variable will not take effect until
     (setq candidates (prescient-sort candidates)))
   candidates)
 
+(defun selectrum-prescient--refine (input candidates)
+  "According to INPUT, filter CANDIDATES.
+
+Additionally, if `selectrum-should-sort',
+`selectrum-prescient-enable-sorting', and the option
+`prescient-sort-full-matches-first' are all non-nil, sort full
+matches first."
+  (let ((filtered-comps (prescient-filter input candidates))
+        ;; TODO?: For some reason, these text properties are lost in
+        ;; Selectrum, but not in Vertico and Icomplete Vertical, when
+        ;; running `M-x'. This is probably due to how Selectrum
+        ;; handles function tables?
+        ;;
+        ;; Due to the above, we recalculate the values here.
+        (regexps (prescient-filter-regexps input))
+        (ignore-case (prescient-ignore-case-p input)))
+    (if (and selectrum-should-sort
+             selectrum-prescient-enable-sorting
+             prescient-sort-full-matches-first)
+        (prescient-sort-full-matches-first
+         filtered-comps regexps ignore-case)
+      filtered-comps)))
+
 (defvar selectrum-prescient--old-preprocess-function nil
   "Previous value of `selectrum-preprocess-candidates-function'.")
 
@@ -96,38 +103,6 @@ this variable will not take effect until
   "Remember CANDIDATE in prescient.el.
 For use on `selectrum-candidate-selected-hook'."
   (prescient-remember candidate))
-
-(defun selectrum-prescient--highlight (input candidates)
-  "According to INPUT, return list of propertized CANDIDATES."
-  (let ((regexps (prescient-filter-regexps input 'with-group))
-        (case-fold-search (if (eq prescient-use-case-folding
-                                  'smart)
-                              (let ((case-fold-search nil))
-                                ;; If using upper-case characters,
-                                ;; then don't fold case.
-                                (not (string-match-p "[[:upper:]]"
-                                                     input)))
-                            prescient-use-case-folding)))
-    (save-match-data
-      (mapcar
-       (lambda (candidate)
-         (setq candidate (copy-sequence candidate))
-         (prog1 candidate
-           (dolist (regexp regexps)
-             (when (string-match regexp candidate)
-               (font-lock-prepend-text-property
-                (match-beginning 0) (match-end 0)
-                'face 'selectrum-prescient-primary-highlight candidate)
-               (cl-loop
-                for (start end)
-                on (cddr (match-data))
-                by #'cddr
-                do (when (and start end)
-                     (font-lock-prepend-text-property
-                      start end
-                      'face 'selectrum-prescient-secondary-highlight
-                      candidate)))))))
-       candidates))))
 
 (defvar selectrum-prescient--old-highlight-function nil
   "Previous value of `selectrum-highlight-candidates-function'.")
@@ -274,9 +249,9 @@ folding."
           (setq selectrum-prescient--old-highlight-function
                 selectrum-highlight-candidates-function)
           (setq selectrum-refine-candidates-function
-                #'prescient-filter)
+                #'selectrum-prescient--refine)
           (setq selectrum-highlight-candidates-function
-                #'selectrum-prescient--highlight)
+                #'prescient--highlight-matches)
           (define-key selectrum-minibuffer-map
             (kbd "M-s") selectrum-prescient-toggle-map))
         (when selectrum-prescient-enable-sorting
@@ -289,11 +264,11 @@ folding."
           (add-hook 'selectrum-candidate-inserted-hook
                     #'selectrum-prescient--remember)))
     (when (eq selectrum-refine-candidates-function
-              #'prescient-filter)
+              #'selectrum-prescient--refine)
       (setq selectrum-refine-candidates-function
             selectrum-prescient--old-refine-function))
     (when (eq selectrum-highlight-candidates-function
-              #'selectrum-prescient--highlight)
+              #'prescient--highlight-matches)
       (setq selectrum-highlight-candidates-function
             selectrum-prescient--old-highlight-function))
     (when (equal (lookup-key selectrum-minibuffer-map (kbd "M-s"))

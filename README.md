@@ -9,6 +9,11 @@ candidates, such as appear when you use a package like [Ivy] or
 `company-prescient.el` adapt the library for usage with various
 frameworks.
 
+`prescient.el` also provides a completion style (`prescient`) for
+filtering candidates via Emacs's generic minibuffer completion, such
+as [Icomplete], though no package is provided for setting up sorting
+with these more generic frameworks.
+
 As compared to other packages which accomplish similar tasks,
 including [IDO], [Ivy], [Helm], [Smex], [Flx], [Historian], and
 [Company-Statistics], `prescient.el` aims to be simpler, more
@@ -45,6 +50,27 @@ prefer.
   enable `selectrum-prescient-mode`.
 * To cause your usage statistics to be saved between Emacs sessions,
   enable `prescient-persist-mode`.
+* To cause Emacs to use `prescient` completion style for filtering and
+  optionally sorting:
+  1. Add the symbol `prescient` to the user option `completion-styles`
+     to use `prescient.el` for filtering. It is recommended to keep
+     the `basic` style active and after the `prescient` style, as some
+     completion tables only work with that style. Each completion
+     style is tried in turn, such that the `basic` style would only be
+     used if the `prescient` style could not find any matching
+     candidates.
+
+     ```elisp
+     (setq completion-styles '(prescient basic))
+     ```
+  2. Configure your completion UI to call `prescient-remember` on the
+     chosen candidate so that candidates are sorted correctly.
+  3. Configure your completion UI to sort filtered candidates via
+     `prescient-completion-sort` or a custom sorting function as
+     needed. Optionally, on Emacs 27+, you can instead set
+     `prescient-completion-enable-sort` (see below) to `t` to allow
+     the `prescient` completion style to set sorting directly. This
+     option is off by default to better work with various UIs.
 
 Please note that **you must load Counsel before `ivy-prescient.el`**.
 This is because loading Counsel results in a number of changes being
@@ -105,18 +131,52 @@ command `prescient-forget`.
 
 * `prescient-sort-full-matches-first`: Whether `prescient.el` sorts
   candidates that are fully matched before candidates that are
-  partially matched.
+  partially matched. This user option affects:
+  - the `prescient` completion style and completion UIs configured to
+    use the function `prescient-completion-sort` after filtering
+  - `selectrum-prescient.el`
+  - `company-prescient.el` for Company backends that used the
+    `prescient` completion style for filtering
 
 * `prescient-use-char-folding`: Whether the `literal` and
   `literal-prefix` filter methods use character folding.
 
 * `prescient-use-case-folding`: Whether filtering methods use case
-  folding (in non-Emacs terms, whether they are not case-sensitive).
-  This can be one of `nil`, `t`, or `smart` (the default).  If
-  `smart`, then case folding is disabled when upper-case characters
-  are sought.
+  folding (in non-Emacs terms, whether they are case insensitive).
+  This can be one of `nil`, `t`, or `smart` (the default). If `smart`,
+  then case folding is disabled when upper-case characters are used.
 
-### Company-specific
+### For the completion style
+The following user options are specific to using the `prescient`
+completion style:
+
+* `prescient-completion-highlight-matches`: Whether the completion
+  style should highlight matches in the filtered candidates.
+
+* `prescient-completion-enable-sort`: Whether, in Emacs 27+, the
+  completion style should automatically modify unsorted candidates to
+  instead use the function `prescient-completion-sort`. This is
+  disabled by default to be more generic and to avoid users
+  accidentally sorting candidates more than once, such as when
+  `company-prescient-mode` is enabled and the `prescient` completion
+  style is used to filter candidates in the Company backend.
+
+  This user option only controls sorting done by the `prescient`
+  completion style. It does not affect sorting for the other styles in
+  the `completion-style` user option.
+
+  Some completion UIs, such as [Vertico][vertico] and [Corfu][corfu],
+  allow you to explicitly set a default sorting function for unsorted
+  candidates. In that case, you could set such an option to
+  `prescient-completion-sort`, which wraps the functions
+  `prescient-sort` and `prescient-sort-full-matches-first`. This would
+  also allow you to use prescient.el's sorting (excluding
+  `prescient-sort-full-matches-first`) with other completion styles
+  and completion backends.
+
+### For Company
+The following user options are specific to using `prescient.el`
+sorting with Company:
 
 * `company-prescient-sort-length-enable`: By default, the standard
   `prescient.el` sorting algorithm is used for all Company completions
@@ -131,7 +191,7 @@ command `prescient-forget`.
   frequently used candidates to the top of the completions list, but
   otherwise leave candidate ordering alone.
 
-### Ivy-specific
+### For Ivy
 The following user options are specific to using `prescient.el` with
 Ivy:
 
@@ -155,7 +215,7 @@ Ivy:
   the Ivy documentation for information on how Ivy sorts by default,
   and how to customize it manually.
 
-### Selectrum-specific
+### For Selectrum
 The following user options are specific to using `prescient.el` with
 Selectrum:
 
@@ -245,12 +305,14 @@ Ivy, and copied them to be used for Selectrum as well:
 Please see [the contributor guide for my
 projects](https://github.com/raxod502/contributor-guide).
 
+[corfu]: https://github.com/minad/corfu
 [company]: https://github.com/company-mode/company-mode
 [company-statistics]: https://github.com/company-mode/company-statistics
 [counsel]: https://github.com/abo-abo/swiper#counsel
 [flx]: https://github.com/lewang/flx
 [helm]: https://github.com/emacs-helm/helm
 [historian]: https://github.com/PythonNut/historian.el
+[icomplete]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Icomplete.html
 [ido]: https://www.gnu.org/software/emacs/manual/ido.html
 [ivy]: https://github.com/abo-abo/swiper#ivy
 [ivy-release]: https://github.com/abo-abo/swiper/issues/1664
@@ -259,3 +321,4 @@ projects](https://github.com/raxod502/contributor-guide).
 [selectrum]: https://github.com/raxod502/selectrum
 [smex]: https://github.com/nonsequitur/smex
 [straight.el]: https://github.com/raxod502/straight.el
+[vertico]: https://github.com/minad/vertico

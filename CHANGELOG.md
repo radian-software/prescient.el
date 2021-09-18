@@ -14,8 +14,65 @@ The format is based on [Keep a Changelog].
   literal when `prescient-use-char-folding` was nil. This bug was
   added with that user option. See [#127].
 
+### New features
+* Add new function `prescient-sort-full-matches-first` which
+  implements the option. This feature already existed, but moving to a
+  separate function makes it easier to support in more UIs. See
+  [#125].
+* Add a completion style `prescient`. This completion style can be
+  used in the variable `completion-styles`. This completion style
+  works with UIs like Emacs's built-in minibuffer completion,
+  Icomplete, and Vertico. See various discussions in [#125], [#120],
+  [#112], [#89], [#58], and [#54].
+  * In Emacs 27+, this completion style can optionally modify
+    unsorted completion tables to use `prescient.el` sorting instead.
+    This behavior can be enabled by setting the new user option
+    `prescient-completion-enable-sort` to `t`. Note that this might
+    lead to sorting candidates twice, such as when
+    `company-prescient-mode` is enabled and a Company backend filters
+    using the `prescient` completion style.
+  * The modification sets the sorting function to the new function
+    `prescient-completion-sort`, which combines `prescient-sort` with
+    the new function `prescient-sort-full-matches-first`. This
+    function is meant to be used after filtering.
+
+    Some completion UIs allow explicitly setting the sorting function.
+    Setting such an option to `prescient-completion-sort` is
+    recommended to use prescient.el's sorting with other completion
+    styles and backends. Note that sorting fully matched candidates
+    before others only works for candidates filtered by `prescient`.
+* Added user option `prescient-completion-highlight-matches`, which
+  determines whether the completion style highlights the matching
+  parts of candidates with the above new faces ([#125]).
+* Add faces `prescient-primary-highlight` and
+  `prescient-secondary-highlight` ([#125]). These faces are used with
+  the completion style and `selectrum-prescient.el`. The old faces
+  `selectrum-prescient-primary-highlight` and
+  `selectrum-prescient-secondary-highlight` are now obsolete aliases
+  of these faces.
+
+### Enhancements
+* `prescient-filter` now supports filtering candidates from Emacs's
+  more generic "completion tables", not just lists of strings ([#125]).
+  However, like with some other completion styles, it does not work
+  well with certain dynamic completion tables that use a prefix string
+  to produce candidates before filtering. To work around this, it is
+  recommended to include the `basic` style after the `prescient` style
+  in the user option `completion-styles`.
+
+### Internal Changes
+* `prescient-filter` now uses the C function `all-completions` instead
+  of being completely written in Emacs Lisp. This should make it a bit
+  faster. See [#125].
+
+[#54]: https://github.com/raxod502/prescient.el/issues/54
+[#58]: https://github.com/raxod502/prescient.el/issues/58
+[#89]: https://github.com/raxod502/prescient.el/issues/89
+[#112]: https://github.com/raxod502/prescient.el/issues/112
+[#120]: https://github.com/raxod502/prescient.el/issues/120
 [#123]: https://github.com/radian-software/prescient.el/issues/123
 [#124]: https://github.com/radian-software/prescient.el/pull/124
+[#125]: https://github.com/raxod502/prescient.el/pull/125
 [#126]: https://github.com/radian-software/prescient.el/pull/126
 [#127]: https://github.com/radian-software/prescient.el/pull/127
 
