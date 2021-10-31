@@ -54,7 +54,11 @@ The format is based on [Keep a Changelog].
   `:with-groups` instead of the correct `:with-group`.  For
   consistency, the `with-groups` argument of
   `prescient-filter-regexps` was changed to `with-group`.  See [#106].
+* Previously, when char folding was enabled, long queries could cause
+  a crash with the error "Regular expression too big". This has now
+  been fixed ([#71]).
 
+[#71]: https://github.com/raxod502/prescient.el/issues/71
 [#92]: https://github.com/raxod502/prescient.el/issues/92
 [#93]: https://github.com/raxod503/prescient.el/issues/93
 [#94]: https://github.com/raxod502/prescient.el/pull/94
