@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 5.2 (released 2021-12-27)
 ### New features
 * Two new user options, `selectrum-prescient-enable-filtering` and
   `selectrum-prescient-enable-sorting`, which allow the user to
@@ -74,7 +74,7 @@ The format is based on [Keep a Changelog].
 [#109]: https://github.com/raxod502/prescient.el/pull/109
 [#110]: https://github.com/raxod502/prescient.el/pull/110
 
-## 5.1 (released 2021-02-26)
+## 5.2 (released 2021-02-26)
 ### Enhancements
 * Literal-prefix matching, a new filter method whose behavior is that
   the first subquery must be the prefix of the candidate and the
