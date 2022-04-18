@@ -111,18 +111,30 @@ This is for use in `ivy-re-builders-alist'."
 (defvar ivy-prescient--old-re-builder nil
   "Previous default value in `ivy-re-builders-alist'.")
 
+(defun ivy-prescient--elements-ensure (element)
+  "Ensure that the type of `ELEMENT' is acceptable to prescient.
+In addition to string, ivy accepts many types of data, so some
+processing is needed to ensure that `prescient' can handle them."
+  (if (stringp element)
+      element
+    (cond ((symbolp element) (symbol-name element))
+          ((consp element) (symbol-name (car element)))
+          ((listp element) (car element)))))
+
 (defun ivy-prescient-sort-function (c1 c2)
   "Comparison function that uses prescient.el to sort candidates.
 This is for use in `ivy-sort-functions-alist'. C1 and C2 are
 arbitrary candidates to be compared; they may be strings or cons
-cells whose cars are strings."
-  ;; For some reason, Ivy supports candidates that are lists, and just
-  ;; takes their cars. I guess we have to support that too.
-  (when (listp c1)
-    (setq c1 (car c1)))
-  (when (listp c2)
-    (setq c2 (car c2)))
+cells whose cars are strings, or symbols."
+  (setq c1 (ivy-prescient--elements-ensure c1))
+  (setq c2 (ivy-prescient--elements-ensure c2))
   (prescient-sort-compare c1 c2))
+
+(defun ivy-prescient-remember (candidate)
+  "Invokes `prescient-remember' with additional normalization for Ivy.
+CANDIDATE is as in `prescient-remember' (which see)."
+  (setq candidate (ivy-prescient--elements-ensure candidate))
+  (prescient-remember candidate))
 
 (defvar ivy-prescient--old-ivy-sort-functions-alist nil
   "Previous values from `ivy-sort-functions-alist'.
@@ -154,13 +166,13 @@ that also invokes `prescient-remember'."
         (let ((cand x))
           (when (listp cand) (setq cand (car x)))
           (when dir (setq cand (file-relative-name cand dir)))
-          (prescient-remember cand))
+          (ivy-prescient-remember cand))
         (funcall action x)))))
 
 (defun ivy-prescient--remember-directory (success)
   "Remember the directory we just entered when SUCCESS."
   (when success
-    (prescient-remember
+    (ivy-prescient-remember
      (file-name-as-directory
       (file-name-nondirectory
        (directory-file-name ivy--directory)))))
