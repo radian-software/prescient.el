@@ -117,9 +117,9 @@ In addition to string, ivy accepts many types of data, so some
 processing is needed to ensure that `prescient' can handle them."
   (if (stringp element)
       element
-    (cond ((symbolp element) (symbol-name element))
-          ((consp element) (symbol-name (car element)))
-          ((listp element) (car element)))))
+    (if (consp element)
+        (ivy-prescient--elements-ensure (car element))
+      (symbol-name element))))
 
 (defun ivy-prescient-sort-function (c1 c2)
   "Comparison function that uses prescient.el to sort candidates.
