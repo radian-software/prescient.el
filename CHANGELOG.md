@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Bugs fixed
+* ivy doesn't convert all variables to string when sorting or calling
+  `prescient-remember`, so it need to preprocess when work with
+  `ivy-prescient.el`. if not, an `wrong-type-argument` error may 
+  occur. This issue affects the use of `format-all-buffer` ([#119]).
+
+[#119]: https://github.com/raxod502/prescient.el/pull/119
+
 ## 5.2 (released 2021-12-27)
 ### New features
 * Two new user options, `selectrum-prescient-enable-filtering` and
