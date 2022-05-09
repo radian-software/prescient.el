@@ -1,8 +1,8 @@
 ;;; prescient.el --- Better sorting and filtering -*- lexical-binding: t -*-
 
-;; Copyright (C) 2017-2018 Radon Rosborough
+;; Copyright (C) 2017-2022 Radian LLC and contributors
 
-;; Author: Radon Rosborough <radon.neon@gmail.com>
+;; Author: Radian LLC <contact+prescient@radian.codes>
 ;; Homepage: https://github.com/raxod502/prescient.el
 ;; Keywords: extensions
 ;; Created: 7 Aug 2017
