@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 5.2.1 (released 2022-06-01)
 ### Bugs fixed
 * ivy doesn't convert all variables to string when sorting or calling
   `prescient-remember`, so it need to preprocess when work with
