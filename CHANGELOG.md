@@ -83,7 +83,7 @@ The format is based on [Keep a Changelog].
 [#109]: https://github.com/raxod502/prescient.el/pull/109
 [#110]: https://github.com/raxod502/prescient.el/pull/110
 
-## 5.2 (released 2021-02-26)
+## 5.1 (released 2021-02-26)
 ### Enhancements
 * Literal-prefix matching, a new filter method whose behavior is that
   the first subquery must be the prefix of the candidate and the
