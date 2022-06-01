@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog].
 ### Bugs fixed
 * ivy doesn't convert all variables to string when sorting or calling
   `prescient-remember`, so it need to preprocess when work with
-  `ivy-prescient.el`. if not, an `wrong-type-argument` error may 
+  `ivy-prescient.el`. if not, an `wrong-type-argument` error may
   occur. This issue affects the use of `format-all-buffer` ([#119]).
 
 [#119]: https://github.com/raxod502/prescient.el/pull/119
