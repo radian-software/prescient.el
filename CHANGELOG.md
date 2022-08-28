@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Bugs fixed
+* Toggling off filter methods no longer accidentally changes the
+  global value of `prescient-filter-method`.  See [#123], [#124].
+
+[#123]: https://github.com/radian-software/prescient.el/issues/123
+[#124]: https://github.com/radian-software/prescient.el/pull/124
+
 ## 5.2.1 (released 2022-06-01)
 ### Bugs fixed
 * ivy doesn't convert all variables to string when sorting or calling
