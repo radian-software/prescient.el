@@ -195,7 +195,10 @@ buffer. It does not affect the default behavior (determined by
 
              (setq prescient-filter-method
                    (if (memq ',filter-type prescient-filter-method)
-                       (delq ',filter-type prescient-filter-method)
+                       ;; Even when running `make-local-variable',
+                       ;; it seems `delq' might still modify the
+                       ;; global value, so we use `remq' here.
+                       (remq ',filter-type prescient-filter-method)
                      (cons ',filter-type prescient-filter-method)))))
 
          ;; After changing `prescient-filter-method', tell the user
