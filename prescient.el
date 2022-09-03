@@ -346,6 +346,11 @@ This is the same as `char-fold-to-regexp' but it works around
 https://github.com/raxod502/prescient.el/issues/71. The issue
 should really be fixed upstream in Emacs, but it looks like that
 is not happening anytime soon."
+  ;; This variable apparently isn't always loaded when calling
+  ;; `char-fold-to-regexp'. If it isn't, then we get an error about
+  ;; trying to set the constant `nil'.
+  (unless (boundp 'char-fold-table)
+    (require 'char-fold))
   (let ((regexp (char-fold-to-regexp string)))
     (condition-case _
         (prog1 regexp
