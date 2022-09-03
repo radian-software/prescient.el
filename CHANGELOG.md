@@ -7,9 +7,13 @@ The format is based on [Keep a Changelog].
 ### Bugs fixed
 * Toggling off filter methods no longer accidentally changes the
   global value of `prescient-filter-method`.  See [#123], [#124].
+* For character folding, if `char-fold-table` isn't bound, we
+  `require` the library `char-fold`. This variable apparently isn't
+  always loaded when we call `char-fold-to-regexp`. See [#126].
 
 [#123]: https://github.com/radian-software/prescient.el/issues/123
 [#124]: https://github.com/radian-software/prescient.el/pull/124
+[#126]: https://github.com/radian-software/prescient.el/pull/126
 
 ## 5.2.1 (released 2022-06-01)
 ### Bugs fixed
