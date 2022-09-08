@@ -10,10 +10,14 @@ The format is based on [Keep a Changelog].
 * For character folding, if `char-fold-table` isn't bound, we
   `require` the library `char-fold`. This variable apparently isn't
   always loaded when we call `char-fold-to-regexp`. See [#126].
+* Fix the filter methods `literal` and `literal-prefix` not being
+  literal when `prescient-use-char-folding` was nil. This bug was
+  added with that user option. See [#127].
 
 [#123]: https://github.com/radian-software/prescient.el/issues/123
 [#124]: https://github.com/radian-software/prescient.el/pull/124
 [#126]: https://github.com/radian-software/prescient.el/pull/126
+[#127]: https://github.com/radian-software/prescient.el/pull/127
 
 ## 5.2.1 (released 2022-06-01)
 ### Bugs fixed
