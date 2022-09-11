@@ -41,14 +41,19 @@ this variable is `:default', then this binding is skipped."
 
 ;;;; Minor mode
 
+(declare-function prescient-completion-sort "prescient" (candidates))
 (defun company-prescient-transformer (candidates)
   "Candidate transformer function that uses prescient.el to sort CANDIDATES.
 This is for use in `company-transformers'."
+  ;; Candidates are always sorted and de-duplicated before being
+  ;; passed to transformers. Therefore, we are always trying to
+  ;; at least apply prescient.el sorting on top the existing sort,
+  ;; if not overwrite it entirely.
   (let ((prescient-sort-length-enable
          (if (eq company-prescient-sort-length-enable :default)
              prescient-sort-length-enable
            company-prescient-sort-length-enable)))
-    (prescient-sort candidates)))
+    (prescient-completion-sort candidates)))
 
 (defalias 'company-prescient-completion-finished #'prescient-remember
   "Hook function to remember selected Company candidate.

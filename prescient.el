@@ -220,6 +220,49 @@ contains no upper-case letters."
           (const :tag "Never" nil)
           (const :tag "Unless using upper-case letters" smart)))
 
+(defcustom prescient-completion-highlight-matches t
+  "Whether the `prescient' completion style should highlight matches.
+
+This affects the completion style, not other methods."
+  :type 'boolean)
+
+(defcustom prescient-completion-enable-sort nil
+  "Whether the `prescient' completion style can set sorting.
+
+If non-nil and in Emacs 27+, then completion tables that don't
+specify a sorting function will use `prescient-completion-sort'.
+Tables that do specify a sorting function are unaffected. This
+will affect anything that uses the `prescient' completion style
+for filtering, including possibly `completion-at-point'
+functions.
+
+Some completion UIs provide their own user options for sorting
+functions. That might provide more control than indiscriminately
+sorting candidates filtered by `prescient'. It also allows for
+sorting candidates that were not filtered by `prescient'.
+
+See also the user option `prescient-sort-length-enable'."
+  :type 'boolean)
+
+(define-obsolete-face-alias 'selectrum-primary-highlight
+  'prescient-primary-highlight t)
+(define-obsolete-face-alias 'selectrum-prescient-primary-highlight
+  'prescient-primary-highlight t)
+(defface prescient-primary-highlight
+  '((t :weight bold))
+  "Face used to highlight the parts of candidates that match the input.")
+
+(define-obsolete-face-alias 'selectrum-secondary-highlight
+  'prescient-secondary-highlight t)
+(define-obsolete-face-alias 'selectrum-prescient-secondary-highlight
+  'prescient-secondary-highlight t)
+(defface prescient-secondary-highlight
+  '((t :inherit prescient-primary-highlight :underline t))
+  "Additional face used to highlight parts of candidates.
+
+May be used to highlight parts of candidates that match specific
+parts of the input.")
+
 ;;;; Caches
 
 (defvar prescient--history (make-hash-table :test 'equal)
@@ -342,7 +385,6 @@ Usually this variable is dynamically bound to another value while
     (remove-hook 'kill-emacs-hook #'prescient--save)))
 
 ;;;; Utility functions
-
 (defun prescient--char-fold-to-regexp (string)
   "Convert STRING to a regexp that handles char folding.
 This is the same as `char-fold-to-regexp' but it works around
@@ -408,6 +450,81 @@ as a sub-query delimiter."
   (if with-group
       (format "\\(%s\\)" regexp)
     regexp))
+
+(defun prescient--prefix-and-pattern (string table pred)
+  "Split STRING into prefix and pattern according to TABLE.
+
+The predicate PRED is used to constrain the entries in TABLE."
+  (let ((limit (car (completion-boundaries string table pred ""))))
+    (cons (substring string 0 limit) (substring string limit))))
+
+(defun prescient-ignore-case-p (input)
+  "Whether prescient.el should ignore case considering INPUT.
+
+Filtering can optionally ignore case if `prescient-use-case-folding'
+is non-nil.  If `smart', then filtering will not ignore case when
+INPUT contains uppercase letters."
+  (if (eq prescient-use-case-folding 'smart)
+      (let ((case-fold-search nil))
+        ;; If using upper-case characters, then don't fold case.
+        (not (string-match-p "[[:upper:]]" input)))
+    prescient-use-case-folding))
+
+(defun prescient--add-sort-info (candidates regexps ignore-case)
+  "Propertize all candidates in CANDIDATES to save data.
+
+REGEXPS are the regexps used by filtering. IGNORE-CASE is whether
+case was ignored. These are stored as the text property
+`prescient-regexps' and `prescient-ignore-case', respectively.
+
+This information is used by the function
+`prescient-sort-full-matches-first'."
+  (if (null candidates)
+      nil
+    ;; We need to propertize all of the candidates, since some UIs
+    ;; might rearrange candidates before we can sort them. For
+    ;; example, Company will sort CAPF candidates that don't have a
+    ;; specified sorting function, which moves them around before
+    ;; passing them to the Company Prescient transformer that applies
+    ;; our own sorting.
+    (cl-loop for cand in candidates
+             collect (propertize cand
+                                 'prescient-regexps regexps
+                                 'prescient-ignore-case ignore-case))))
+
+(defun prescient--highlight-matches (input candidates)
+  "According to INPUT, highlight the matched sections in CANDIDATES.
+
+INPUT is the string that was used to generate a list of regexps
+for filtering. CANDIDATES is the list of filtered candidates,
+which should be a list of strings.
+
+Return a list of propertized CANDIDATES."
+  (let ((regexps (prescient-filter-regexps input 'with-group))
+        (case-fold-search (prescient-ignore-case-p input)))
+    (save-match-data
+      (mapcar
+       (lambda (candidate)
+         (setq candidate (copy-sequence candidate))
+         (prog1 candidate
+           (dolist (regexp regexps)
+             (when (string-match regexp candidate)
+               (font-lock-prepend-text-property
+                (match-beginning 0) (match-end 0)
+                'face 'prescient-primary-highlight
+                candidate)
+               (cl-loop
+                for (start end)
+                on (cddr (match-data))
+                by #'cddr
+                do (when (and start end)
+                     (font-lock-prepend-text-property
+                      start end
+                      'face 'prescient-secondary-highlight
+                      candidate)))))))
+       candidates))))
+
+;;;; Regexp Builders
 
 (cl-defun prescient-literal-regexp (query &key with-group
                                           &allow-other-keys)
@@ -593,41 +710,59 @@ enclose literal substrings with capture groups."
          (cl-incf subquery-number)))
      (prescient-split-query query))))
 
-(defun prescient-filter (query candidates)
+;;;###autoload
+(defun prescient-filter (query candidates &optional pred)
   "Use QUERY to filter list of CANDIDATES.
-Split the query using `prescient-split-query'. Each candidate
-must match each subquery, either using substring or initialism
-matching. Discard any that do not, and return the resulting list.
-Do not modify CANDIDATES; always make a new copy of the list."
-  (let ((regexps (prescient-filter-regexps query))
-        (results nil)
-        (prioritized-results nil)
-        (case-fold-search (if (eq prescient-use-case-folding 'smart)
-                              (let ((case-fold-search nil))
-                                ;; If using upper-case characters,
-                                ;; then don't fold case.
-                                (not (string-match-p "[[:upper:]]"
-                                                     query)))
-                            prescient-use-case-folding)))
-    (save-match-data
-      ;; Use named block in case somebody loads `cl' accidentally
-      ;; which causes `dolist' to turn into `cl-dolist' which
-      ;; creates a nil block implicitly.
-      (dolist (candidate candidates)
-        (cl-block done
-          (let ((fully-matched nil))
-            (dolist (regexp regexps)
-              (unless (string-match regexp candidate)
-                (cl-return-from done))
-              (when (and
-                     prescient-sort-full-matches-first
-                     (equal (length candidate)
-                            (length (match-string 0 candidate))))
-                (setq fully-matched t)))
-            (if fully-matched
-                (push candidate prioritized-results)
-              (push candidate results)))))
-      (nconc (nreverse prioritized-results) (nreverse results)))))
+
+CANDIDATES is a completion table, such as a list of strings
+or a function as defined in the Info node
+`(elisp)Programmed Completion'.
+
+QUERY is a string containing the sub-queries, which are gotten
+using `prescient-split-query'. Each sub-query is used to produce
+a regular expression according to the filter methods listed in
+`prescient-filter-method'. A candidate must match every regular
+expression made from the sub-queries to be included in the list
+of returned candidates.
+
+PRED is the predicate used with the completion table, as
+described in the above Info node.
+
+This function does not modify CANDIDATES; it always make a new
+copy of the list."
+  (pcase-let*
+      ((`(,prefix . ,pattern)
+        (prescient--prefix-and-pattern query candidates pred))
+       (completion-regexp-list (prescient-filter-regexps pattern))
+       (completion-ignore-case (prescient-ignore-case-p pattern)))
+
+    ;; Add information for `prescient-sort-full-matches-first'. We
+    ;; want to add these properties even if we can't modify table
+    ;; metadata, since a user might be able to configure their
+    ;; completion UI with a custom sorting function that would use
+    ;; this info.
+    (prescient--add-sort-info
+     (all-completions prefix candidates pred)
+     ;; There is a question of how to handle prefixes for identifying
+     ;; fully matched candidates. Prefixes are used in:
+     ;;
+     ;; - `completing-read-multiple', as the candidates that have
+     ;;   already been selected
+     ;;
+     ;; - file-name completion, as the directory preceeding the file
+     ;;   name, though this seems to only happen when there is no
+     ;;   match in some UIs (Icomplete, but not Selectrum)
+     ;;
+     ;; It might turn out that for file names we need to adjust the
+     ;; regexps to be "\(?:QUOTED-PREFIX\)METHOD-REGEXP", but this
+     ;; isn't evident yet. We just do the below to be proactive.
+     (if (and (not (string-empty-p prefix))
+              minibuffer-completing-file-name)
+         (cl-loop for regexp in completion-regexp-list
+                  collect (concat "\\(?:" (regexp-quote prefix) "\\)"
+                                  regexp))
+       completion-regexp-list)
+     completion-ignore-case)))
 
 (defmacro prescient--sort-compare ()
   "Hack used to cause the byte-compiler to produce faster code.
@@ -666,7 +801,11 @@ length."
 
 (defun prescient-sort (candidates)
   "Sort CANDIDATES using frequency data.
-Return the sorted list. The original is modified destructively."
+Return the sorted list. The original is modified destructively.
+
+See also the functions `prescient-sort-full-matches-first' and
+`prescient-completion-sort'. Both are meant to be used after
+`prescient-filter'."
   (when (and prescient-persist-mode (not prescient--cache-loaded))
     (prescient--load))
   ;; Performance optimization revealed that reading dynamic variables
@@ -682,6 +821,43 @@ Return the sorted list. The original is modified destructively."
      candidates
      (lambda (c1 c2)
        (prescient--sort-compare)))))
+
+(defun prescient-sort-full-matches-first (candidates regexps ignore-case)
+  "Sort fully matched strings in CANDIDATES before other candidates.
+
+REGEXPS are the regexps prescient.el used to filter the candidates.
+IGNORE-CASE is whether case was ignored when filtering.
+
+As this function is meant to be used after filtering, all of the
+candidates in CANDIDATES should match all of the regexps in
+REGEXPS."
+  (cond
+   ((null candidates) nil)
+   ((null regexps) candidates)
+   (t (save-match-data
+        (cl-loop
+         with prioritized-candidates = nil
+         and remaining-candidates = nil
+         and case-fold-search = ignore-case
+         for cand in candidates
+         ;; By this point, after filtering, we know that a candidate
+         ;; matches all regexps, so we don't have to check that. So
+         ;; long as a candidate is fully matched by even one regexp,
+         ;; we move it to the front of the list.
+         ;;
+         ;; If a regexp didn't match, then we wouldn't be able to use
+         ;; `match-beginning' and `match-end', as they wouldn't
+         ;; change.
+         if (cl-loop for regexp in regexps
+                     thereis (progn
+                               (string-match regexp cand)
+                               (= (length cand)
+                                  (- (match-end 0)
+                                     (match-beginning 0)))))
+         do (push cand prioritized-candidates)
+         else do (push cand remaining-candidates)
+         finally return (nconc (nreverse prioritized-candidates)
+                               (nreverse remaining-candidates)))))))
 
 ;;;; Candidate selection
 
@@ -729,8 +905,140 @@ Return the sorted list. The original is modified destructively."
              prescient-aggressive-file-save)
     (prescient--save)))
 
-;;;; Closing remarks
+;;;; Completion Style
 
+;; This section contains functions for implementing the `prescient'
+;; completion style. This feature is based on Orderless.el.
+;; See: https://github.com/oantolin/orderless
+
+;;;;; Sorting functions
+
+;;;###autoload
+(cl-defun prescient-completion-sort (candidates)
+  "Sort the filtered CANDIDATES.
+
+This function is a wrapper around `prescient-sort' and the
+function `prescient-sort-full-matches-first'. It is designed for
+use with the `prescient' completion style, though it might also
+be useful in other cases.
+
+In Emacs 27 and later, when filtering via the `prescient'
+completion style, if `prescient-completion-enable-sort' is
+non-nil, then completion tables that do not specify a sorting
+function are modified to use this function. This does not effect
+the sorting done by other completion styles or by completion UIs
+when those styles are filtering.
+
+Therefore, if you want prescient.el sorting to be used with other
+completion styles, consider setting your UI of choice to use this
+function when no other function is given. If you explicitly set
+the sorting function to this function or `prescient-sort', then
+be sure that `prescient-completion-enable-sort' is nil (the
+default) to avoid mistakenly sorting the candidates twice.
+
+This function checks for the properties `prescient-regexps' and
+`prescient-ignore-case' on the first candidate in
+CANDIDATES (though they are stored on all candidates filtered by
+the `prescient' style). These properties are set during
+`prescient-filter', and are used for implementing the user option
+`prescient-sort-full-matches-first'."
+  (if (null candidates)
+      nil
+    (let ((regexps (get-text-property 0 'prescient-regexps
+                                      (car candidates)))
+          (ignore-case (get-text-property 0 'prescient-ignore-case
+                                          (car candidates)))
+          (sorted (prescient-sort candidates)))
+      (when prescient-sort-full-matches-first
+        (setq sorted (prescient-sort-full-matches-first
+                      sorted regexps ignore-case)))
+      ;; Since we propertize all candidates during `prescient-filter',
+      ;; we don't need to worry about re-arranging candidates here
+      ;; for whatever comes after, such as the Company Prescient
+      ;; transformer.
+      sorted)))
+
+(defun prescient--completion-modify-sort (metadata)
+  "Modify METADATA to use prescient.el for sorting if no order given."
+  ;; Based on `completion--flex-adjust-metadata'.
+  ;; Unlike `completion--flex-adjust-metadata', we want to modify
+  ;; sorting even when there is no input.
+  (if (or (null prescient-completion-enable-sort)
+          ;; If there is any existing sorting information, we assume
+          ;; that it is meaningful and that we shouldn't even move the
+          ;; fully matched candidates.
+          (completion-metadata-get metadata 'display-sort-function)
+          (completion-metadata-get metadata 'cycle-sort-function))
+      metadata
+    `(metadata
+      (display-sort-function . prescient-completion-sort)
+      (cycle-sort-function . prescient-completion-sort)
+      ,@(cdr metadata))))
+
+;;;;; Filtering functions
+
+;;;###autoload
+(defun prescient-all-completions (string table &optional pred _point)
+  "`all-completions' using prescient.el.
+
+STRING is the input. TABLE is a completion table. PRED is a
+predicate that further restricts the matching candidates. POINT
+would be the current point, but it is not used by this function.
+See the function `all-completions' for more information.
+
+This function returns a list of completions whose final `cdr' is
+the length of the prefix string used for completion (which might
+be all or just part of STRING)."
+  ;; `point' is a required argument, but unneeded here.
+  (when-let ((completions (prescient-filter string table pred)))
+    (pcase-let ((`(,prefix . ,pattern)
+                 (prescient--prefix-and-pattern string table pred)))
+      (nconc (if prescient-completion-highlight-matches
+                 (prescient--highlight-matches pattern completions)
+               completions)
+             (length prefix)))))
+
+;;;###autoload
+(defun prescient-try-completion (string table &optional pred point)
+  "`try-completion' using Prescient.
+
+STRING is the input.  TABLE is a completion table.  PRED is a
+predicate.  POINT is the current point.  See the function
+`try-completion' for more information.
+
+If there are no matches, this function returns nil. If the only
+match equals STRING, this function returns t. Otherwise, this
+function returns a cons cell of the completed string and its
+length. If there is more than one match, that completed string is
+actually just the input, in which case nothing happens."
+  (when-let ((completions (prescient-filter string table pred)))
+    (if (cdr completions)
+        (cons string point) ; Multiple matches
+      (let ((match (car completions)))
+        (if (equal string match)
+            t ; Literal input equals only match.
+          ;; Otherwise, return the match and move point to its end.
+          (let* ((prefix (car (prescient--prefix-and-pattern
+                               string table pred)))
+                 (full (concat prefix match)))
+            (cons full (length full))))))))
+
+;;;;; Setting up the completion style
+
+;;;###autoload
+(add-to-list
+ 'completion-styles-alist
+ '( prescient prescient-try-completion prescient-all-completions
+    "Filtering (and optionally sorting) using prescient.el.
+To enable sorting done by the completion style itself, see
+`prescient-completion-enable-sort', which requires Emacs 27 or
+later. Otherwise, see the function `prescient-completion-sort'."))
+
+;;;###autoload
+(put 'prescient
+     'completion--adjust-metadata 'prescient--completion-modify-sort)
+
+;;;; Closing remarks
 (provide 'prescient)
 
 ;;; prescient.el ends here
