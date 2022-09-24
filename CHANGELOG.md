@@ -3,13 +3,27 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### New features
+* Add package `vertico-prescient`, which integrates prescient.el with
+  Vertico ([#131]). New mode `vertico-prescient-mode` configures
+  sorting, candidate remembrance, filtering, and binds the toggling
+  commands in Vertico.
+
+* Add package `corfu-prescient`, which integrates prescient.el with
+  Corfu ([#131]). New mode `corfu-prescient-mode` configures
+  sorting, candidate remembrance, filtering, and binds the toggling
+  commands while the Corfu pop-up is active.
+
 ## 6.0 (released 2022-11-11)
 ### Bugs fixed
 * Toggling off filter methods no longer accidentally changes the
   global value of `prescient-filter-method`.  See [#123], [#124].
+
 * For character folding, if `char-fold-table` isn't bound, we
   `require` the library `char-fold`. This variable apparently isn't
   always loaded when we call `char-fold-to-regexp`. See [#126].
+
 * Fix the filter methods `literal` and `literal-prefix` not being
   literal when `prescient-use-char-folding` was nil. This bug was
   added with that user option. See [#127].
@@ -19,21 +33,25 @@ The format is based on [Keep a Changelog].
   implements the option. This feature already existed, but moving to a
   separate function makes it easier to support in more UIs. See
   [#125].
+
 * Add a completion style `prescient`. This completion style can be
   used in the variable `completion-styles`. This completion style
   works with UIs like Emacs's built-in minibuffer completion,
   Icomplete, and Vertico. See various discussions in [#125], [#120],
   [#112], [#89], [#58], and [#54].
+
 * Add new function `prescient-completion-sort`, which combines
   `prescient-sort` with the new function
-  `prescient-sort-full-matches-first`. See [#125]. This function is
+  `prescient-sort-full-matches-first` ([#125]). This function is
   meant to be used after filtering and as the sorting function of your
   preferred completion UI. Note that sorting fully matched candidates
   before partially matched candidates only works for candidates
   filtered by the `prescient` completion style.
+
 * Added user option `prescient-completion-highlight-matches`, which
   determines whether the completion style highlights the matching
   parts of candidates with the above new faces ([#125]).
+
 * Add faces `prescient-primary-highlight` and
   `prescient-secondary-highlight` ([#125]). These faces are used with
   the completion style and `selectrum-prescient.el`. The old faces
@@ -65,6 +83,7 @@ The format is based on [Keep a Changelog].
 [#125]: https://github.com/raxod502/prescient.el/pull/125
 [#126]: https://github.com/radian-software/prescient.el/pull/126
 [#127]: https://github.com/radian-software/prescient.el/pull/127
+[#131]: https://github.com/radian-software/prescient.el/pull/131
 
 ## 5.2.1 (released 2022-06-01)
 ### Bugs fixed

@@ -10,9 +10,9 @@ candidates, such as appear when you use a package like [Ivy] or
 frameworks.
 
 `prescient.el` also provides a completion style (`prescient`) for
-filtering candidates via Emacs's generic minibuffer completion, such
-as [Icomplete], though no package is provided for setting up sorting
-with these more generic frameworks.
+filtering candidates via Emacs's generic completion, such as in
+[Icomplete], [Vertico], and [Corfu]. These last two have extension
+packages to correctly set up filtering and sorting.
 
 As compared to other packages which accomplish similar tasks,
 including [IDO], [Ivy], [Helm], [Smex], [Flx], [Historian], and
@@ -21,60 +21,61 @@ predictable, and faster.
 
 ## Installation
 
-`prescient.el` is available on MELPA as four separate packages (one
+`prescient.el` is available on MELPA as six separate packages (one
 for the library, and the rest for integrating with other frameworks):
 
 * [`prescient`](https://melpa.org/#/prescient)
-* [`ivy-prescient`](https://melpa.org/#/ivy-prescient)
+* [`corfu-prescient`](https://melpa.org/#/corfu-prescient)
 * [`company-prescient`](https://melpa.org/#/company-prescient)
+* [`ivy-prescient`](https://melpa.org/#/ivy-prescient)
 * [`selectrum-prescient`](https://melpa.org/#/selectrum-prescient)
+* [`vertico-prescient`](https://melpa.org/#/vertico-prescient)
 
 The easiest way to install these packages is using
 [`straight.el`][straight.el]:
 
     (straight-use-package 'prescient)
-    (straight-use-package 'ivy-prescient)
+    (straight-use-package 'corfu-prescient)
     (straight-use-package 'company-prescient)
+    (straight-use-package 'ivy-prescient)
     (straight-use-package 'selectrum-prescient)
+    (straight-use-package 'vertico-prescient)
 
 However, you may install using any other package manager if you
 prefer.
 
 ## Usage
 
-* To cause [Ivy] to use `prescient.el` sorting and filtering, enable
-  `ivy-prescient-mode`.
+`prescient.el` and the extension packages provide modes that configure
+filtering and/or sorting in their respective framework. These modes
+can have their own settings, such as ways to set up filtering but
+not sorting, which are described in a following section.
+
+* To cause Emacs to use the `prescient` completion style for
+  filtering, add `prescient` to the user option `completion-styles`.
+
+* To cause [Corfu] to use `prescient.el` sorting and filtering, enable
+  `corfu-prescient-mode`.
+
 * To cause [Company] to use `prescient.el` sorting, enable
   `company-prescient-mode`.
+
+* To cause [Ivy] to use `prescient.el` sorting and filtering, enable
+  `ivy-prescient-mode`.
+
 * To cause [Selectrum] to use `prescient.el` sorting and filtering,
   enable `selectrum-prescient-mode`.
+
+* To cause [Vertico] to use `prescient.el` sorting and filtering,
+  enable `vertico-prescient-mode`.
+
 * To cause your usage statistics to be saved between Emacs sessions,
   enable `prescient-persist-mode`.
-* To cause Emacs to use `prescient` completion style for filtering and
-  optionally sorting:
-  1. Add the symbol `prescient` to the user option `completion-styles`
-     to use `prescient.el` for filtering. It is recommended to keep
-     the `basic` style active and after the `prescient` style, as some
-     completion tables only work with that style. Each completion
-     style is tried in turn, such that the `basic` style would only be
-     used if the `prescient` style could not find any matching
-     candidates.
-
-     ```elisp
-     (setq completion-styles '(prescient basic))
-     ```
-  2. Configure your completion UI to call `prescient-remember` on the
-     chosen candidate so that candidates are sorted correctly.
-  3. Configure your completion UI to sort filtered candidates via
-     `prescient-completion-sort`.
 
 Please note that **you must load Counsel before `ivy-prescient.el`**.
 This is because loading Counsel results in a number of changes being
 made to the user options of Ivy, which `ivy-prescient.el` must then
 undo.
-
-The modes handle sorting and filtering by default. See the package
-specific sections for options to configure this.
 
 ## Algorithm
 
@@ -128,11 +129,11 @@ command `prescient-forget`.
 * `prescient-sort-full-matches-first`: Whether `prescient.el` sorts
   candidates that are fully matched before candidates that are
   partially matched. This user option affects:
-  - the `prescient` completion style and completion UIs configured to
-    use the function `prescient-completion-sort` after filtering
-  - `selectrum-prescient.el`
+  - `corfu-prescient.el`
   - `company-prescient.el` for Company backends that used the
     `prescient` completion style for filtering
+  - `selectrum-prescient.el`
+  - `vertico-prescient.el`
 
 * `prescient-use-char-folding`: Whether the `literal` and
   `literal-prefix` filter methods use character folding.
@@ -142,12 +143,89 @@ command `prescient-forget`.
   This can be one of `nil`, `t`, or `smart` (the default). If `smart`,
   then case folding is disabled when upper-case characters are used.
 
+* Filter-method toggling commands: `selectrum-prescient.el` and
+  `vertico-prescient.el` will both bind commands to toggle filter
+  methods in the current completion buffer. `corfu-prescient.el` will
+  bind the commands while the Corfu pop-up is active.
+
+  For example, to toggle regexp filtering on or off (perhaps you're
+  searching for a long/complex candidate), you can press `M-s r`. If
+  you wish to use *only* regexp filtering, you can use `C-u M-s r` to
+  unconditionally turn on regexp filtering and turn off all other
+  methods. This toggling is a buffer-local effect, and does not change
+  the default filter behavior. For that, customize
+  `prescient-filter-method`.
+
+  These commands are similar in usage to Isearch's own toggling
+  commands, except that multiple filtering methods can be active at
+  the same time. While the integration mode is enabled, `M-s` is bound
+  to `prescient-toggle-map` in the completion buffer or Corfu pop-up,
+  and is used as a prefix key to access the commands.
+
+  | Key     | Command                           |
+  |---------|-----------------------------------|
+  | `M-s a` | `prescient-toggle-anchored`       |
+  | `M-s f` | `prescient-toggle-fuzzy`          |
+  | `M-s i` | `prescient-toggle-initialism`     |
+  | `M-s l` | `prescient-toggle-literal`        |
+  | `M-s p` | `prescient-toggle-prefix`         |
+  | `M-s P` | `prescient-toggle-literal-prefix` |
+  | `M-s r` | `prescient-toggle-regexp`         |
+  | `M-s '` | `prescient-toggle-char-fold`      |
+  | `M-s c` | `prescient-toggle-case-fold`      |
+
+  When defining custom filter methods, you can create new bindings
+  using `prescient-create-and-bind-toggle-command`, which takes an
+  unquoted filter symbol and a string that can be used by `kbd`. For
+  example,
+
+  ```emacs-lisp
+  (prescient-create-and-bind-toggle-command my-foo "M-f")
+  ```
+
+  will bind a command for toggling the `my-foo` filter to `M-s M-f`.
+
 ### For the completion style
 The following user options are specific to using the `prescient`
 completion style:
 
 * `prescient-completion-highlight-matches`: Whether the completion
   style should highlight matches in the filtered candidates.
+
+### For Corfu
+`corfu-prescient.el` configures filtering buffer locally in buffers in
+which `corfu-mode` is active. To do this, it modifies the values of
+`completion-styles`, `completion-category-overrides`, and
+`completion-category-defaults`. Sorting is configured globally.
+
+The following user options are specific to using `prescient.el` with
+Corfu:
+
+* `corfu-prescient-completion-styles`: What the value of
+  `completion-styles` is changed to.
+
+* `corfu-prescient-completion-category-overrides`: Overrides that
+  should be included in `completion-category-overrides`.
+
+* `corfu-prescient-enable-filtering`: If non-nil when
+  `corfu-prescient-mode` is enabled, then
+  * `M-s` is bound to `prescient-toggle-map` while the Corfu pop-up is
+    active
+  * `completion-styles` is changed to the value of
+    `corfu-prescient-completion-styles`
+  * `completion-category-overrides` is changed to include overrides in
+    `corfu-prescient-completion-category-overrides`
+  * `completion-category-defaults` is set to `nil`
+
+* `corfu-prescient-enable-sorting`: If non-nil when
+  `corfu-prescient-mode` is enabled, then `corfu-sort-function` is
+   set to the function `prescient-completion-sort`.
+
+* `corfu-prescient-override-sorting`: If non-nil when
+  `corfu-prescient-mode` is enabled, then
+  `corfu-sort-override-function` is set to the function
+  `prescient-completion-sort` and `corfu-prescient-enable-sorting` is
+  made non-nil.
 
 ### For Company
 The following user options are specific to using `prescient.el`
@@ -204,47 +282,6 @@ Selectrum:
   the Selectrum documentation for information on how Selectrum
   configures sorting by default, and how to customize it manually.
 
-`selectrum-prescient.el` provides special commands (see the table
-below) to adjust how `prescient.el` filters candidates in the current
-Selectrum buffer.
-
-For example, to toggle regexp filtering on or off (perhaps you're
-searching for a long/complex candidate), you can press `M-s r`. If you
-wish to use *only* regexp filtering, you can use `C-u M-s r` to
-unconditionally turn on regexp filtering and turn off all other
-methods. This toggling is a buffer-local effect, and does not change
-the default filter behavior. For that, customize
-`prescient-filter-method`.
-
-These commands are similar in usage to Isearch's own toggling
-commands, except that multiple filtering methods can be active at the
-same time. While `selectrum-prescient-mode` is enabled, `M-s` is bound
-to `selectrum-prescient-toggle-map` in the Selectrum buffer, and is
-used as a prefix key to access the commands.
-
-| Key     | Command                                     |
-|---------|---------------------------------------------|
-| `M-s a` | `selectrum-prescient-toggle-anchored`       |
-| `M-s f` | `selectrum-prescient-toggle-fuzzy`          |
-| `M-s i` | `selectrum-prescient-toggle-initialism`     |
-| `M-s l` | `selectrum-prescient-toggle-literal`        |
-| `M-s p` | `selectrum-prescient-toggle-prefix`         |
-| `M-s P` | `selectrum-prescient-toggle-literal-prefix` |
-| `M-s r` | `selectrum-prescient-toggle-regexp`         |
-| `M-s '` | `selectrum-prescient-toggle-char-fold`      |
-| `M-s c` | `selectrum-prescient-toggle-case-fold`      |
-
-When defining custom filter methods, you can create new bindings using
-`selectrum-prescient-create-and-bind-toggle-command`, which takes an
-unquoted filter symbol and a string that can be used by `kbd`. For
-example,
-
-```emacs-lisp
-(selectrum-prescient-create-and-bind-toggle-command my-foo "M-f")
-```
-
-will bind a command to toggle the `my-foo` filter to `M-s M-f`.
-
 With `selectrum-prescient-enable-filtering` set, the part of each
 candidate that matches your input is highlighted with the face
 `selectrum-prescient-primary-highlight`. There is also
@@ -274,6 +311,40 @@ Ivy, and copied them to be used for Selectrum as well:
 
 (enable-theme 'zerodark)
 ```
+
+### For Vertico
+`vertico-prescient.el` configures filtering locally in the Vertico
+buffer. To do this, it modifies the values of `completion-styles`,
+`completion-category-overrides`, and `completion-category-defaults`.
+Sorting is configured globally.
+
+The following user options are specific to using `prescient.el` with
+Vertico:
+
+* `vertico-prescient-completion-styles`: What the value of
+  `completion-styles` is changed to.
+
+* `vertico-prescient-completion-category-overrides`: Overrides that
+  should be included in `completion-category-overrides`.
+
+* `vertico-prescient-enable-filtering`: If non-nil when
+  `vertico-prescient-mode` is enabled, then
+  * `M-s` is bound to `prescient-toggle-map`
+  * `completion-styles` is changed to the value of
+    `vertico-prescient-completion-styles`
+  * `completion-category-overrides` is changed to include overrides in
+    `vertico-prescient-completion-category-overrides`
+  * `completion-category-defaults` is set to `nil`
+
+* `vertico-prescient-enable-sorting`: If non-nil when
+  `vertico-prescient-mode` is enabled, then `vertico-sort-function` is
+   set to the function `prescient-completion-sort`.
+
+* `vertico-prescient-override-sorting`: If non-nil when
+  `vertico-prescient-mode` is enabled, then
+  `vertico-sort-override-function` is set to the function
+  `prescient-completion-sort` and `vertico-prescient-enable-sorting` is
+  made non-nil.
 
 ## Contributor guide
 

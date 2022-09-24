@@ -7,6 +7,7 @@
 (defvar selectrum-highlight-candidates-function nil)
 (defvar selectrum-minibuffer-map nil)
 (defvar selectrum-should-sort nil)
+(defvar selectrum-is-active nil)
 
 (defun selectrum-exhibit ())
 
