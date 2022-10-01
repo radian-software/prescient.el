@@ -66,11 +66,7 @@ prefer.
   2. Configure your completion UI to call `prescient-remember` on the
      chosen candidate so that candidates are sorted correctly.
   3. Configure your completion UI to sort filtered candidates via
-     `prescient-completion-sort` or a custom sorting function as
-     needed. Optionally, on Emacs 27+, you can instead set
-     `prescient-completion-enable-sort` (see below) to `t` to allow
-     the `prescient` completion style to set sorting directly. This
-     option is off by default to better work with various UIs.
+     `prescient-completion-sort`.
 
 Please note that **you must load Counsel before `ivy-prescient.el`**.
 This is because loading Counsel results in a number of changes being
@@ -152,27 +148,6 @@ completion style:
 
 * `prescient-completion-highlight-matches`: Whether the completion
   style should highlight matches in the filtered candidates.
-
-* `prescient-completion-enable-sort`: Whether, in Emacs 27+, the
-  completion style should automatically modify unsorted candidates to
-  instead use the function `prescient-completion-sort`. This is
-  disabled by default to be more generic and to avoid users
-  accidentally sorting candidates more than once, such as when
-  `company-prescient-mode` is enabled and the `prescient` completion
-  style is used to filter candidates in the Company backend.
-
-  This user option only controls sorting done by the `prescient`
-  completion style. It does not affect sorting for the other styles in
-  the `completion-style` user option.
-
-  Some completion UIs, such as [Vertico][vertico] and [Corfu][corfu],
-  allow you to explicitly set a default sorting function for unsorted
-  candidates. In that case, you could set such an option to
-  `prescient-completion-sort`, which wraps the functions
-  `prescient-sort` and `prescient-sort-full-matches-first`. This would
-  also allow you to use prescient.el's sorting (excluding
-  `prescient-sort-full-matches-first`) with other completion styles
-  and completion backends.
 
 ### For Company
 The following user options are specific to using `prescient.el`
