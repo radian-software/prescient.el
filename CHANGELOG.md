@@ -24,23 +24,13 @@ The format is based on [Keep a Changelog].
   works with UIs like Emacs's built-in minibuffer completion,
   Icomplete, and Vertico. See various discussions in [#125], [#120],
   [#112], [#89], [#58], and [#54].
-  * In Emacs 27+, this completion style can optionally modify
-    unsorted completion tables to use `prescient.el` sorting instead.
-    This behavior can be enabled by setting the new user option
-    `prescient-completion-enable-sort` to `t`. Note that this might
-    lead to sorting candidates twice, such as when
-    `company-prescient-mode` is enabled and a Company backend filters
-    using the `prescient` completion style.
-  * The modification sets the sorting function to the new function
-    `prescient-completion-sort`, which combines `prescient-sort` with
-    the new function `prescient-sort-full-matches-first`. This
-    function is meant to be used after filtering.
-
-    Some completion UIs allow explicitly setting the sorting function.
-    Setting such an option to `prescient-completion-sort` is
-    recommended to use prescient.el's sorting with other completion
-    styles and backends. Note that sorting fully matched candidates
-    before others only works for candidates filtered by `prescient`.
+* Add new function `prescient-completion-sort`, which combines
+  `prescient-sort` with the new function
+  `prescient-sort-full-matches-first`. See [#125]. This function is
+  meant to be used after filtering and as the sorting function of your
+  preferred completion UI. Note that sorting fully matched candidates
+  before partially matched candidates only works for candidates
+  filtered by the `prescient` completion style.
 * Added user option `prescient-completion-highlight-matches`, which
   determines whether the completion style highlights the matching
   parts of candidates with the above new faces ([#125]).

@@ -226,24 +226,6 @@ contains no upper-case letters."
 This affects the completion style, not other methods."
   :type 'boolean)
 
-(defcustom prescient-completion-enable-sort nil
-  "Whether the `prescient' completion style can set sorting.
-
-If non-nil and in Emacs 27+, then completion tables that don't
-specify a sorting function will use `prescient-completion-sort'.
-Tables that do specify a sorting function are unaffected. This
-will affect anything that uses the `prescient' completion style
-for filtering, including possibly `completion-at-point'
-functions.
-
-Some completion UIs provide their own user options for sorting
-functions. That might provide more control than indiscriminately
-sorting candidates filtered by `prescient'. It also allows for
-sorting candidates that were not filtered by `prescient'.
-
-See also the user option `prescient-sort-length-enable'."
-  :type 'boolean)
-
 (define-obsolete-face-alias 'selectrum-primary-highlight
   'prescient-primary-highlight t)
 (define-obsolete-face-alias 'selectrum-prescient-primary-highlight
@@ -917,31 +899,16 @@ REGEXPS."
 (cl-defun prescient-completion-sort (candidates)
   "Sort the filtered CANDIDATES.
 
-This function is a wrapper around `prescient-sort' and the
-function `prescient-sort-full-matches-first'. It is designed for
-use with the `prescient' completion style, though it might also
-be useful in other cases.
-
-In Emacs 27 and later, when filtering via the `prescient'
-completion style, if `prescient-completion-enable-sort' is
-non-nil, then completion tables that do not specify a sorting
-function are modified to use this function. This does not effect
-the sorting done by other completion styles or by completion UIs
-when those styles are filtering.
-
-Therefore, if you want prescient.el sorting to be used with other
-completion styles, consider setting your UI of choice to use this
-function when no other function is given. If you explicitly set
-the sorting function to this function or `prescient-sort', then
-be sure that `prescient-completion-enable-sort' is nil (the
-default) to avoid mistakenly sorting the candidates twice.
+This function will always sort candidates using the function
+`prescient-sort'. When CANDIDATES has been filtered using the
+`prescient' completion style, it can optionally also sort them
+using the function `prescient-sort-full-matches-first'.
 
 This function checks for the properties `prescient-regexps' and
 `prescient-ignore-case' on the first candidate in
 CANDIDATES (though they are stored on all candidates filtered by
-the `prescient' style). These properties are set during
-`prescient-filter', and are used for implementing the user option
-`prescient-sort-full-matches-first'."
+`prescient-filter'). These properties are used for implementing
+the user option `prescient-sort-full-matches-first'."
   (if (null candidates)
       nil
     (let ((regexps (get-text-property 0 'prescient-regexps
@@ -957,23 +924,6 @@ the `prescient' style). These properties are set during
       ;; for whatever comes after, such as the Company Prescient
       ;; transformer.
       sorted)))
-
-(defun prescient--completion-modify-sort (metadata)
-  "Modify METADATA to use prescient.el for sorting if no order given."
-  ;; Based on `completion--flex-adjust-metadata'.
-  ;; Unlike `completion--flex-adjust-metadata', we want to modify
-  ;; sorting even when there is no input.
-  (if (or (null prescient-completion-enable-sort)
-          ;; If there is any existing sorting information, we assume
-          ;; that it is meaningful and that we shouldn't even move the
-          ;; fully matched candidates.
-          (completion-metadata-get metadata 'display-sort-function)
-          (completion-metadata-get metadata 'cycle-sort-function))
-      metadata
-    `(metadata
-      (display-sort-function . prescient-completion-sort)
-      (cycle-sort-function . prescient-completion-sort)
-      ,@(cdr metadata))))
 
 ;;;;; Filtering functions
 
@@ -1029,14 +979,8 @@ actually just the input, in which case nothing happens."
 (add-to-list
  'completion-styles-alist
  '( prescient prescient-try-completion prescient-all-completions
-    "Filtering (and optionally sorting) using prescient.el.
-To enable sorting done by the completion style itself, see
-`prescient-completion-enable-sort', which requires Emacs 27 or
-later. Otherwise, see the function `prescient-completion-sort'."))
-
-;;;###autoload
-(put 'prescient
-     'completion--adjust-metadata 'prescient--completion-modify-sort)
+    "Filtering using prescient.el.
+For sorting, see the function `prescient-completion-sort'."))
 
 ;;;; Closing remarks
 (provide 'prescient)
