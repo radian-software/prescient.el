@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 6.0 (released 2022-11-11)
 ### Bugs fixed
 * Toggling off filter methods no longer accidentally changes the
   global value of `prescient-filter-method`.  See [#123], [#124].
