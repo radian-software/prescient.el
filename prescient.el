@@ -982,6 +982,314 @@ actually just the input, in which case nothing happens."
     "Filtering using prescient.el.
 For sorting, see the function `prescient-completion-sort'."))
 
+;;;;; Component functions for completion-style minor modes
+
+;; These functions are used to implement the integration packages
+;; for Corfu and Vertico, which use completion styles.
+
+(defconst prescient--completion-recommended-styles '(prescient basic)
+  "Recommended completions styles for using `prescient'.")
+
+(defconst prescient--completion-recommended-overrides
+  '(;; Include `partial-completion' to enable wildcards and
+    ;; partial paths.
+    (file (styles basic partial-completion))
+    ;; Eglot forces `flex' by default.
+    (eglot (styles prescient basic)))
+  "Recommended completion-category overrides for using prescient.")
+
+(defconst prescient--completion-settings-vars
+  '( completion-styles completion-category-overrides
+     completion-category-defaults)
+  "Variables that are changed to configure filtering.")
+
+(defvar prescient--completion-old-styles nil
+  "Previous value of `completion-styles'.")
+
+(defvar prescient--completion-old-overrides nil
+  "Previous value of `completion-category-overrides'.")
+
+(defvar prescient--completion-old-defaults nil
+  "Previous value of `completion-category-defaults'.")
+
+(defconst prescient--completion-old-vars
+  '( prescient--completion-old-styles
+     prescient--completion-old-overrides
+     prescient--completion-old-defaults)
+  "Variables used to store old settings.")
+
+(cl-defun prescient--completion-apply-completion-settings
+    (&key (styles prescient--completion-recommended-styles)
+          (overrides prescient--completion-recommended-overrides))
+  "Modify the user options and variables.
+
+STYLES is the new `completion-styles'. OVERRIDES is new
+overrides for `completion-category-overrides'.
+`completion-category-defaults' is set to nil. These variables
+are listed in `prescient--completion-settings-vars'.
+
+While there are recommended settings, these can be overridden by
+user options in the extension packages."
+  (setq completion-styles styles
+        completion-category-defaults nil)
+
+  (cl-symbol-macrolet
+      ((category-setting-overrides
+        (alist-get setting
+                   (alist-get category completion-category-overrides))))
+    (cl-loop for (category . overrides)
+             in overrides
+             do (cl-loop for (setting . values) in overrides
+                         do (setf category-setting-overrides values)))))
+
+(defun prescient--completion-save-completion-settings ()
+  "Save the old completion filtering settings.
+
+Values are saved in `prescient--completion-old-styles',
+`prescient--completion-old-defaults', and
+`prescient--completion-old-overrides', which are listed in
+`prescient--completion-old-vars'."
+  (setq prescient--completion-old-styles completion-styles
+        prescient--completion-old-defaults completion-category-defaults)
+
+  (cl-symbol-macrolet
+      ((category-setting-overrides
+        (alist-get setting
+                   (alist-get category completion-category-overrides))))
+    (setq prescient--completion-old-overrides
+          (cl-loop
+           for (category . overrides)
+           in prescient--completion-recommended-overrides
+           collect
+           `(,category ,@(cl-loop
+                          for (setting . _) in overrides
+                          collect
+                          `(,setting ,@category-setting-overrides)))))))
+
+(cl-defun prescient--completion-restore-completion-settings
+    (&key (styles prescient--completion-recommended-styles)
+          (overrides prescient--completion-recommended-overrides))
+  "Restore the old settings.
+
+STYLES is what `completion-styles' was changed to. OVERRIDES are
+the overrides that were changed in `completion-category-overrides'.
+
+If the current values of the settings variables do not match the
+changes made by `prescient--completion-apply-completion-settings',
+then we don't restore the previous values and instead only try to
+remove usages of the `prescient' completion style."
+  ;; Try to revert back to old settings, or at least not use the
+  ;; `prescient' style.
+  (if (equal completion-styles styles)
+      (setq completion-styles prescient--completion-old-styles)
+    (cl-callf2 remq 'prescient completion-styles))
+
+  (cl-loop for (key . val) in prescient--completion-old-defaults
+           unless (alist-get key completion-category-defaults)
+           do (setf (alist-get key completion-category-defaults) val))
+
+  (cl-symbol-macrolet
+      ((category-setting-overrides
+        (alist-get
+         setting
+         (alist-get category completion-category-overrides))))
+    (cl-loop
+     ;; These two trees should have the same structure by this
+     ;; point. We want to try to avoid undoing any changes that were
+     ;; made after the mode was enabled.
+     for (category . new-overrides)
+     in overrides
+     for (_ . old-overrides)
+     in prescient--completion-old-overrides
+     do (cl-loop
+         for (setting . new-values) in new-overrides
+         for (_ . old-values) in old-overrides
+         if (equal category-setting-overrides new-values)
+         do (setf category-setting-overrides old-values)
+         else do (cl-callf2 remq 'prescient category-setting-overrides)))))
+
+(defvar-local prescient--completion-vars-already-local nil
+  "Variables of interest that were already buffer local.
+
+Extension packages might wish to configure the variables listed
+in `prescient--completion-settings-vars' buffer locally, whose
+localness should be undone when the extension mode is disabled.
+This list is to prevent extension modes from killing variables
+that were already local when the mode was enabled.")
+
+(defun prescient--completion-make-vars-local ()
+  "Make the settings and restoration variables buffer local.
+
+Record whether a settings variable (for example,
+`completion-styles') was already local in
+`prescient--completion-vars-already-local'.
+
+This must happen before storing old values."
+  (mapc #'make-local-variable prescient--completion-old-vars)
+  (dolist (var prescient--completion-settings-vars)
+    (if (local-variable-p var)
+        (push var prescient--completion-vars-already-local)
+      (make-local-variable var))))
+
+(defun prescient--completion-kill-local-vars ()
+  "Kill local settings and restoration variables.
+
+Don't kill the variables if they are members of
+`prescient--completion-vars-already-local'.
+
+This must happen after restoring old values."
+  (dolist (var prescient--completion-settings-vars)
+    (unless (memq var prescient--completion-vars-already-local)
+      (kill-local-variable var)))
+  (setq prescient--completion-vars-already-local nil))
+
+;;;; Toggling commands
+;; These commands are meant to be bound in a completion UI, in which
+;; `prescient-filter-method' can be bound buffer locally.
+
+(defconst prescient--toggle-vars
+  '( prescient-filter-method prescient-use-case-folding
+     prescient-use-char-folding)
+  "Variables that can be changed locally by toggling commands.
+
+An explicit list is needed for Corfu.")
+
+(defvar prescient--toggle-refresh-functions nil
+  "Functions to run to force refreshing the completion UI.
+Functions are added by the integration packages.")
+
+(defun prescient--toggle-refresh ()
+  "Run the UI refresh functions."
+  (run-hooks 'prescient--toggle-refresh-functions))
+
+(defvar prescient-toggle-map (make-sparse-keymap)
+  "Toggling commands for `prescient.el' filters in minibuffer completion.
+This map is automatically bound by the integration packages.")
+
+;;;###autoload
+(defmacro prescient-create-and-bind-toggle-command
+    (filter-type kbd-string)
+  "Create and bind a command to toggle the use of a filter method.
+
+The created command toggles the FILTER-TYPE method on
+or off buffer locally, and doesn't affect the default
+behavior (determined by `prescient-filter-method').
+
+The created command is bound to KBD-STRING in
+`prescient-toggle-map'. This map is itself bound to `M-s'
+in the completion buffer when `selectrum-prescient-mode' or
+`vertico-prescient-mode' are enabled.
+
+FILTER-TYPE is an unquoted symbol that can be used in
+`prescient-filter-method'. KBD-STRING is a string that can be
+passed to `kbd'."
+  (let* ((filter-type-name (symbol-name filter-type)))
+    `(define-key prescient-toggle-map (kbd ,kbd-string)
+       (defun ,(intern (concat "prescient-toggle-" filter-type-name))
+           (arg)                    ; Arg list
+         ,(format
+           "Toggle the \"%s\" filter on or off. With ARG, use only this filter.
+This toggling only affects filtering in the current completion
+buffer. It does not affect the default behavior (determined by
+`prescient-filter-method')."  filter-type-name)
+         (interactive "P")
+
+         ;; Make `prescient-filter-method' buffer-local in the
+         ;; completion buffer. We don't want to accidentally change the
+         ;; user's default behavior.
+         (make-local-variable 'prescient-filter-method)
+
+         (if arg
+             ;; If user provides a prefix argument, set filtering to
+             ;; be a list of only one filter type.
+             (setq prescient-filter-method '(,filter-type))
+
+           ;; Otherwise, if the current setting is a function,
+           ;; evaluate it to get the value.
+           (when (functionp prescient-filter-method)
+             (setq prescient-filter-method
+                   (funcall prescient-filter-method)))
+
+           ;; If we need to add or remove from the list, make sure
+           ;; it's actually a list and not just a symbol.
+           (when (symbolp prescient-filter-method)
+             (setq prescient-filter-method
+                   (list prescient-filter-method)))
+
+           (if (equal prescient-filter-method '(,filter-type))
+               ;; Make sure the user doesn't accidentally disable all
+               ;; filtering.
+               (user-error
+                ,(concat
+                  "Prescient.el: Can't toggle off only active filter method: "
+                  filter-type-name))
+
+             (setq prescient-filter-method
+                   (if (memq ',filter-type prescient-filter-method)
+                       ;; Even when running `make-local-variable',
+                       ;; it seems `delq' might still modify the
+                       ;; global value, so we use `remq' here.
+                       (remq ',filter-type prescient-filter-method)
+                     (cons ',filter-type prescient-filter-method)))))
+
+         ;; After changing `prescient-filter-method', tell the user
+         ;; the new value and update the UI's display.
+         (message "Prescient.el filter is now %s"
+                  prescient-filter-method)
+
+         ;; Call "exhibit" function.
+         (prescient--toggle-refresh)))))
+
+(prescient-create-and-bind-toggle-command anchored "a")
+(prescient-create-and-bind-toggle-command fuzzy "f")
+(prescient-create-and-bind-toggle-command initialism "i")
+(prescient-create-and-bind-toggle-command literal "l")
+(prescient-create-and-bind-toggle-command literal-prefix "P")
+(prescient-create-and-bind-toggle-command prefix "p")
+(prescient-create-and-bind-toggle-command regexp "r")
+
+(defun prescient-toggle-char-fold ()
+  "Toggle character folding in the current completion buffer.
+
+See the user option `prescient-use-char-folding'."
+  (interactive)
+  (setq-local prescient-use-char-folding
+              (not prescient-use-char-folding))
+  (message "Character folding toggled %s"
+           (if prescient-use-char-folding "on" "off"))
+  (prescient--toggle-refresh))
+
+;; This is the same binding used by `isearch-toggle-char-fold'.
+(define-key prescient-toggle-map (kbd "'")
+  #'prescient-toggle-char-fold)
+
+(defun prescient-toggle-case-fold ()
+  "Toggle case folding in the current completion buffer.
+
+If `prescient-use-case-folding' is set to `smart', then this
+toggles whether to use smart case folding or no case folding.
+Otherwise, this toggles between normal case folding and no case
+folding."
+  (interactive)
+  (setq-local prescient-use-case-folding
+              (cond
+               (prescient-use-case-folding
+                (message "Case folding toggled off")
+                nil)
+               ((eq (default-toplevel-value 'prescient-use-case-folding)
+                    'smart)
+                (message "Smart case folding toggled on")
+                'smart)
+               (t
+                (message "Case folding toggled on")
+                t)))
+  (prescient--toggle-refresh))
+
+;; This is the same binding used by `isearch-toggle-case-fold'.
+(define-key prescient-toggle-map (kbd "c")
+  #'prescient-toggle-case-fold)
+
+
 ;;;; Closing remarks
 (provide 'prescient)
 
