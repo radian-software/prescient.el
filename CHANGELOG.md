@@ -20,9 +20,9 @@ The format is based on [Keep a Changelog].
 * Toggling off filter methods no longer accidentally changes the
   global value of `prescient-filter-method`.  See [#123], [#124].
 
-* For character folding, if `char-fold-table` isn't bound, we
-  `require` the library `char-fold`. This variable apparently isn't
-  always loaded when we call `char-fold-to-regexp`. See [#126].
+* Always `require` the library `char-fold` so that `char-fold-table`
+  is defined. This variable apparently isn't always loaded when we
+  call `char-fold-to-regexp`. See [#126], [#127].
 
 * Fix the filter methods `literal` and `literal-prefix` not being
   literal when `prescient-use-char-folding` was nil. This bug was

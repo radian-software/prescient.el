@@ -1,4 +1,4 @@
-;;; vertico-prescient.el --- Vertico integration -*- lexical-binding: t -*-
+;;; vertico-prescient.el --- prescient.el + Vertico -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2022 Radian LLC and contributors
 

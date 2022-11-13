@@ -15,7 +15,7 @@ readarray -t files < <("${find[@]}" | sed 's#./##' | sort)
 
 code="$(cat <<"EOF"
 
-(length($0) >= 80 && $0 !~ /https?:\/\//) \
+(NR > 1 && length($0) >= 80 && $0 !~ /https?:\/\//) \
 { printf "%s:%d: %s\n", FILENAME, NR, $0 }
 
 EOF

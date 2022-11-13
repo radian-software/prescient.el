@@ -1,4 +1,4 @@
-;;; selectrum-prescient.el --- Selectrum integration -*- lexical-binding: t -*-
+;;; selectrum-prescient.el --- prescient.el + Selectrum -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2019-2022 Radian LLC and contributors
 

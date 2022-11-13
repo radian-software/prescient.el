@@ -80,15 +80,20 @@ undo.
 ## Algorithm
 
 `prescient.el` takes as input a list of candidates, and a query that
-you type. The query is first split on spaces into subqueries (two
-consecutive spaces match a literal space). Each subquery filters the
-candidates because it must match as either a substring of the
-candidate, a regexp, or an initialism (e.g. `ffap` matches
-`find-file-at-point`, and so does `fa`). The last few candidates you
-selected are displayed first, followed by the most frequently selected
-ones, and then the remaining candidates are sorted by length. If you
-don't like the algorithm used for filtering, you can choose a
-different one by customizing `prescient-filter-method`.
+you type.
+
+When filtering, the query is first split on spaces into subqueries
+(two consecutive spaces match a literal space). Each subquery filters
+the candidates according to the filter methods listed in
+`prescient-filter-method`. By default, a subquery must match as either
+a substring of the candidate, a regexp, or an initialism (e.g. `ffap`
+matches `find-file-at-point`, and so does `fa`). A candidate must
+match all subqueries to pass the filter and subqueries can be matched
+in any order.
+
+When sorting, the last few candidates you selected are displayed
+first, followed by the most frequently selected ones, and then the
+remaining candidates are sorted by length.
 
 If you would like `prescient.el` to forget about a candidate, use the
 command `prescient-forget`.
@@ -135,6 +140,9 @@ command `prescient-forget`.
   - `selectrum-prescient.el`
   - `vertico-prescient.el`
 
+* `prescient-sort-length-enable`: Whether to sort the candidates by
+  length in addition to recency and frequency.
+
 * `prescient-use-char-folding`: Whether the `literal` and
   `literal-prefix` filter methods use character folding.
 
@@ -143,24 +151,26 @@ command `prescient-forget`.
   This can be one of `nil`, `t`, or `smart` (the default). If `smart`,
   then case folding is disabled when upper-case characters are used.
 
-* Filter-method toggling commands: `selectrum-prescient.el` and
-  `vertico-prescient.el` will both bind commands to toggle filter
-  methods in the current completion buffer. `corfu-prescient.el` will
-  bind the commands while the Corfu pop-up is active.
+* Quickly adjusting filtering: Commands are available to temporarily
+  toggle filter methods on or off while you're completing candidates.
+  These commands are similar in usage to Isearch's own toggling
+  commands, except that multiple filtering methods can be active at
+  the same time.
 
   For example, to toggle regexp filtering on or off (perhaps you're
   searching for a long/complex candidate), you can press `M-s r`. If
   you wish to use *only* regexp filtering, you can use `C-u M-s r` to
   unconditionally turn on regexp filtering and turn off all other
   methods. This toggling is a buffer-local effect, and does not change
-  the default filter behavior. For that, customize
+  the default filtering behavior. For that, customize
   `prescient-filter-method`.
 
-  These commands are similar in usage to Isearch's own toggling
-  commands, except that multiple filtering methods can be active at
-  the same time. While the integration mode is enabled, `M-s` is bound
-  to `prescient-toggle-map` in the completion buffer or Corfu pop-up,
-  and is used as a prefix key to access the commands.
+  `selectrum-prescient.el` and `vertico-prescient.el` will both bind
+  commands to toggle filter methods in the current completion buffer.
+  `corfu-prescient.el` will bind the commands while the Corfu pop-up
+  is active. While the integration mode is enabled, `M-s` is bound to
+  `prescient-toggle-map` in the completion buffer or Corfu pop-up, and
+  is used as a prefix key to access the commands.
 
   | Key     | Command                           |
   |---------|-----------------------------------|
@@ -185,15 +195,56 @@ command `prescient-forget`.
 
   will bind a command for toggling the `my-foo` filter to `M-s M-f`.
 
+### Faces
+
+`prescient.el` defines two faces: `prescient-primary-highlight` and
+`prescient-secondary-highlight`. The primary highlight is used to
+highlight matches in candidates. The secondary highlight is used for
+important sections within each matched region. For example, the
+`initialism` filter method highlights the entire match with
+`prescient-primary-highlight` and each initial in the initialism with
+`prescient-secondary-highlight`.
+
+These faces are used by the `prescient` completion style (and so
+completion frameworks using that style, such as Corfu and Vertico) and
+Selectrum. `ivy-prescient.el` uses Ivy's faces.
+
+The following example shows customizing these faces. I use the
+[Zerodark](https://github.com/NicolasPetton/zerodark-theme) color
+theme, which includes colors for Ivy, but not for Selectrum. I
+inspected the theme source code to see what colors were being used for
+Ivy, and copied them to be used for Selectrum as well:
+
+```elisp
+(require 'zerodark-theme)
+
+(let ((class '((class color) (min-colors 89))))
+  (custom-theme-set-faces
+   'zerodark
+   `(selectrum-current-candidate
+     ((,class (:background "#48384c"
+                           :weight bold
+                           :foreground "#c678dd"))))
+   `(prescient-primary-highlight
+     ((,class (:foreground "#da8548"))))
+   `(prescient-secondary-highlight
+     ((,class (:foreground "#98be65"))))))
+
+(enable-theme 'zerodark)
+```
+
 ### For the completion style
+
 The following user options are specific to using the `prescient`
 completion style:
 
 * `prescient-completion-highlight-matches`: Whether the completion
-  style should highlight matches in the filtered candidates.
+  style should highlight matches in the filtered candidates using the
+  faces `prescient-primary-highlight` and `prescient-secondary-highlight`.
 
 ### For Corfu
-`corfu-prescient.el` configures filtering buffer locally in buffers in
+
+`corfu-prescient.el` configures filtering locally in buffers in
 which `corfu-mode` is active. To do this, it modifies the values of
 `completion-styles`, `completion-category-overrides`, and
 `completion-category-defaults`. Sorting is configured globally.
@@ -228,6 +279,7 @@ Corfu:
   made non-nil.
 
 ### For Company
+
 The following user options are specific to using `prescient.el`
 sorting with Company:
 
@@ -245,6 +297,7 @@ sorting with Company:
   otherwise leave candidate ordering alone.
 
 ### For Ivy
+
 The following user options are specific to using `prescient.el` with
 Ivy:
 
@@ -269,6 +322,7 @@ Ivy:
   and how to customize it manually.
 
 ### For Selectrum
+
 The following user options are specific to using `prescient.el` with
 Selectrum:
 
@@ -277,42 +331,16 @@ Selectrum:
   the Selectrum documentation for information on how Selectrum
   configures filtering by default, and how to customize it manually.
 
+  Additionally, when set, the matched part of each candidate is
+  highlighted using the faces described above.
+
 * `selectrum-prescient-enable-sorting`: If set to nil, then
   `selectrum-prescient.el` does not change sorting of Selectrum. See
   the Selectrum documentation for information on how Selectrum
   configures sorting by default, and how to customize it manually.
 
-With `selectrum-prescient-enable-filtering` set, the part of each
-candidate that matches your input is highlighted with the face
-`selectrum-prescient-primary-highlight`. There is also
-`selectrum-prescient-secondary-highlight` for additional highlighting
-of specific matched parts of the input.
-
-The following example shows customizing these faces, I use the
-[Zerodark](https://github.com/NicolasPetton/zerodark-theme) color
-theme, which includes colors for Ivy, but not for Selectrum. I
-inspected the theme source code to see what colors were being used for
-Ivy, and copied them to be used for Selectrum as well:
-
-```elisp
-(require 'zerodark-theme)
-
-(let ((class '((class color) (min-colors 89))))
-  (custom-theme-set-faces
-   'zerodark
-   `(selectrum-current-candidate
-     ((,class (:background "#48384c"
-                           :weight bold
-                           :foreground "#c678dd"))))
-   `(selectrum-prescient-primary-highlight
-   ((,class (:foreground "#da8548"))))
-   `(selectrum-prescient-secondary-highlight
-   ((,class (:foreground "#98be65"))))))
-
-(enable-theme 'zerodark)
-```
-
 ### For Vertico
+
 `vertico-prescient.el` configures filtering locally in the Vertico
 buffer. To do this, it modifies the values of `completion-styles`,
 `completion-category-overrides`, and `completion-category-defaults`.
