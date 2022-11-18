@@ -199,7 +199,7 @@ This mode will:
         ;; While sorting might not be enabled in Corfu, it might
         ;; still be enabled in another UI, such as Selectrum or Vertico.
         ;; Therefore, we still want to remember candidates.
-        (advice-add 'corfu-insert :after #'corfu-prescient--remember))
+        (advice-add 'corfu--insert :before #'corfu-prescient--remember))
 
     ;; Turn off mode.
 
