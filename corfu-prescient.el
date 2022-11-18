@@ -1,4 +1,4 @@
-;;; corfu-prescient.el --- Corfu integration -*- lexical-binding: t -*-
+;;; corfu-prescient.el --- prescient.el + Corfu -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2022 Radian LLC and contributors
 

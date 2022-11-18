@@ -223,7 +223,8 @@ contains no upper-case letters."
 (defcustom prescient-completion-highlight-matches t
   "Whether the `prescient' completion style should highlight matches.
 
-This affects the completion style, not other methods."
+See also the faces `prescient-primary-highlight' and
+`prescient-secondary-highlight'."
   :type 'boolean)
 
 (define-obsolete-face-alias 'selectrum-primary-highlight
