@@ -178,7 +178,7 @@ This mode will:
         ;; While sorting might not be enabled in Vertico, it might
         ;; still be enabled in another UI, such as Company or Corfu.
         ;; Therefore, we still want to remember candidates.
-        (advice-add 'vertico-insert :after #'vertico-prescient--remember))
+        (advice-add 'vertico-insert :before #'vertico-prescient--remember))
 
     ;; Turn off mode.
 
