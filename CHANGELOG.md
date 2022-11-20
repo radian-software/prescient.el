@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 6.1 (released 2022-12-16)
 ### New features
 * Add package `vertico-prescient`, which integrates prescient.el with
   Vertico ([#131]). New mode `vertico-prescient-mode` configures
@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog].
   Corfu ([#131]). New mode `corfu-prescient-mode` configures
   sorting, candidate remembrance, filtering, and binds the toggling
   commands while the Corfu pop-up is active.
+
+[#131]: https://github.com/radian-software/prescient.el/pull/131
 
 ## 6.0 (released 2022-11-11)
 ### Bugs fixed
@@ -83,7 +85,6 @@ The format is based on [Keep a Changelog].
 [#125]: https://github.com/raxod502/prescient.el/pull/125
 [#126]: https://github.com/radian-software/prescient.el/pull/126
 [#127]: https://github.com/radian-software/prescient.el/pull/127
-[#131]: https://github.com/radian-software/prescient.el/pull/131
 
 ## 5.2.1 (released 2022-06-01)
 ### Bugs fixed
