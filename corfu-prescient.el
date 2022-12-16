@@ -6,9 +6,9 @@
 ;; Homepage: https://github.com/radian-software/prescient.el
 ;; Keywords: extensions
 ;; Created: 23 Sep 2022
-;; Package-Requires: ((emacs "27.1") (prescient "6.0.0") (corfu "0.28"))
+;; Package-Requires: ((emacs "27.1") (prescient "6.1.0") (corfu "0.28"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.0.0
+;; Version: 6.1.0
 
 ;;; Commentary:
 
