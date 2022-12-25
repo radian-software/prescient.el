@@ -6,9 +6,9 @@
 ;; Homepage: https://github.com/radian-software/prescient.el
 ;; Keywords: extensions
 ;; Created: 23 Sep 2022
-;; Package-Requires: ((emacs "27.1") (prescient "6.1.0") (vertico "0.28"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.1.0
+
+;; LocalWords:  Vertico's
 
 ;;; Commentary:
 
@@ -26,7 +26,17 @@
 (eval-when-compile (require 'cl-lib))
 (require 'prescient)
 (require 'subr-x)
-(require 'vertico)
+(require 'vertico nil t)
+
+(defvar vertico--candidates)
+(defvar vertico--history-hash)
+(defvar vertico--index)
+(defvar vertico--input)
+(defvar vertico--lock-candidate)
+(defvar vertico-map)
+(defvar vertico-sort-function)
+(defvar vertico-sort-override-function)
+(declare-function vertico--exhibit "ext:vertico" ())
 
 ;;;; Customization
 
@@ -82,13 +92,6 @@ by `vertico-prescient-mode'."
     (vertico--exhibit)))
 
 ;;;; Minor mode
-
-(defvar vertico-prescient--old-sort-function nil
-  "Previous value of `vertico-sort-function'.")
-
-(defvar vertico-prescient--old-sort-override-function nil
-  "Previous value of `vertico-sort-override-function'.")
-
 (defvar vertico-prescient--old-toggle-binding nil
   "Previous binding of `M-s' in `vertico-map'.")
 
@@ -125,12 +128,13 @@ by `vertico-prescient-mode'."
   "Minor mode to use prescient.el in Vertico menus.
 
 This mode will:
-- if `vertico-prescient-override-sorting' is non-nil,
-  configure `vertico-sort-override-function' and set
- `vertico-prescient-enable-filtering' to t
 
-- if `vertico-prescient-enable-filtering' is non-nil,
-  configure `vertico-sort-function'
+- if `vertico-prescient-override-sorting' is non-nil, override
+  the function stored in `vertico-sort-override-function' via
+  advice and set `vertico-prescient-enable-filtering' to t
+
+- if `vertico-prescient-enable-filtering' is non-nil, override
+  the function stored in `vertico-sort-function' via advice
 
 - if `vertico-prescient-enable-filtering' is non-nil:
   - bind `prescient-toggle-map' to `M-s' in `vertico-map'
@@ -142,58 +146,25 @@ This mode will:
 - advise `vertico-insert' to remember candidates"
   :global t
   :group 'prescient
-  (if vertico-prescient-mode
-      ;; Turn on the mode.
+  (if (not (featurep 'vertico))
       (progn
-        ;; Prevent messing up variables if we explicitly enable the
-        ;; mode when it's already on.
-        (vertico-prescient-mode -1)
-        (setq vertico-prescient-mode t)
+        (setq vertico-prescient-mode nil)
+        (user-error "`vertico-prescient-mode': Vertico not found"))
 
-        (when vertico-prescient-override-sorting
-          (setq vertico-prescient-enable-sorting t)
-          (cl-shiftf vertico-prescient--old-sort-override-function
-                     vertico-sort-override-function
-                     #'prescient-completion-sort))
-
-        (when vertico-prescient-enable-sorting
-          (cl-shiftf vertico-prescient--old-sort-function
-                     vertico-sort-function
-                     #'prescient-completion-sort))
-
-        (when vertico-prescient-enable-filtering
-          ;; Configure completion settings.
-          (advice-add 'vertico--setup
-                      :after #'vertico-prescient--apply-completion-settings)
-
-          ;; Bind toggling commands.
-          (setq vertico-prescient--old-toggle-binding
-                (lookup-key vertico-map (kbd "M-s")))
-          (define-key vertico-map (kbd "M-s") prescient-toggle-map)
-
-          ;; Make sure Vertico refreshes immediately.
-          (add-hook 'prescient--toggle-refresh-functions
-                    #'vertico-prescient--toggle-refresh))
-
-        ;; While sorting might not be enabled in Vertico, it might
-        ;; still be enabled in another UI, such as Company or Corfu.
-        ;; Therefore, we still want to remember candidates.
-        (advice-add 'vertico-insert :before #'vertico-prescient--remember))
-
-    ;; Turn off mode.
-
+    ;; Prevent messing up variables if we explicitly enable the
+    ;; mode when it's already on.
+    ;;
     ;; Undo sorting settings.
-    (when (eq vertico-sort-function #'prescient-completion-sort)
-      (setq vertico-sort-function vertico-prescient--old-sort-function))
-    (when (eq vertico-sort-override-function #'prescient-completion-sort)
-      (setq vertico-sort-override-function
-            vertico-prescient--old-sort-override-function))
+    (remove-function vertico-sort-function
+                     #'prescient-completion-sort)
+    (remove-function vertico-sort-override-function
+                     #'prescient-completion-sort)
 
     ;; Unbind toggling commands and unhook refresh function.
     (when (equal (lookup-key vertico-map (kbd "M-s"))
                  prescient-toggle-map)
       (define-key vertico-map (kbd "M-s")
-        vertico-prescient--old-toggle-binding))
+                  vertico-prescient--old-toggle-binding))
     (remove-hook 'prescient--toggle-refresh-functions
                  #'vertico-prescient--toggle-refresh)
 
@@ -206,9 +177,38 @@ This mode will:
           (vertico-prescient--undo-completion-settings))))
 
     ;; Undo remembrance settings.
-    (advice-remove 'vertico-insert #'vertico-prescient--remember)))
+    (advice-remove 'vertico-insert #'vertico-prescient--remember)
+
+    ;; Once cleaned up, if enabling, add things back in.
+    (when vertico-prescient-mode
+
+      (when vertico-prescient-override-sorting
+        (setq vertico-prescient-enable-sorting t)
+        (add-function :override vertico-sort-override-function
+                      #'prescient-completion-sort))
+
+      (when vertico-prescient-enable-sorting
+        (add-function :override vertico-sort-function
+                      #'prescient-completion-sort))
+
+      (when vertico-prescient-enable-filtering
+        ;; Configure completion settings.
+        (advice-add 'vertico--setup
+                    :after #'vertico-prescient--apply-completion-settings)
+
+        ;; Bind toggling commands.
+        (setq vertico-prescient--old-toggle-binding
+              (lookup-key vertico-map (kbd "M-s")))
+        (define-key vertico-map (kbd "M-s") prescient-toggle-map)
+
+        ;; Make sure Vertico refreshes immediately.
+        (add-hook 'prescient--toggle-refresh-functions
+                  #'vertico-prescient--toggle-refresh))
+
+      ;; While sorting might not be enabled in Vertico, it might
+      ;; still be enabled in another UI, such as Company or Corfu.
+      ;; Therefore, we still want to remember candidates.
+      (advice-add 'vertico-insert :before #'vertico-prescient--remember))))
 
 (provide 'vertico-prescient)
 ;;; vertico-prescient.el ends here
-
-;; LocalWords:  Vertico's

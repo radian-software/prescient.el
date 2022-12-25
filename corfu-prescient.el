@@ -6,9 +6,7 @@
 ;; Homepage: https://github.com/radian-software/prescient.el
 ;; Keywords: extensions
 ;; Created: 23 Sep 2022
-;; Package-Requires: ((emacs "27.1") (prescient "6.1.0") (corfu "0.28"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.1.0
 
 ;;; Commentary:
 
@@ -24,9 +22,19 @@
 ;;;; Libraries and Declarations
 
 (require 'cl-lib)
-(require 'corfu)
+(require 'corfu nil t)
 (require 'prescient)
 (require 'subr-x)
+
+(defvar corfu--candidates)
+(defvar corfu--index)
+(defvar corfu--input)
+(defvar corfu--state-vars)
+(defvar corfu-map)
+(defvar corfu-mode)
+(defvar corfu-sort-function)
+(defvar corfu-sort-override-function)
+(declare-function corfu--update "ext:corfu" (&optional interruptible))
 
 ;;;; Customization
 
@@ -80,11 +88,6 @@ by `corfu-prescient-mode'."
     (corfu--update)))
 
 ;;;; Minor mode
-(defvar corfu-prescient--old-sort-function nil
-  "Previous value of `corfu-sort-function'.")
-
-(defvar corfu-prescient--old-sort-override-function nil
-  "Previous value of `corfu-sort-override-function'.")
 
 (defvar corfu-prescient--old-toggle-binding nil
   "Previous binding of `M-s' in `corfu-map'.")
@@ -132,12 +135,13 @@ by `corfu-prescient-mode'."
   "Minor mode to use prescient.el in Corfu menus.
 
 This mode will:
-- if `corfu-prescient-override-sorting' is non-nil,
-  configure `corfu-sort-override-function' and set
- `corfu-prescient-enable-filtering' to t
 
-- if `corfu-prescient-enable-filtering' is non-nil,
-  configure `corfu-sort-function'
+- if `corfu-prescient-override-sorting' is non-nil, override the
+  function stored in `corfu-sort-override-function' via advice
+  and set `corfu-prescient-enable-filtering' to t
+
+- if `corfu-prescient-enable-filtering' is non-nil, override the
+  function stored in `corfu-sort-function' via advice
 
 - if `corfu-prescient-enable-filtering' is non-nil:
   - bind `prescient-toggle-map' to `M-s' in `corfu-map'
@@ -149,72 +153,23 @@ This mode will:
 - advise `corfu-insert' to remember candidates"
   :global t
   :group 'prescient
-  (if corfu-prescient-mode
-      ;; Turn on the mode.
+  (if (not (featurep 'corfu))
       (progn
-        ;; Prevent messing up variables if we explicitly enable the
-        ;; mode when it's already on.
-        (corfu-prescient-mode -1)
-        (setq corfu-prescient-mode t)
+        (setq corfu-prescient-mode nil)
+        (user-error "`corfu-prescient-mode': Corfu not found"))
 
-        (when corfu-prescient-override-sorting
-          (setq corfu-prescient-enable-sorting t)
-          (cl-shiftf corfu-prescient--old-sort-override-function
-                     corfu-sort-override-function
-                     #'prescient-completion-sort))
-
-        (when corfu-prescient-enable-sorting
-          (cl-shiftf corfu-prescient--old-sort-function
-                     corfu-sort-function
-                     #'prescient-completion-sort))
-
-        (when corfu-prescient-enable-filtering
-          ;; Configure changing settings in the hook.
-          (add-hook 'corfu-mode-hook
-                    #'corfu-prescient--change-completion-settings)
-
-          ;; Immediately apply the settings in buffers where
-          ;; `corfu-mode' is already on.
-          (dolist (b (buffer-list))
-            (when (buffer-local-value corfu-mode b)
-              (with-current-buffer b
-                (corfu-prescient--apply-completion-settings))))
-
-          ;; Bind toggling commands.
-          (setq corfu-prescient--old-toggle-binding
-                (lookup-key corfu-map (kbd "M-s")))
-          (define-key corfu-map (kbd "M-s") prescient-toggle-map)
-
-          ;; Make sure Corfu refreshes immediately.
-          (add-hook 'prescient--toggle-refresh-functions
-                    #'corfu-prescient--toggle-refresh)
-
-          ;; Clean up the local versions of the toggling variables
-          ;; after the Corfu pop-up closes. For the toggling vars, it
-          ;; is the commands themselves that make the variables buffer
-          ;; local.
-          (cl-callf cl-union corfu--state-vars prescient--toggle-vars
-                    :test #'eq))
-
-        ;; While sorting might not be enabled in Corfu, it might
-        ;; still be enabled in another UI, such as Selectrum or Vertico.
-        ;; Therefore, we still want to remember candidates.
-        (advice-add 'corfu--insert :before #'corfu-prescient--remember))
-
-    ;; Turn off mode.
-
+    ;; Prevent messing up variables if we explicitly enable the
+    ;; mode when it's already on.
+    ;;
     ;; Undo sorting settings.
-    (when (eq corfu-sort-function #'prescient-completion-sort)
-      (setq corfu-sort-function corfu-prescient--old-sort-function))
-    (when (eq corfu-sort-override-function #'prescient-completion-sort)
-      (setq corfu-sort-override-function
-            corfu-prescient--old-sort-override-function))
+    (remove-function corfu-sort-function #'prescient-completion-sort)
+    (remove-function corfu-sort-override-function #'prescient-completion-sort)
 
     ;; Unbind toggling commands and unhook refresh function.
     (when (equal (lookup-key corfu-map (kbd "M-s"))
                  prescient-toggle-map)
       (define-key corfu-map (kbd "M-s")
-        corfu-prescient--old-toggle-binding))
+                  corfu-prescient--old-toggle-binding))
     (remove-hook 'prescient--toggle-refresh-functions
                  #'corfu-prescient--toggle-refresh)
     (cl-callf cl-set-difference corfu--state-vars
@@ -230,7 +185,51 @@ This mode will:
           (corfu-prescient--undo-completion-settings))))
 
     ;; Undo remembrance settings.
-    (advice-remove 'corfu-insert #'corfu-prescient--remember)))
+    (advice-remove 'corfu-insert #'corfu-prescient--remember)
+
+    ;; Once cleaned up, if enabling, add things back in.
+    (when corfu-prescient-mode
+      (when corfu-prescient-override-sorting
+        (setq corfu-prescient-enable-sorting t)
+        (add-function :override corfu-sort-override-function
+                      #'prescient-completion-sort))
+
+      (when corfu-prescient-enable-sorting
+        (add-function :override corfu-sort-function
+                      #'prescient-completion-sort))
+
+      (when corfu-prescient-enable-filtering
+        ;; Configure changing settings in the hook.
+        (add-hook 'corfu-mode-hook
+                  #'corfu-prescient--change-completion-settings)
+
+        ;; Immediately apply the settings in buffers where
+        ;; `corfu-mode' is already on.
+        (dolist (b (buffer-list))
+          (when (buffer-local-value corfu-mode b)
+            (with-current-buffer b
+              (corfu-prescient--apply-completion-settings))))
+
+        ;; Bind toggling commands.
+        (setq corfu-prescient--old-toggle-binding
+              (lookup-key corfu-map (kbd "M-s")))
+        (define-key corfu-map (kbd "M-s") prescient-toggle-map)
+
+        ;; Make sure Corfu refreshes immediately.
+        (add-hook 'prescient--toggle-refresh-functions
+                  #'corfu-prescient--toggle-refresh)
+
+        ;; Clean up the local versions of the toggling variables
+        ;; after the Corfu pop-up closes. For the toggling vars, it
+        ;; is the commands themselves that make the variables buffer
+        ;; local.
+        (cl-callf cl-union corfu--state-vars prescient--toggle-vars
+                  :test #'eq))
+
+      ;; While sorting might not be enabled in Corfu, it might
+      ;; still be enabled in another UI, such as Selectrum or Vertico.
+      ;; Therefore, we still want to remember candidates.
+      (advice-add 'corfu--insert :before #'corfu-prescient--remember))))
 
 (provide 'corfu-prescient)
 ;;; corfu-prescient.el ends here

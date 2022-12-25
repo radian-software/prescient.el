@@ -6,9 +6,7 @@
 ;; Homepage: https://github.com/raxod502/prescient.el
 ;; Keywords: extensions
 ;; Created: 1 May 2018
-;; Package-Requires: ((emacs "25.1") (prescient "6.1.0") (ivy "0.11.0"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.1.0
 
 ;;; Commentary:
 
@@ -29,8 +27,27 @@
 
 (require 'map)
 
-(require 'ivy)
+(require 'ivy nil t)
 (require 'prescient)
+
+(defvar ivy--directory)
+(defvar ivy--subexps)
+(defvar ivy-initial-inputs-alist)
+(defvar ivy-last)
+(defvar ivy-marked-candidates)
+(defvar ivy-re-builders-alist)
+(defvar ivy-sort-matches-functions-alist)
+(defvar ivy-sort-functions-alist)
+
+(declare-function ivy--directory-enter "ext:ivy" ())
+(declare-function ivy--get-action "ext:ivy" (collection))
+(declare-function ivy--sort-function "ext:ivy" (collection))
+(declare-function ivy-completion-in-region "ext:ivy"
+                  (start end collection &optional predicate))
+(declare-function ivy-read "ext:ivy" (prompt collection &rest args))
+(declare-function ivy-state-collection "ext:ivy" (struct))
+(declare-function ivy-state-sort "ext:ivy" (struct))
+(declare-function ivy-string< "ext:ivy" (x y))
 
 ;;;; User options
 
@@ -202,43 +219,49 @@ wasn't in the call to `ivy-read'."
   "Minor mode to use prescient.el in Ivy menus."
   :global t
   :group 'prescient
-  (if ivy-prescient-mode
-      (progn
-        (ivy-prescient-mode -1)
-        (setq ivy-prescient-mode t)
-        (when ivy-prescient-enable-filtering
-          (cl-shiftf ivy-prescient--old-re-builder
-                     (alist-get t ivy-re-builders-alist)
-                     #'ivy-prescient-re-builder)
-          (cl-shiftf ivy-prescient--old-initial-inputs-alist
-                     ivy-initial-inputs-alist
-                     nil))
-        (when ivy-prescient-enable-sorting
-          ;; Not sure if `map-apply' (note that `map-do' is not
-          ;; available before Emacs 26) handles mutation of alist
-          ;; during iteration. Use `map-keys' plus `dolist' to be
-          ;; safe.
-          (dolist (caller (map-keys ivy-sort-functions-alist))
-            (when (memq (alist-get caller ivy-sort-functions-alist)
-                        '(ivy-string< ivy-sort-file-function-default))
-              ;; Use `ignore' to silence byte-compiler. We only use
-              ;; the setter, not the getter.
-              (ignore
-               (cl-shiftf
-                (alist-get caller ivy-prescient--old-ivy-sort-functions-alist)
-                (alist-get caller ivy-sort-functions-alist)
-                #'ivy-prescient-sort-function))))
-          (cl-shiftf
-           ivy-prescient--old-ivy-sort-matches-completion-in-region-function
-           (alist-get #'ivy-completion-in-region
-                      ivy-sort-matches-functions-alist)
-           nil)
-          (advice-add #'ivy-read :filter-args
-                      #'ivy-prescient--enable-sort-commands)
-          (advice-add #'ivy--directory-enter :filter-return
-                      #'ivy-prescient--remember-directory)
-          (advice-add #'ivy--get-action :filter-return
-                      #'ivy-prescient--wrap-action)))
+  (cond
+   ((not (featurep 'ivy))
+    (setq ivy-prescient-mode nil)
+    (user-error "`ivy-prescient-mode': Ivy not found"))
+
+   (ivy-prescient-mode
+    (ivy-prescient-mode -1)
+    (setq ivy-prescient-mode t)
+    (when ivy-prescient-enable-filtering
+      (cl-shiftf ivy-prescient--old-re-builder
+                 (alist-get t ivy-re-builders-alist)
+                 #'ivy-prescient-re-builder)
+      (cl-shiftf ivy-prescient--old-initial-inputs-alist
+                 ivy-initial-inputs-alist
+                 nil))
+    (when ivy-prescient-enable-sorting
+      ;; Not sure if `map-apply' (note that `map-do' is not
+      ;; available before Emacs 26) handles mutation of alist
+      ;; during iteration. Use `map-keys' plus `dolist' to be
+      ;; safe.
+      (dolist (caller (map-keys ivy-sort-functions-alist))
+        (when (memq (alist-get caller ivy-sort-functions-alist)
+                    '(ivy-string< ivy-sort-file-function-default))
+          ;; Use `ignore' to silence byte-compiler. We only use
+          ;; the setter, not the getter.
+          (ignore
+           (cl-shiftf
+            (alist-get caller ivy-prescient--old-ivy-sort-functions-alist)
+            (alist-get caller ivy-sort-functions-alist)
+            #'ivy-prescient-sort-function))))
+      (cl-shiftf
+       ivy-prescient--old-ivy-sort-matches-completion-in-region-function
+       (alist-get #'ivy-completion-in-region
+                  ivy-sort-matches-functions-alist)
+       nil)
+      (advice-add #'ivy-read :filter-args
+                  #'ivy-prescient--enable-sort-commands)
+      (advice-add #'ivy--directory-enter :filter-return
+                  #'ivy-prescient--remember-directory)
+      (advice-add #'ivy--get-action :filter-return
+                  #'ivy-prescient--wrap-action)))
+
+   (t
     (when (equal (alist-get t ivy-re-builders-alist)
                  #'ivy-prescient-re-builder)
       (setf (alist-get t ivy-re-builders-alist)
@@ -260,7 +283,7 @@ wasn't in the call to `ivy-read'."
         (setf (alist-get (car pair) ivy-initial-inputs-alist) (cdr pair))))
     (advice-remove #'ivy-read #'ivy-prescient--enable-sort-commands)
     (advice-remove #'ivy--directory-enter #'ivy-prescient--remember-directory)
-    (advice-remove #'ivy--get-action #'ivy-prescient--wrap-action)))
+    (advice-remove #'ivy--get-action #'ivy-prescient--wrap-action))))
 
 ;;;; Closing remarks
 
