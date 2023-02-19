@@ -134,7 +134,7 @@ This mode will:
 
 - if `vertico-prescient-enable-filtering' is non-nil:
   - bind `prescient-toggle-map' to `M-s' in `vertico-map'
-  - change `completion-stlyes' to `vertico-prescient-completion-styles'
+  - change `completion-styles' to `vertico-prescient-completion-styles'
   - apply `vertico-prescient-completion-category-overrides'
     to `completion-category-overrides'
   - set `completion-category-defaults' to nil
