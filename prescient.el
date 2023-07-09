@@ -453,43 +453,53 @@ INPUT contains uppercase letters."
         (not (string-match-p "[[:upper:]]" input)))
     prescient-use-case-folding))
 
-(defun prescient--add-sort-info (candidates regexps ignore-case)
+(defun prescient--add-sort-info (candidates &rest properties)
   "Propertize the first candidate in CANDIDATES to save data.
 
-REGEXPS are the regexps used by filtering. IGNORE-CASE is whether
-case was ignored. These are stored as the text property
-`prescient-regexps' and `prescient-ignore-case', respectively.
+Currently recognized PROPERTIES are:
+
+- `:prescient-match-regexps': The regexps used for filtering.
+
+- `:prescient-all-regexps': All regexps outputted by the filter
+  methods, which were used to make PRESCIENT-MATCH-REGEXPS. A
+  regexp in this list does not necessarily match the candidates
+  by itself.
+
+- `:prescient-ignore-case': Whether prescient ignored case.
+
+These properties are identified using keyword symbols.
 
 This information is used by the function
 `prescient-sort-full-matches-first'."
   (if (null candidates)
       nil
-    ;; Some UIs might rearrange candidates before we can sort them.
-    ;; For example, Company will sort CAPF candidates that don't have
-    ;; a specified sorting function, which moves them around before
-    ;; passing them to the Company Prescient transformer that applies
-    ;; our own sorting.
-    (cons (propertize (car candidates)
-                      'prescient-regexps regexps
-                      'prescient-ignore-case ignore-case)
+    (cons (apply #'propertize (car candidates)
+                 ;; While PROPERTIES contains all given keys, we
+                 ;; explicitly set the properties this way so that
+                 ;; we're sure that the properties exist even when
+                 ;; they're not given. This makes testing easier
+                 ;; and should be helpful for others creating their
+                 ;; own sorting functions.
+                 (cl-flet ((put-get (props sym)
+                             (plist-put props sym
+                                        (plist-get props sym))))
+                   (thread-first properties
+                                 (put-get :prescient-match-regexps)
+                                 (put-get :prescient-all-regexps)
+                                 (put-get :prescient-ignore-case))))
           (cdr candidates))))
 
 (defun prescient--get-sort-info (candidates)
   "Return a property list of properties added by `prescient-filter'.
 
 `prescient-filter' adds properties to the CANDIDATES that it
-filtered for use by the function `prescient-sort-full-matches-first'.
-
-If the properties aren't found, such as when the candidates were
-filtered using a different completion method, then the values in
-the property list are nil."
+filtered for use by the function `prescient-sort-full-matches-first'."
   (cl-loop for cand in candidates
-           until (get-text-property 0 'prescient-regexps cand)
-           finally return
-           `(prescient-regexps
-             ,(get-text-property 0 'prescient-regexps cand)
-             prescient-ignore-case
-             ,(get-text-property 0 'prescient-ignore-case cand))))
+           for props = (text-properties-at 0 cand)
+           until (plist-member props :prescient-match-regexps)
+           ;; Since we allow other keys in `prescient--add-sort-info',
+           ;; just return all properties here.
+           finally return props))
 
 (defun prescient--highlight-matches (input candidates)
   "According to INPUT, highlight the matched sections in CANDIDATES.
@@ -644,70 +654,97 @@ data can be used to highlight the matched substrings."
   "Return a regexp for matching the beginnings of words in QUERY.
 This is similar to the `partial-completion' completion style
 provided by Emacs, except that non-word characters are taken
-literally \(i.e., one can't glob using \"*\").  Prescient already
+literally (i.e., one can't glob using \"*\").  Prescient already
 covers that case by separating queries with a space.
+
+If QUERY contains non-word characters, then this matches
+greedily. Otherwise, it matches non-greedily. For example,
+
+- \"str-r\" fully matches \"string-repeat\"
+
+- \"re\" does not fully match the word \"repertoire\", only the
+  \"re\" at the beginning of the word
+
+- \".g\" fully matches \".git\"
+
+This behavior is meant to work better with the function
+`prescient-sort-full-matches-first' and to avoid interpreting an
+initialism as a prefix.
 
 If WITH-GROUP is non-nil, enclose the parts of the regexp that
 match the QUERY characters in capture groups, so that the match
 data can be used to highlight the matched substrings."
-  (let ((str (replace-regexp-in-string
-              "[[:word:]]+"
-              ;; Choose whether to wrap sequences of word characters.
-              (if with-group
-                  (lambda (s) (concat "\\(" s "\\)[[:word:]]*"))
-                "\\&[[:word:]]*")
-              ;; Quote non-word characters so that they're taken
-              ;; literally.
-              (replace-regexp-in-string "[^[:word:]]"
-                                        (lambda (s) (regexp-quote s))
-                                        query 'fixed-case 'literal)
-              'fixed-case with-group)))
-    ;; If regexp begins with a word character, make sure regexp
-    ;; doesn't start matching in the middle of a word.
-    (if (eql 0 (string-match-p "[[:word:]]" str))
-        (concat "\\<" str)
-      str)))
+  (concat (when (eql 0 (string-match-p "[[:word:]]" query))
+            ;; If QUERY begins with a word character, make sure the
+            ;; returned regexp doesn't start matching in the middle of
+            ;; a word.
+            "\\<")
+          (replace-regexp-in-string
+           "[[:word:]]+"
+           ;; Choose whether to wrap sequences of word characters.
+           (concat (if with-group
+                       "\\\\(\\&\\\\)[[:word:]]*"
+                     "\\&[[:word:]]*")
+                   (unless (string-match-p "[^[:word:]]" query)
+                     "?"))
+           ;; Quote non-word characters so that they're taken
+           ;; literally.
+           (replace-regexp-in-string "[^[:word:]]"
+                                     #'regexp-quote
+                                     query 'fixed-case 'literal)
+           'fixed-case)))
 
 ;;;; Sorting and filtering
 
-(defun prescient-filter-regexps (query &optional with-group)
+(defun prescient-filter-regexps (query &optional with-group separated)
   "Convert QUERY to list of regexps.
 Each regexp must match the candidate in order for a candidate to
 match the QUERY.
 
 If WITH-GROUP is non-nil, enclose the initials in initialisms
 with capture groups. If it is the symbol `all', additionally
-enclose literal substrings with capture groups."
-  (let ((subquery-number 0))
-    (mapcar
-     (lambda (subquery)
-       (prog1 (string-join
-               (cl-remove
-                nil
-                (mapcar
-                 (lambda (method)
-                   (if-let ((func (alist-get method prescient-filter-alist)))
-                       (funcall func subquery
-                                :with-group with-group
-                                :subquery-number subquery-number)
-                     ;; Don't throw error if function doesn't exist, but do
-                     ;; warn user.
-                     (message
-                      "No function in `prescient-filter-alist' for method: %s"
-                      method)))
-                 (pcase
-                     (if (functionp prescient-filter-method)
-                         (funcall prescient-filter-method)
-                       prescient-filter-method)
-                   ;; We support `literal+initialism' for backwards
-                   ;; compatibility.
-                   (`literal+initialism '(literal initialism))
-                   ((and (pred listp) x) x)
-                   (x (list x))))
-                :test #'eq)
-               "\\|")
-         (cl-incf subquery-number)))
-     (prescient-split-query query))))
+enclose literal substrings with capture groups.
+
+By default, this function returns a list containing one regexp
+for each space-separated sub-query in QUERY, in which each
+sub-query's regexp is a combination of the regexps produced by
+the filter methods for that sub-query, joined by \"\\|\". If
+SEPARATED is non-nil, this function instead returns a list of all
+regexps produced by the filter methods, without combining them
+into a single regexp for each sub-query."
+  (let ((list-of-lists
+         (cl-loop
+          with filter-methods
+          = (pcase (if (functionp prescient-filter-method)
+                       (funcall prescient-filter-method)
+                     prescient-filter-method)
+              ;; We support `literal+initialism' for backwards
+              ;; compatibility.
+              (`literal+initialism '(literal initialism))
+              ((and (pred listp) x) x)
+              (x (list x)))
+          for subquery in (prescient-split-query query)
+          for subquery-number from 0
+          collect
+          (cl-loop with temp-regexp = nil
+                   for method in filter-methods
+                   for func = (alist-get method prescient-filter-alist)
+                   if (null func)
+                   do (message
+                       "No function in `prescient-filter-alist' for method: %s"
+                       method)
+                   else
+                   ;; Can't use "for =" here.
+                   do (setq temp-regexp
+                            (funcall func subquery
+                                     :with-group with-group
+                                     :subquery-number subquery-number))
+                   and if temp-regexp collect temp-regexp end
+                   end))))
+    (if separated
+        (apply #'append list-of-lists)
+      (mapcar (lambda (list) (string-join list "\\|"))
+              list-of-lists))))
 
 ;;;###autoload
 (defun prescient-filter (query candidates &optional pred)
@@ -740,28 +777,35 @@ copy of the list."
     ;; metadata, since a user might be able to configure their
     ;; completion UI with a custom sorting function that would use
     ;; this info.
-    (prescient--add-sort-info
-     (all-completions prefix candidates pred)
-     ;; There is a question of how to handle prefixes for identifying
-     ;; fully matched candidates. Prefixes are used in:
-     ;;
-     ;; - `completing-read-multiple', as the candidates that have
-     ;;   already been selected
-     ;;
-     ;; - file-name completion, as the directory preceeding the file
-     ;;   name, though this seems to only happen when there is no
-     ;;   match in some UIs (Icomplete, but not Selectrum)
-     ;;
-     ;; It might turn out that for file names we need to adjust the
-     ;; regexps to be "\(?:QUOTED-PREFIX\)METHOD-REGEXP", but this
-     ;; isn't evident yet. We just do the below to be proactive.
-     (if (and (not (string-empty-p prefix))
-              minibuffer-completing-file-name)
-         (cl-loop for regexp in completion-regexp-list
-                  collect (concat "\\(?:" (regexp-quote prefix) "\\)"
-                                  regexp))
-       completion-regexp-list)
-     completion-ignore-case)))
+    ;;
+    ;; There is a question of how to handle prefixes for identifying
+    ;; fully matched candidates. Prefixes are used in:
+    ;;
+    ;; - `completing-read-multiple', as the candidates that have
+    ;;   already been selected
+    ;;
+    ;; - file-name completion, as the directory preceeding the file
+    ;;   name, though this seems to only happen when there is no
+    ;;   match in some UIs (Icomplete, but not Selectrum)
+    ;;
+    ;; It might turn out that for file names we need to adjust the
+    ;; regexps to be "\(?:QUOTED-PREFIX\)METHOD-REGEXP", but this
+    ;; isn't evident yet. We just do the below to be proactive.
+    (cl-flet ((maybe-add-prefix (regexps)
+                (if (and (not (string-empty-p prefix))
+                         minibuffer-completing-file-name)
+                    (cl-loop for regexp in regexps
+                             collect (concat "\\(?:"
+                                             (regexp-quote prefix)
+                                             "\\)"
+                                             regexp))
+                  regexps)))
+      (prescient--add-sort-info
+       (all-completions prefix candidates pred)
+       :prescient-match-regexps completion-regexp-list
+       :prescient-all-regexps (maybe-add-prefix
+                               (prescient-filter-regexps pattern nil t))
+       :prescient-ignore-case completion-ignore-case))))
 
 (defmacro prescient--sort-compare ()
   "Hack used to cause the byte-compiler to produce faster code.
@@ -839,20 +883,11 @@ REGEXPS."
          and remaining-candidates = nil
          and case-fold-search = ignore-case
          for cand in candidates
-         ;; By this point, after filtering, we know that a candidate
-         ;; matches all regexps, so we don't have to check that. So
-         ;; long as a candidate is fully matched by even one regexp,
-         ;; we move it to the front of the list.
-         ;;
-         ;; If a regexp didn't match, then we wouldn't be able to use
-         ;; `match-beginning' and `match-end', as they wouldn't
-         ;; change.
          if (cl-loop for regexp in regexps
-                     thereis (progn
-                               (string-match regexp cand)
-                               (= (length cand)
-                                  (- (match-end 0)
-                                     (match-beginning 0)))))
+                     thereis (and (string-match regexp cand)
+                                  (= (length cand)
+                                     (- (match-end 0)
+                                        (match-beginning 0)))))
          do (push cand prioritized-candidates)
          else do (push cand remaining-candidates)
          finally return (nconc (nreverse prioritized-candidates)
@@ -938,8 +973,8 @@ the user option `prescient-sort-full-matches-first'."
           (ignore-case))
       (when prescient-sort-full-matches-first
         (let ((props (prescient--get-sort-info candidates)))
-          (setq regexps (plist-get props 'prescient-regexps)
-                ignore-case (plist-get props 'prescient-ignore-case))))
+          (setq regexps (plist-get props :prescient-all-regexps)
+                ignore-case (plist-get props :prescient-ignore-case))))
       (thread-first
         candidates
         (prescient-sort)
