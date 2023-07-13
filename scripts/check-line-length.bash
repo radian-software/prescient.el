@@ -8,6 +8,7 @@ find=(
     -name .git -prune -o
     -name "*.elc" -o
     -name "*.png" -o
+    -name prescient-test.el -o
     -type f -print
 )
 
