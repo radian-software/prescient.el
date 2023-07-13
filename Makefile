@@ -18,7 +18,7 @@ help: ## Show this message
 		column -t -s'|' >&2
 
 .PHONY: lint
-lint: compile checkdoc longlines ## Run all the linters
+lint: compile checkdoc longlines test ## Run all the linters and tests
 
 .PHONY: compile
 compile: ## Byte-compile
@@ -43,6 +43,11 @@ checkdoc: ## Check docstring style
 .PHONY: longlines
 longlines: ## Check for long lines
 	@scripts/check-line-length.bash
+
+.PHONY: test
+test:
+	$(EMACS) -Q --batch -L . -l ert -l ./test/prescient-test.el \
+		 --eval "(let ((ert-quiet t)) (ert-run-tests-batch-and-exit))"
 
 .PHONY: clean
 clean: ## Remove build artifacts

@@ -13,4 +13,4 @@ jobs:
         env:
           VERSION: ${{ matrix.emacs_version }}
         run: >-
-          make docker CMD="make -k compile checkdoc longlines"
+          make docker CMD="make -k compile checkdoc longlines test"
