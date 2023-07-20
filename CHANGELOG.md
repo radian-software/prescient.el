@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+
+### Internal Changes
+
+* `prescient-filter` now only propertizes the first returned candidate
+  for use with `prescient-sort-full-matches-first` ([#148]). Custom
+  sorting functions using this data should be changed to search the
+  candidates for the properties, as in `prescient--get-sort-info`.
+
+[#148]: https://github.com/radian-software/prescient.el/pull/148
+
 ## 6.1 (released 2022-12-16)
 ### New features
 * Add package `vertico-prescient`, which integrates prescient.el with

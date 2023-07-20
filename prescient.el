@@ -454,7 +454,7 @@ INPUT contains uppercase letters."
     prescient-use-case-folding))
 
 (defun prescient--add-sort-info (candidates regexps ignore-case)
-  "Propertize all candidates in CANDIDATES to save data.
+  "Propertize the first candidate in CANDIDATES to save data.
 
 REGEXPS are the regexps used by filtering. IGNORE-CASE is whether
 case was ignored. These are stored as the text property
@@ -464,16 +464,32 @@ This information is used by the function
 `prescient-sort-full-matches-first'."
   (if (null candidates)
       nil
-    ;; We need to propertize all of the candidates, since some UIs
-    ;; might rearrange candidates before we can sort them. For
-    ;; example, Company will sort CAPF candidates that don't have a
-    ;; specified sorting function, which moves them around before
+    ;; Some UIs might rearrange candidates before we can sort them.
+    ;; For example, Company will sort CAPF candidates that don't have
+    ;; a specified sorting function, which moves them around before
     ;; passing them to the Company Prescient transformer that applies
     ;; our own sorting.
-    (cl-loop for cand in candidates
-             collect (propertize cand
-                                 'prescient-regexps regexps
-                                 'prescient-ignore-case ignore-case))))
+    (cons (propertize (car candidates)
+                      'prescient-regexps regexps
+                      'prescient-ignore-case ignore-case)
+          (cdr candidates))))
+
+(defun prescient--get-sort-info (candidates)
+  "Return a property list of properties added by `prescient-filter'.
+
+`prescient-filter' adds properties to the CANDIDATES that it
+filtered for use by the function `prescient-sort-full-matches-first'.
+
+If the properties aren't found, such as when the candidates were
+filtered using a different completion method, then the values in
+the property list are nil."
+  (cl-loop for cand in candidates
+           until (get-text-property 0 'prescient-regexps cand)
+           finally return
+           `(prescient-regexps
+             ,(get-text-property 0 'prescient-regexps cand)
+             prescient-ignore-case
+             ,(get-text-property 0 'prescient-ignore-case cand))))
 
 (defun prescient--highlight-matches (input candidates)
   "According to INPUT, highlight the matched sections in CANDIDATES.
@@ -906,25 +922,29 @@ This function will always sort candidates using the function
 using the function `prescient-sort-full-matches-first'.
 
 This function checks for the properties `prescient-regexps' and
-`prescient-ignore-case' on the first candidate in
-CANDIDATES (though they are stored on all candidates filtered by
+`prescient-ignore-case' on any candidate in CANDIDATES (though
+they are stored on the first candidate returned by
 `prescient-filter'). These properties are used for implementing
 the user option `prescient-sort-full-matches-first'."
   (if (null candidates)
       nil
-    (let ((regexps (get-text-property 0 'prescient-regexps
-                                      (car candidates)))
-          (ignore-case (get-text-property 0 'prescient-ignore-case
-                                          (car candidates)))
-          (sorted (prescient-sort candidates)))
+    ;; `prescient-filter' adds the properties needed for
+    ;; `prescient-sort-full-matches-first' to the first candidate in
+    ;; the list it returns. If we're receiving the filtered candidates
+    ;; directly (so, not in `company-prescient-transformer') then we
+    ;; should be checking for them before running `prescient-sort',
+    ;; which destructively modifies CANDIDATES.
+    (let ((regexps)
+          (ignore-case))
       (when prescient-sort-full-matches-first
-        (setq sorted (prescient-sort-full-matches-first
-                      sorted regexps ignore-case)))
-      ;; Since we propertize all candidates during `prescient-filter',
-      ;; we don't need to worry about re-arranging candidates here
-      ;; for whatever comes after, such as the Company Prescient
-      ;; transformer.
-      sorted)))
+        (let ((props (prescient--get-sort-info candidates)))
+          (setq regexps (plist-get props 'prescient-regexps)
+                ignore-case (plist-get props 'prescient-ignore-case))))
+      (thread-first
+        candidates
+        (prescient-sort)
+        ;; If `regexps' is nil, this just returns the input.
+        (prescient-sort-full-matches-first regexps ignore-case)))))
 
 ;;;;; Filtering functions
 
