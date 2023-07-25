@@ -4,15 +4,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
 ## Unreleased
-
 ### Internal Changes
-
 * `prescient-filter` now only propertizes the first returned candidate
   for use with `prescient-sort-full-matches-first` ([#148]). Custom
   sorting functions using this data should be changed to search the
   candidates for the properties, as in `prescient--get-sort-info`.
 
+### Bugs fixed
+* Fix highlighting of the first prefix in the `prefix` filter method
+  ([#149]).
+
+### Enhancements
+* Improve filter situation when using `prefix`, `initialism`, and
+  `prescient-sort-full-matches-first` by tweaking `prefix` ([#149]).
+  * Previously, with the input "re", `prefix` would match all of the
+    string "repeat", which would sort it higher than "restart-emacs"
+    when attempting to use "re" as an initialism.
+  * Now, the `prefix` "re" only matches the "re" in "repeat", but does
+    not match the entire word. If there is no non-word character in
+    the subquery, `prefix` matching is now done non-greedily.
+  * Continuing without change, "str-re" still fully matches
+    "string-rectangle" and ".g" still fully matches ".gitignore".
+    The inclusion of a non-word character means that these inputs
+    couldn't be used as initialisms anyway, so there is no conflict
+    when matching greedily for these inputs.
+
 [#148]: https://github.com/radian-software/prescient.el/pull/148
+[#149]: https://github.com/radian-software/prescient.el/pull/149
+
 
 ## 6.1 (released 2022-12-16)
 ### New features
