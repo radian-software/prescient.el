@@ -183,6 +183,18 @@ usefully be sorted by length (presumably, the backend returns
 these results in some already-sorted order)."
   :type 'boolean)
 
+(defcustom prescient-tiebreaker nil
+  "If non-nil, the method used to break ties instead of length.
+The value will be called as a function with two candidates that
+have the same recency and frequency information, and should
+return a number to indicate their relative order (negative for
+first < second, zero for first = second, positive for first >
+second), where candidates are assumed to sort in ascending
+order."
+  :type '(choice
+          (const :tag "Length" nil)
+          (function :tag "Custom function")))
+
 (defcustom prescient-aggressive-file-save nil
   "Whether to save the cache file aggressively.
 If non-nil, then write the cache data to `prescient-save-file'
@@ -820,9 +832,12 @@ lexical scope."
                        (f2 (gethash c2 freq 0)))
                   (or (> f1 f2)
                       (and (eq f1 f2)
-                           len-enable
-                           (< (length c1)
-                              (length c2))))))))))
+                           (if tiebreaker
+                               (< (funcall tiebreaker c1 c2) 0)
+                             (and
+                              len-enable
+                              (< (length c1)
+                                 (length c2))))))))))))
 
 (defun prescient-sort-compare (c1 c2)
   "Compare candidates C1 and C2 by usage and length.
@@ -839,7 +854,8 @@ length."
   (let ((hist prescient--history)
         (len prescient-history-length)
         (freq prescient--frequency)
-        (len-enable prescient-sort-length-enable))
+        (len-enable prescient-sort-length-enable)
+        (tiebreaker prescient-tiebreaker))
     (prescient--sort-compare)))
 
 (defun prescient-sort (candidates)
@@ -859,7 +875,8 @@ See also the functions `prescient-sort-full-matches-first' and
   (let ((hist prescient--history)
         (len prescient-history-length)
         (freq prescient--frequency)
-        (len-enable prescient-sort-length-enable))
+        (len-enable prescient-sort-length-enable)
+        (tiebreaker prescient-tiebreaker))
     (sort
      candidates
      (lambda (c1 c2)

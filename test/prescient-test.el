@@ -149,3 +149,22 @@ for BINDINGS."
   '("test.el" ".elpaignore" "barracuda") '(prefix)             t   ".e"   '(".elpaignore" "test.el")
   '("test.el" ".elpaignore" "barracuda") '(prefix)             nil ".e"   '("test.el" ".elpaignore")
   )
+
+(defun prescient-test--tiebreak-length-increasing (c1 c2)
+  (- (length c1) (length c2)))
+
+(defun prescient-test--tiebreak-length-decreasing (c1 c2)
+  (- (length c2) (length c1)))
+
+(prescient-deftest prescient-tiebreaker ()
+  (let ((prescient-sort-length-enable ,len-enable)
+        (prescient-tiebreaker ,tiebreaker))
+    (prescient-test--stateless
+      (should (equal ,result (prescient-completion-sort
+                              (prescient-filter "" ,candidates))))))
+  (candidates len-enable tiebreaker result)
+  '("first" "second" "third" "fourth" "fifth" "seventh") nil nil '("first" "second" "third" "fourth" "fifth" "seventh")
+  '("first" "second" "third" "fourth" "fifth" "seventh") t   nil '("first" "third" "fifth" "second" "fourth" "seventh")
+  '("first" "second" "third" "fourth" "fifth" "seventh") nil   #'prescient-test--tiebreak-length-increasing '("first" "third" "fifth" "second" "fourth" "seventh")
+  '("first" "second" "third" "fourth" "fifth" "seventh") nil   #'prescient-test--tiebreak-length-decreasing '("seventh" "second" "fourth" "first" "third" "fifth")
+  )

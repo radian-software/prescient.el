@@ -143,6 +143,9 @@ command `prescient-forget`.
 * `prescient-sort-length-enable`: Whether to sort the candidates by
   length in addition to recency and frequency.
 
+* `prescient-tiebreaker`: Function to use for breaking ties in recency
+  instead of length.
+
 * `prescient-use-char-folding`: Whether the `literal` and
   `literal-prefix` filter methods use character folding.
 
