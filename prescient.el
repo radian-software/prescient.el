@@ -183,6 +183,20 @@ usefully be sorted by length (presumably, the backend returns
 these results in some already-sorted order)."
   :type 'boolean)
 
+(defcustom prescient-tiebreaker nil
+  "If non-nil, the method used to break ties instead of length.
+The value will be called as a function with two candidates that
+have the same recency and frequency information, and should
+return a number to indicate their relative order (negative for
+first < second, zero for first = second, positive for first >
+second), where candidates are assumed to sort in ascending order.
+You can also use the variable `prescient-query' to access the
+original query from the user (but see that variable for
+caveats)."
+  :type '(choice
+          (const :tag "Length" nil)
+          (function :tag "Custom function")))
+
 (defcustom prescient-aggressive-file-save nil
   "Whether to save the cache file aggressively.
 If non-nil, then write the cache data to `prescient-save-file'
@@ -467,6 +481,8 @@ Currently recognized PROPERTIES are:
 
 - `:prescient-ignore-case': Whether prescient ignored case.
 
+- `:prescient-query': Original search query from user.
+
 These properties are identified using keyword symbols.
 
 This information is used by the function
@@ -480,13 +496,18 @@ This information is used by the function
                  ;; they're not given. This makes testing easier
                  ;; and should be helpful for others creating their
                  ;; own sorting functions.
+                 ;;
+                 ;; Note all passed properties will still get set,
+                 ;; this just defaults the standard ones to nil in
+                 ;; case they are missing.
                  (cl-flet ((put-get (props sym)
                              (plist-put props sym
                                         (plist-get props sym))))
                    (thread-first properties
                                  (put-get :prescient-match-regexps)
                                  (put-get :prescient-all-regexps)
-                                 (put-get :prescient-ignore-case))))
+                                 (put-get :prescient-ignore-case)
+                                 (put-get :prescient-query))))
           (cdr candidates))))
 
 (defun prescient--get-sort-info (candidates)
@@ -805,7 +826,8 @@ copy of the list."
        :prescient-match-regexps completion-regexp-list
        :prescient-all-regexps (maybe-add-prefix
                                (prescient-filter-regexps pattern nil t))
-       :prescient-ignore-case completion-ignore-case))))
+       :prescient-ignore-case completion-ignore-case
+       :prescient-query query))))
 
 (defmacro prescient--sort-compare ()
   "Hack used to cause the byte-compiler to produce faster code.
@@ -820,9 +842,12 @@ lexical scope."
                        (f2 (gethash c2 freq 0)))
                   (or (> f1 f2)
                       (and (eq f1 f2)
-                           len-enable
-                           (< (length c1)
-                              (length c2))))))))))
+                           (if tiebreaker
+                               (< (funcall tiebreaker c1 c2) 0)
+                             (and
+                              len-enable
+                              (< (length c1)
+                                 (length c2))))))))))))
 
 (defun prescient-sort-compare (c1 c2)
   "Compare candidates C1 and C2 by usage and length.
@@ -839,8 +864,17 @@ length."
   (let ((hist prescient--history)
         (len prescient-history-length)
         (freq prescient--frequency)
-        (len-enable prescient-sort-length-enable))
+        (len-enable prescient-sort-length-enable)
+        (tiebreaker prescient-tiebreaker))
     (prescient--sort-compare)))
+
+(defvar prescient-query nil
+  "The original query from the user, if available.
+You can use this in your implementation of `prescient-tiebreaker'
+to sort candidates depending on the user's query. This might be
+nil if `prescient-sort-compare' is invoked directly, or if
+`prescient-sort' is invoked without `prescient-filter' having
+been run first, so you should handle that case too.")
 
 (defun prescient-sort (candidates)
   "Sort CANDIDATES using frequency data.
@@ -859,7 +893,10 @@ See also the functions `prescient-sort-full-matches-first' and
   (let ((hist prescient--history)
         (len prescient-history-length)
         (freq prescient--frequency)
-        (len-enable prescient-sort-length-enable))
+        (len-enable prescient-sort-length-enable)
+        (tiebreaker prescient-tiebreaker)
+        (prescient-query (plist-get (prescient--get-sort-info candidates)
+                                    :prescient-query)))
     (sort
      candidates
      (lambda (c1 c2)

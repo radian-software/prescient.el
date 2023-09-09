@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
 ## Unreleased
+### Features
+* New user option `prescient-tiebreaker` which can be used to change
+  how matches with no recency information are sorted, instead of by
+  length ([#128]).
+
 ### Internal Changes
 * `prescient-filter` now only propertizes the first returned candidate
   for use with `prescient-sort-full-matches-first` ([#148]). Custom
@@ -29,9 +34,9 @@ The format is based on [Keep a Changelog].
     couldn't be used as initialisms anyway, so there is no conflict
     when matching greedily for these inputs.
 
+[#128]: https://github.com/radian-software/prescient.el/pull/128
 [#148]: https://github.com/radian-software/prescient.el/pull/148
 [#149]: https://github.com/radian-software/prescient.el/pull/149
-
 
 ## 6.1 (released 2022-12-16)
 ### New features

@@ -149,3 +149,35 @@ for BINDINGS."
   '("test.el" ".elpaignore" "barracuda") '(prefix)             t   ".e"   '(".elpaignore" "test.el")
   '("test.el" ".elpaignore" "barracuda") '(prefix)             nil ".e"   '("test.el" ".elpaignore")
   )
+
+(defun prescient-test--tiebreak-length-increasing (c1 c2)
+  (- (length c1) (length c2)))
+
+(defun prescient-test--tiebreak-length-decreasing (c1 c2)
+  (- (length c2) (length c1)))
+
+(defun prescient-test--tiebreak-first-letter-index (c1 c2)
+  "Weird tiebreaking function.
+It prioritizes candidates based on how close the first letter of
+the search query is to the front of the candidate. The main
+purpose is to test that tiebreak functions are able to access the
+search query properly."
+  (if (or (null prescient-query) (string-empty-p prescient-query))
+      0
+    (- (or (string-match (substring prescient-query 0 1) c1) 999)
+       (or (string-match (substring prescient-query 0 1) c2) 999))))
+
+(prescient-deftest prescient-tiebreaker ()
+  (let ((prescient-sort-length-enable ,len-enable)
+        (prescient-tiebreaker ,tiebreaker))
+    (prescient-test--stateless
+      (should (equal ,result (prescient-completion-sort
+                              (prescient-filter ,query ,candidates))))))
+  (candidates len-enable query tiebreaker result)
+  '("first" "second" "third" "fourth" "fifth" "seventh") nil "" nil '("first" "second" "third" "fourth" "fifth" "seventh")
+  '("first" "second" "third" "fourth" "fifth" "seventh") t   "" nil '("first" "third" "fifth" "second" "fourth" "seventh")
+  '("first" "second" "third" "fourth" "fifth" "seventh") nil "" #'prescient-test--tiebreak-length-increasing '("first" "third" "fifth" "second" "fourth" "seventh")
+  '("first" "second" "third" "fourth" "fifth" "seventh") nil "" #'prescient-test--tiebreak-length-decreasing '("seventh" "second" "fourth" "first" "third" "fifth")
+  '("first" "second" "third" "fourth" "fifth" "seventh") nil "h" nil '("third" "fourth" "fifth" "seventh")
+  '("first" "second" "third" "fourth" "fifth" "seventh") nil "h" #'prescient-test--tiebreak-first-letter-index '("third" "fifth" "fourth" "seventh")
+  )
