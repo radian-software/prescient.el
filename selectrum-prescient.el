@@ -6,9 +6,7 @@
 ;; Homepage: https://github.com/raxod502/prescient.el
 ;; Keywords: extensions
 ;; Created: 8 Dec 2019
-;; Package-Requires: ((emacs "25.1") (prescient "6.1.0") (selectrum "3.1"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.1.0
 
 ;;; Commentary:
 
@@ -24,8 +22,16 @@
 ;;;; Libraries
 
 (require 'prescient)
-(require 'selectrum)
+(require 'selectrum nil t)
 (require 'subr-x)
+
+(defvar selectrum-refine-candidates-function)
+(defvar selectrum-preprocess-candidates-function)
+(defvar selectrum-highlight-candidates-function)
+(defvar selectrum-minibuffer-map)
+(defvar selectrum-should-sort)
+(defvar selectrum-is-active)
+(declare-function selectrum-exhibit "ext:selectrum" ())
 
 ;;;; Customization
 
@@ -114,55 +120,49 @@ For use on `selectrum-candidate-selected-hook'."
   "Minor mode to use prescient.el in Selectrum menus."
   :global t
   :group 'prescient
-  (if selectrum-prescient-mode
+  (if (not (featurep 'selectrum))
       (progn
-        ;; Prevent messing up variables if we explicitly enable the
-        ;; mode when it's already on.
-        (selectrum-prescient-mode -1)
-        (setq selectrum-prescient-mode t)
-        (when selectrum-prescient-enable-filtering
-          (setq selectrum-prescient--old-refine-function
-                selectrum-refine-candidates-function)
-          (setq selectrum-prescient--old-highlight-function
-                selectrum-highlight-candidates-function)
-          (setq selectrum-refine-candidates-function
-                #'selectrum-prescient--refine)
-          (setq selectrum-highlight-candidates-function
-                #'prescient--highlight-matches)
-          (define-key selectrum-minibuffer-map
-            (kbd "M-s") prescient-toggle-map)
-          (add-hook 'prescient--toggle-refresh-functions
-                    #'selectrum-prescient--toggle-refresh))
-        (when selectrum-prescient-enable-sorting
-          (setq selectrum-prescient--old-preprocess-function
-                selectrum-preprocess-candidates-function)
-          (setq selectrum-preprocess-candidates-function
-                #'selectrum-prescient--preprocess)
-          (add-hook 'selectrum-candidate-selected-hook
-                    #'selectrum-prescient--remember)
-          (add-hook 'selectrum-candidate-inserted-hook
-                    #'selectrum-prescient--remember)))
-    (when (eq selectrum-refine-candidates-function
-              #'selectrum-prescient--refine)
-      (setq selectrum-refine-candidates-function
-            selectrum-prescient--old-refine-function))
-    (when (eq selectrum-highlight-candidates-function
-              #'prescient--highlight-matches)
-      (setq selectrum-highlight-candidates-function
-            selectrum-prescient--old-highlight-function))
+        (setq selectrum-prescient-mode nil)
+        (user-error "`selectrum-prescient-mode': Selectrum not found"))
+
+    ;; Prevent messing up variables if we explicitly enable the
+    ;; mode when it's already on.
+    (remove-function selectrum-refine-candidates-function
+                     #'selectrum-prescient--refine)
+    (remove-function selectrum-highlight-candidates-function
+                     #'prescient--highlight-matches)
+    (remove-function selectrum-preprocess-candidates-function
+                     #'selectrum-prescient--preprocess)
+
     (when (equal (lookup-key selectrum-minibuffer-map (kbd "M-s"))
                  prescient-toggle-map)
       (define-key selectrum-minibuffer-map (kbd "M-s") nil))
+
     (remove-hook 'prescient--toggle-refresh-functions
                  #'selectrum-prescient--toggle-refresh)
     (remove-hook 'selectrum-candidate-selected-hook
                  #'selectrum-prescient--remember)
     (remove-hook 'selectrum-candidate-inserted-hook
                  #'selectrum-prescient--remember)
-    (when (eq selectrum-preprocess-candidates-function
-              #'selectrum-prescient--preprocess)
-      (setq selectrum-preprocess-candidates-function
-            selectrum-prescient--old-preprocess-function))))
+
+    ;; Once cleaned up, if enabling, add things back in.
+    (when selectrum-prescient-enable-filtering
+      (add-function :override selectrum-refine-candidates-function
+                    #'selectrum-prescient--refine)
+      (add-function :override selectrum-highlight-candidates-function
+                    #'prescient--highlight-matches)
+      (define-key selectrum-minibuffer-map
+        (kbd "M-s") prescient-toggle-map)
+      (add-hook 'prescient--toggle-refresh-functions
+                #'selectrum-prescient--toggle-refresh))
+
+    (when selectrum-prescient-enable-sorting
+      (add-function :override selectrum-preprocess-candidates-function
+                    #'selectrum-prescient--preprocess)
+      (add-hook 'selectrum-candidate-selected-hook
+                #'selectrum-prescient--remember)
+      (add-hook 'selectrum-candidate-inserted-hook
+                #'selectrum-prescient--remember))))
 
 ;;;; Closing remarks
 

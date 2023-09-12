@@ -6,9 +6,7 @@
 ;; Homepage: https://github.com/raxod502/prescient.el
 ;; Keywords: extensions
 ;; Created: 7 May 2018
-;; Package-Requires: ((emacs "25.1") (prescient "6.1.0") (company "0.9.6"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.1.0
 
 ;;; Commentary:
 
@@ -26,8 +24,13 @@
 
 ;;;; Libraries
 
-(require 'company)
+(require 'cl-lib)
+(require 'company nil t)
 (require 'prescient)
+
+(defvar company-completion-finished-hook)
+(defvar company-transformers)
+(declare-function prescient-completion-sort "ext:prescient" (candidates))
 
 ;;;; User options
 
@@ -41,7 +44,6 @@ this variable is `:default', then this binding is skipped."
 
 ;;;; Minor mode
 
-(declare-function prescient-completion-sort "prescient" (candidates))
 (defun company-prescient-transformer (candidates)
   "Candidate transformer function that uses prescient.el to sort CANDIDATES.
 This is for use in `company-transformers'."
@@ -64,17 +66,21 @@ This is for use on `company-completion-finished-hook'.")
   "Minor mode to use prescient.el in Company completions."
   :global t
   :group 'prescient
-  (if company-prescient-mode
+  (if (not (featurep 'company))
       (progn
-        (company-prescient-mode -1)
-        (setq company-prescient-mode t)
-        (add-to-list 'company-transformers #'company-prescient-transformer)
-        (add-hook 'company-completion-finished-hook
-                  #'company-prescient-completion-finished))
-    (setq company-transformers
-          (delq #'company-prescient-transformer company-transformers))
+        (setq company-prescient-mode nil)
+        (user-error "`company-prescient-mode': Company not found"))
+
+    ;; Always run removal to clean things up before enabling.
+    (cl-callf2 remq #'company-prescient-transformer company-transformers)
     (remove-hook 'company-completion-finished-hook
-                 #'company-prescient-completion-finished)))
+                 #'company-prescient-completion-finished)
+
+    ;; Once cleaned up, if enabling, add things back in.
+    (when company-prescient-mode
+      (add-to-list 'company-transformers #'company-prescient-transformer)
+      (add-hook 'company-completion-finished-hook
+                #'company-prescient-completion-finished))))
 
 ;;;; Closing remarks
 
