@@ -128,7 +128,7 @@ For use on `selectrum-candidate-selected-hook'."
           (setq selectrum-refine-candidates-function
                 #'selectrum-prescient--refine)
           (setq selectrum-highlight-candidates-function
-                #'prescient--highlight-matches)
+                #'prescient--highlight-candidates)
           (define-key selectrum-minibuffer-map
             (kbd "M-s") prescient-toggle-map)
           (add-hook 'prescient--toggle-refresh-functions
@@ -147,7 +147,7 @@ For use on `selectrum-candidate-selected-hook'."
       (setq selectrum-refine-candidates-function
             selectrum-prescient--old-refine-function))
     (when (eq selectrum-highlight-candidates-function
-              #'prescient--highlight-matches)
+              #'prescient--highlight-candidates)
       (setq selectrum-highlight-candidates-function
             selectrum-prescient--old-highlight-function))
     (when (equal (lookup-key selectrum-minibuffer-map (kbd "M-s"))

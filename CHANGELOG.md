@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Enhancements
+* The completion style now supports lazy highlighting via
+  `completion-lazy-hilit` and `completion-lazy-hilit-fn`, new in Emacs
+  30 and already supported by some completion UIs ([#152], [#153]).
+
+[#152]: https://github.com/radian-software/prescient.el/issues/152
+[#153]: https://github.com/radian-software/prescient.el/pull/153
+
 ## 6.2 (released 2023-11-23)
 ### Features
 * New user option `prescient-tiebreaker` which can be used to change
