@@ -8,7 +8,7 @@
 ;; Created: 7 Aug 2017
 ;; Package-Requires: ((emacs "25.1"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.1.0
+;; Version: 6.2.0
 
 ;;; Commentary:
 
@@ -501,8 +501,8 @@ This information is used by the function
                  ;; this just defaults the standard ones to nil in
                  ;; case they are missing.
                  (cl-flet ((put-get (props sym)
-                             (plist-put props sym
-                                        (plist-get props sym))))
+                                    (plist-put props sym
+                                               (plist-get props sym))))
                    (thread-first properties
                                  (put-get :prescient-match-regexps)
                                  (put-get :prescient-all-regexps)
@@ -813,14 +813,14 @@ copy of the list."
     ;; regexps to be "\(?:QUOTED-PREFIX\)METHOD-REGEXP", but this
     ;; isn't evident yet. We just do the below to be proactive.
     (cl-flet ((maybe-add-prefix (regexps)
-                (if (and (not (string-empty-p prefix))
-                         minibuffer-completing-file-name)
-                    (cl-loop for regexp in regexps
-                             collect (concat "\\(?:"
-                                             (regexp-quote prefix)
-                                             "\\)"
-                                             regexp))
-                  regexps)))
+                                (if (and (not (string-empty-p prefix))
+                                         minibuffer-completing-file-name)
+                                    (cl-loop for regexp in regexps
+                                             collect (concat "\\(?:"
+                                                             (regexp-quote prefix)
+                                                             "\\)"
+                                                             regexp))
+                                  regexps)))
       (prescient--add-sort-info
        (all-completions prefix candidates pred)
        :prescient-match-regexps completion-regexp-list

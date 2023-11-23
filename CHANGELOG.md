@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 6.2 (released 2023-11-23)
 ### Features
 * New user option `prescient-tiebreaker` which can be used to change
   how matches with no recency information are sorted, instead of by
