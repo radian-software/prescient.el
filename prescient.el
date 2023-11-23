@@ -816,10 +816,11 @@ copy of the list."
                                 (if (and (not (string-empty-p prefix))
                                          minibuffer-completing-file-name)
                                     (cl-loop for regexp in regexps
-                                             collect (concat "\\(?:"
-                                                             (regexp-quote prefix)
-                                                             "\\)"
-                                                             regexp))
+                                             collect (concat
+                                                      "\\(?:"
+                                                      (regexp-quote prefix)
+                                                      "\\)"
+                                                      regexp))
                                   regexps)))
       (prescient--add-sort-info
        (all-completions prefix candidates pred)
