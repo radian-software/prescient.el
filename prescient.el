@@ -237,6 +237,9 @@ contains no upper-case letters."
 (defcustom prescient-completion-highlight-matches t
   "Whether the `prescient' completion style should highlight matches.
 
+If `completion-lazy-hilit' is bound and non-nil, then this user
+option is ignored in favor of that variable.
+
 See also the faces `prescient-primary-highlight' and
 `prescient-secondary-highlight'."
   :type 'boolean)
@@ -522,7 +525,31 @@ filtered for use by the function `prescient-sort-full-matches-first'."
            ;; just return all properties here.
            finally return props))
 
-(defun prescient--highlight-matches (input candidates)
+(defun prescient--highlight-candidate (regexps case-fold candidate)
+  "Highlight text matching REGEXPS and considering CASE-FOLD in CANDIDATE.
+
+Returns a propertized CANDIDATE."
+  (setq candidate (copy-sequence candidate))
+  (prog1 candidate
+    (let ((case-fold-search case-fold))
+      (save-match-data
+        (dolist (regexp regexps)
+          (when (string-match regexp candidate)
+            (font-lock-prepend-text-property
+             (match-beginning 0) (match-end 0)
+             'face 'prescient-primary-highlight
+             candidate)
+            (cl-loop
+             for (start end)
+             on (cddr (match-data))
+             by #'cddr
+             do (when (and start end)
+                  (font-lock-prepend-text-property
+                   start end
+                   'face 'prescient-secondary-highlight
+                   candidate)))))))))
+
+(defun prescient--highlight-candidates (input candidates)
   "According to INPUT, highlight the matched sections in CANDIDATES.
 
 INPUT is the string that was used to generate a list of regexps
@@ -530,29 +557,11 @@ for filtering. CANDIDATES is the list of filtered candidates,
 which should be a list of strings.
 
 Return a list of propertized CANDIDATES."
-  (let ((regexps (prescient-filter-regexps input 'with-group))
-        (case-fold-search (prescient-ignore-case-p input)))
-    (save-match-data
-      (mapcar
-       (lambda (candidate)
-         (setq candidate (copy-sequence candidate))
-         (prog1 candidate
-           (dolist (regexp regexps)
-             (when (string-match regexp candidate)
-               (font-lock-prepend-text-property
-                (match-beginning 0) (match-end 0)
-                'face 'prescient-primary-highlight
-                candidate)
-               (cl-loop
-                for (start end)
-                on (cddr (match-data))
-                by #'cddr
-                do (when (and start end)
-                     (font-lock-prepend-text-property
-                      start end
-                      'face 'prescient-secondary-highlight
-                      candidate)))))))
-       candidates))))
+  (cl-loop with regexps = (prescient-filter-regexps input 'with-group)
+           and case-fold-search = (prescient-ignore-case-p input)
+           for cand in candidates
+           collect (prescient--highlight-candidate regexps case-fold-search
+                                                   cand)))
 
 ;;;; Regexp Builders
 
@@ -983,6 +992,9 @@ REGEXPS."
 ;; completion style. This feature is based on Orderless.el.
 ;; See: https://github.com/oantolin/orderless
 
+(defvar completion-lazy-hilit)
+(defvar completion-lazy-hilit-fn)
+
 ;;;;; Sorting functions
 
 ;;;###autoload
@@ -1032,15 +1044,32 @@ See the function `all-completions' for more information.
 
 This function returns a list of completions whose final `cdr' is
 the length of the prefix string used for completion (which might
-be all or just part of STRING)."
+be all or just part of STRING).
+
+When `completion-lazy-hilit' is bound and non-nil, then this
+function sets `completion-lazy-hilit-fn'. Otherwise, if
+`prescient-completion-highlight-matches' is non-nil, this
+function propertizes all of the returned completions using the
+face `prescient-primary-highlight' and the face
+`prescient-secondary-highlight'."
   ;; `point' is a required argument, but unneeded here.
   (when-let ((completions (prescient-filter string table pred)))
-    (pcase-let ((`(,prefix . ,pattern)
-                 (prescient--prefix-and-pattern string table pred)))
-      (nconc (if prescient-completion-highlight-matches
-                 (prescient--highlight-matches pattern completions)
-               completions)
-             (length prefix)))))
+    (pcase-let* ((`(,prefix . ,pattern)
+                  (prescient--prefix-and-pattern string table pred))
+                 (maybe-highlighted
+                  (cond
+                   ((bound-and-true-p completion-lazy-hilit)
+                    (setq completion-lazy-hilit-fn
+                          (apply-partially
+                           #'prescient--highlight-candidate
+                           (prescient-filter-regexps pattern 'with-group)
+                           (prescient-ignore-case-p pattern)))
+                    completions)
+                   (prescient-completion-highlight-matches
+                    (prescient--highlight-candidates pattern completions))
+                   (t
+                    completions))))
+      (nconc maybe-highlighted (length prefix)))))
 
 ;;;###autoload
 (defun prescient-try-completion (string table &optional pred point)
