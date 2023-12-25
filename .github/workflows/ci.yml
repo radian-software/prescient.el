@@ -10,11 +10,13 @@ jobs:
     strategy:
       matrix:
         emacs_version: [25, 26, 27, 28]
+        make_target: ['checkdoc', 'longlines', 'test', 'compile']
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: CI
         env:
           VERSION: ${{ matrix.emacs_version }}
+          TARGET: ${{ matrix.make_target }}
         run: >-
-          make docker CMD="make -k compile checkdoc longlines test"
+          make docker CMD="make -k $TARGET VERSION=$VERSION"

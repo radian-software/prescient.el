@@ -4,7 +4,19 @@ CMD ?=
 EMACS ?= emacs
 
 # The order is important for compilation.
+#
+# Get all files for which we might wish to test compilation, then
+# remove files that we shouldn't test based on the Emacs version.
 for_compile := prescient.el $(wildcard *-prescient.el)
+ifneq ($(strip $(VERSION)),)
+  ifeq (1, $(strip $(shell expr $(VERSION) \< 26)))
+    for_compile := $(filter-out selectrum-prescient.el,$(for_compile))
+  endif
+  ifeq (1, $(strip $(shell expr $(VERSION) \< 27)))
+    for_compile := $(filter-out vertico-prescient.el corfu-prescient.el,\
+                                $(for_compile))
+  endif
+endif
 for_checkdoc := prescient.el $(wildcard *-prescient.el)
 for_longlines := $(wildcard *.el *.md *.yml) Makefile
 
