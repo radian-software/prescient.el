@@ -9,8 +9,14 @@ The format is based on [Keep a Changelog].
   `completion-lazy-hilit` and `completion-lazy-hilit-fn`, new in Emacs
   30 and already supported by some completion UIs ([#152], [#153]).
 
+### Bugs fixed
+* Change how candidates are remembered for Vertico to work with
+  `vertico-directory-enter` and to remember the minibuffer contents
+  when exiting the minibuffer.
+
 [#152]: https://github.com/radian-software/prescient.el/issues/152
 [#153]: https://github.com/radian-software/prescient.el/pull/153
+[#156]: https://github.com/radian-software/prescient.el/pull/156
 
 ## 6.2 (released 2023-11-23)
 ### Features

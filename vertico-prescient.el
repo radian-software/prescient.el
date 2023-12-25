@@ -6,7 +6,7 @@
 ;; Homepage: https://github.com/radian-software/prescient.el
 ;; Keywords: extensions
 ;; Created: 23 Sep 2022
-;; Package-Requires: ((emacs "27.1") (prescient "6.1.0") (vertico "0.28"))
+;; Package-Requires: ((emacs "27.1") (prescient "6.1.0") (vertico "0.28") (compat "29.1"))
 ;; SPDX-License-Identifier: MIT
 ;; Version: 6.2.0
 
@@ -24,9 +24,12 @@
 ;;;; Libraries and Declarations
 
 (eval-when-compile (require 'cl-lib))
+(require 'compat)
 (require 'prescient)
 (require 'subr-x)
 (require 'vertico)
+
+(defvar vertico-mode)
 
 ;;;; Customization
 
@@ -92,13 +95,6 @@ by `vertico-prescient-mode'."
 (defvar vertico-prescient--old-toggle-binding nil
   "Previous binding of `M-s' in `vertico-map'.")
 
-(defun vertico-prescient--remember ()
-  "Advice for remembering candidates in Vertico."
-  (when (>= vertico--index 0)
-    (prescient-remember
-     (substring-no-properties
-      (nth vertico--index vertico--candidates)))))
-
 (defvar-local vertico-prescient--local-settings nil
   "Whether this buffer has local settings due to `vertico-prescient-mode'.")
 
@@ -120,6 +116,77 @@ by `vertico-prescient-mode'."
   (prescient--completion-kill-local-vars)
   (setq vertico-prescient--local-settings nil))
 
+(defun vertico-prescient--remember-minibuffer-contents ()
+  "Remember the minibuffer contents as a candidate.
+
+If we are not completing a file name (according to
+`minibuffer-completing-file-name'), then we remember the
+minibuffer contents. When completing file names, we remember the
+last component of the completed file name path, including a
+trailing directory separator as needed."
+  (let ((txt (minibuffer-contents-no-properties)))
+    (unless (string-empty-p txt)
+      (prescient-remember (if minibuffer-completing-file-name
+                              (if (directory-name-p txt)
+                                  (thread-first txt
+                                                file-name-split
+                                                (last 2)
+                                                car
+                                                file-name-as-directory)
+                                (thread-first txt
+                                              file-name-split
+                                              last
+                                              car))
+                            txt)))))
+
+(defvar vertico-prescient--insertion-commands
+  '(vertico-insert
+    vertico-quick-insert
+    vertico-directory-enter)
+  "Commands that trigger `prescient-remember' after running.")
+
+(defun vertico-prescient--remember-inserted-candidate ()
+  "Remember the minibuffer contents as a candidate after insertion commands.
+
+Such commands are listed in `vertico-prescient--insertion-commands'."
+  (when (and (memq this-command vertico-prescient--insertion-commands)
+             ;; Pro-actively try to avoid running the remembrance
+             ;; function twice for commands that can insert and exit.
+             ;; This might not be needed?
+             (let ((buf (current-buffer)))
+               ;; In Emacs 28+, we would use the new second argument
+               ;; to `minibufferp' check if the buffer is the active
+               ;; minibuffer, but we want to support Emacs 27.
+               (and (> 0 (minibuffer-depth))
+                    (minibufferp buf)
+                    (eq (active-minibuffer-window)
+                        (get-buffer-window buf)))))
+    (vertico-prescient--remember-minibuffer-contents)))
+
+(defvar vertico-prescient--exit-commands
+  '(vertico-exit
+    vertico-quick-exit
+    exit-minibuffer
+    vertico-directory-enter)
+  "Commands that trigger `prescient-remember' when exiting the minibuffer.")
+
+(defun vertico-prescient--remember-exited-candidate ()
+  "Remember the minibuffer contents as a candidate after exiting commands.
+
+Such commands are listed in `vertico-prescient--exit-commands'."
+  (when (memq this-command vertico-prescient--exit-commands)
+    (vertico-prescient--remember-minibuffer-contents)))
+
+(defun vertico-prescient--setup-remembrance ()
+  "Set up the remembering functions in the relevant hooks."
+  (when vertico-mode
+    (add-hook 'post-command-hook
+              #'vertico-prescient--remember-inserted-candidate
+              nil t)
+    (add-hook 'minibuffer-exit-hook
+              #'vertico-prescient--remember-exited-candidate
+              nil t)))
+
 ;;;###autoload
 (define-minor-mode vertico-prescient-mode
   "Minor mode to use prescient.el in Vertico menus.
@@ -139,7 +206,8 @@ This mode will:
     to `completion-category-overrides'
   - set `completion-category-defaults' to nil
 
-- advise `vertico-insert' to remember candidates"
+- insert code for remembering candidates into `minibuffer-exit-hook'
+  and `post-command-hook'."
   :global t
   :group 'prescient
   (if vertico-prescient-mode
@@ -178,7 +246,8 @@ This mode will:
         ;; While sorting might not be enabled in Vertico, it might
         ;; still be enabled in another UI, such as Company or Corfu.
         ;; Therefore, we still want to remember candidates.
-        (advice-add 'vertico-insert :before #'vertico-prescient--remember))
+        (add-hook 'minibuffer-setup-hook
+                  #'vertico-prescient--setup-remembrance))
 
     ;; Turn off mode.
 
@@ -193,7 +262,7 @@ This mode will:
     (when (equal (lookup-key vertico-map (kbd "M-s"))
                  prescient-toggle-map)
       (define-key vertico-map (kbd "M-s")
-        vertico-prescient--old-toggle-binding))
+                  vertico-prescient--old-toggle-binding))
     (remove-hook 'prescient--toggle-refresh-functions
                  #'vertico-prescient--toggle-refresh)
 
@@ -206,7 +275,8 @@ This mode will:
           (vertico-prescient--undo-completion-settings))))
 
     ;; Undo remembrance settings.
-    (advice-remove 'vertico-insert #'vertico-prescient--remember)))
+    (remove-hook 'minibuffer-setup-hook
+                 #'vertico-prescient--setup-remembrance)))
 
 (provide 'vertico-prescient)
 ;;; vertico-prescient.el ends here
