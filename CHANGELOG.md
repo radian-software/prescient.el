@@ -13,10 +13,15 @@ The format is based on [Keep a Changelog].
 * Change how candidates are remembered for Vertico to work with
   `vertico-directory-enter` and to remember the minibuffer contents
   when exiting the minibuffer.
+* Use `corfu--initial-state` if `corfu--state-vars` is not bound
+  ([#158], [#159]).
 
 [#152]: https://github.com/radian-software/prescient.el/issues/152
 [#153]: https://github.com/radian-software/prescient.el/pull/153
 [#156]: https://github.com/radian-software/prescient.el/pull/156
+[#158]: https://github.com/radian-software/prescient.el/pull/158
+[#159]: https://github.com/radian-software/prescient.el/pull/159
+
 
 ## 6.2 (released 2023-11-23)
 ### Features
