@@ -6,7 +6,7 @@
 ;; Homepage: https://github.com/radian-software/prescient.el
 ;; Keywords: extensions
 ;; Created: 23 Sep 2022
-;; Package-Requires: ((emacs "27.1") (prescient "6.1.0") (corfu "0.28"))
+;; Package-Requires: ((emacs "27.1") (prescient "6.1.0") (corfu "1.1"))
 ;; SPDX-License-Identifier: MIT
 ;; Version: 6.2.0
 
@@ -27,6 +27,11 @@
 (require 'corfu)
 (require 'prescient)
 (require 'subr-x)
+
+;; Remove references to `corfu--state-vars' once the next stable
+;; version of Corfu is released:
+(defvar corfu--state-vars)
+(defvar corfu--initial-state)
 
 ;;;; Customization
 
@@ -193,8 +198,13 @@ This mode will:
           ;; after the Corfu pop-up closes. For the toggling vars, it
           ;; is the commands themselves that make the variables buffer
           ;; local.
-          (cl-callf cl-union corfu--state-vars prescient--toggle-vars
-                    :test #'eq))
+          (if (boundp 'corfu--state-vars)
+              (cl-callf cl-union corfu--state-vars prescient--toggle-vars
+                        :test #'eq)
+            (cl-callf cl-union corfu--initial-state
+              (mapcar (lambda (k) (cons k (symbol-value k)))
+                      prescient--toggle-vars)
+              :test #'eq :key #'car)))
 
         ;; While sorting might not be enabled in Corfu, it might
         ;; still be enabled in another UI, such as Selectrum or Vertico.
@@ -214,12 +224,17 @@ This mode will:
     (when (equal (lookup-key corfu-map (kbd "M-s"))
                  prescient-toggle-map)
       (define-key corfu-map (kbd "M-s")
-        corfu-prescient--old-toggle-binding))
+                  corfu-prescient--old-toggle-binding))
     (remove-hook 'prescient--toggle-refresh-functions
                  #'corfu-prescient--toggle-refresh)
-    (cl-callf cl-set-difference corfu--state-vars
-      prescient--toggle-vars
-      :test #'eq)
+    (if (boundp 'corfu--state-vars)
+        (cl-callf cl-set-difference corfu--state-vars
+          prescient--toggle-vars
+          :test #'eq)
+      (cl-callf cl-set-difference corfu--initial-state
+        (mapcar (lambda (k) (cons k (symbol-value k)))
+                prescient--toggle-vars)
+        :test #'eq :key #'car))
 
     ;; Undo filtering settings.
     (remove-hook 'corfu-mode-hook
