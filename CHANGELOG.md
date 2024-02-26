@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 6.3 (released 2024-02-25)
 ### Enhancements
 * The completion style now supports lazy highlighting via
   `completion-lazy-hilit` and `completion-lazy-hilit-fn`, new in Emacs
