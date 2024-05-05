@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Bugs fixed
+* In version 6.3 a bug was introduced that caused
+  `vertico-directory-enter` to no longer remember candidates. This has
+  been fixed.
+
 ## 6.3 (released 2024-02-25)
 ### Enhancements
 * The completion style now supports lazy highlighting via

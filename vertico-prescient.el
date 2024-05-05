@@ -157,7 +157,7 @@ Such commands are listed in `vertico-prescient--insertion-commands'."
                ;; In Emacs 28+, we would use the new second argument
                ;; to `minibufferp' check if the buffer is the active
                ;; minibuffer, but we want to support Emacs 27.
-               (and (> 0 (minibuffer-depth))
+               (and (> (minibuffer-depth) 0)
                     (minibufferp buf)
                     (eq (active-minibuffer-window)
                         (get-buffer-window buf)))))
