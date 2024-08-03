@@ -8,7 +8,7 @@
 ;; Created: 7 Aug 2017
 ;; Package-Requires: ((emacs "25.1"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.3.0
+;; Version: 6.3.1
 
 ;;; Commentary:
 

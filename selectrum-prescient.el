@@ -8,7 +8,7 @@
 ;; Created: 8 Dec 2019
 ;; Package-Requires: ((emacs "25.1") (prescient "6.1.0") (selectrum "3.1"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.3.0
+;; Version: 6.3.1
 
 ;;; Commentary:
 

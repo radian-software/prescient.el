@@ -8,7 +8,7 @@
 ;; Created: 23 Sep 2022
 ;; Package-Requires: ((emacs "27.1") (prescient "6.1.0") (corfu "1.1"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.3.0
+;; Version: 6.3.1
 
 ;;; Commentary:
 

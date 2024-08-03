@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 6.3.1 (released 2024-08-03)
 ### Bugs fixed
 * In version 6.3 a bug was introduced that caused
   `vertico-directory-enter` to no longer remember candidates. This has
