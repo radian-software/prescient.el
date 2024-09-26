@@ -19,6 +19,23 @@ including [IDO], [Ivy], [Helm], [Smex], [Flx], [Historian], and
 [Company-Statistics], `prescient.el` aims to be simpler, more
 predictable, and faster.
 
+<!-- toc -->
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Algorithm](#algorithm)
+- [Configuration and other features](#configuration-and-other-features)
+  * [Faces](#faces)
+  * [For the completion style](#for-the-completion-style)
+  * [For Corfu](#for-corfu)
+  * [For Company](#for-company)
+  * [For Ivy](#for-ivy)
+  * [For Selectrum](#for-selectrum)
+  * [For Vertico](#for-vertico)
+- [Contributor guide](#contributor-guide)
+
+<!-- tocstop -->
+
 ## Installation
 
 `prescient.el` is available on MELPA as six separate packages (one
@@ -376,6 +393,14 @@ Vertico:
   `vertico-sort-override-function` is set to the function
   `prescient-completion-sort` and `vertico-prescient-enable-sorting` is
   made non-nil.
+
+## Compatibility with other packages
+
+For use with `completion-preview-mode` in Emacs 30:
+
+```elisp
+(setq completion-preview-sort-function #'prescient-completion-sort)
+```
 
 ## Contributor guide
 
