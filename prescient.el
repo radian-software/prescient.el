@@ -245,17 +245,17 @@ See also the faces `prescient-primary-highlight' and
   :type 'boolean)
 
 (define-obsolete-face-alias 'selectrum-primary-highlight
-  'prescient-primary-highlight t)
+                            'prescient-primary-highlight t)
 (define-obsolete-face-alias 'selectrum-prescient-primary-highlight
-  'prescient-primary-highlight t)
+                            'prescient-primary-highlight t)
 (defface prescient-primary-highlight
   '((t :weight bold))
   "Face used to highlight the parts of candidates that match the input.")
 
 (define-obsolete-face-alias 'selectrum-secondary-highlight
-  'prescient-secondary-highlight t)
+                            'prescient-secondary-highlight t)
 (define-obsolete-face-alias 'selectrum-prescient-secondary-highlight
-  'prescient-secondary-highlight t)
+                            'prescient-secondary-highlight t)
 (defface prescient-secondary-highlight
   '((t :inherit prescient-primary-highlight :underline t))
   "Additional face used to highlight parts of candidates.
@@ -365,14 +365,14 @@ Usually this variable is dynamically bound to another value while
                        (expand-file-name prescient-save-file))
                       'parents)
       (with-temp-file prescient-save-file
+        (insert  ";;; -*- lexical-binding: t; -*-")
         (print
          `(funcall prescient-cache-callback
                    :version ',prescient--cache-version
                    :history ',prescient--history
                    :frequency ',prescient--frequency
                    :serial-number ',prescient--serial-number)
-         (current-buffer))
-        (elisp-enable-lexical-binding nil)))))
+         (current-buffer))))))
 
 (define-minor-mode prescient-persist-mode
   "Minor mode to persist prescient.el statistics to `prescient-save-file'."
@@ -505,8 +505,8 @@ This information is used by the function
                  ;; this just defaults the standard ones to nil in
                  ;; case they are missing.
                  (cl-flet ((put-get (props sym)
-                                    (plist-put props sym
-                                               (plist-get props sym))))
+                             (plist-put props sym
+                                        (plist-get props sym))))
                    (thread-first properties
                                  (put-get :prescient-match-regexps)
                                  (put-get :prescient-all-regexps)
@@ -823,15 +823,15 @@ copy of the list."
     ;; regexps to be "\(?:QUOTED-PREFIX\)METHOD-REGEXP", but this
     ;; isn't evident yet. We just do the below to be proactive.
     (cl-flet ((maybe-add-prefix (regexps)
-                                (if (and (not (string-empty-p prefix))
-                                         minibuffer-completing-file-name)
-                                    (cl-loop for regexp in regexps
-                                             collect (concat
-                                                      "\\(?:"
-                                                      (regexp-quote prefix)
-                                                      "\\)"
-                                                      regexp))
-                                  regexps)))
+                (if (and (not (string-empty-p prefix))
+                         minibuffer-completing-file-name)
+                    (cl-loop for regexp in regexps
+                             collect (concat
+                                      "\\(?:"
+                                      (regexp-quote prefix)
+                                      "\\)"
+                                      regexp))
+                  regexps)))
       (prescient--add-sort-info
        (all-completions prefix candidates pred)
        :prescient-match-regexps completion-regexp-list
@@ -1159,8 +1159,8 @@ user options in the extension packages."
 
   (cl-symbol-macrolet
       ((category-setting-overrides
-        (alist-get setting
-                   (alist-get category completion-category-overrides))))
+         (alist-get setting
+                    (alist-get category completion-category-overrides))))
     (cl-loop for (category . overrides)
              in overrides
              do (cl-loop for (setting . values) in overrides
@@ -1178,8 +1178,8 @@ Values are saved in `prescient--completion-old-styles',
 
   (cl-symbol-macrolet
       ((category-setting-overrides
-        (alist-get setting
-                   (alist-get category completion-category-overrides))))
+         (alist-get setting
+                    (alist-get category completion-category-overrides))))
     (setq prescient--completion-old-overrides
           (cl-loop
            for (category . overrides)
@@ -1214,9 +1214,9 @@ remove usages of the `prescient' completion style."
 
   (cl-symbol-macrolet
       ((category-setting-overrides
-        (alist-get
-         setting
-         (alist-get category completion-category-overrides))))
+         (alist-get
+          setting
+          (alist-get category completion-category-overrides))))
     (cl-loop
      ;; These two trees should have the same structure by this
      ;; point. We want to try to avoid undoing any changes that were
@@ -1309,60 +1309,61 @@ FILTER-TYPE is an unquoted symbol that can be used in
 passed to `kbd'."
   (let* ((filter-type-name (symbol-name filter-type)))
     `(define-key prescient-toggle-map (kbd ,kbd-string)
-       (defun ,(intern (concat "prescient-toggle-" filter-type-name))
-           (arg)                    ; Arg list
-         ,(format
-           "Toggle the \"%s\" filter on or off. With ARG, use only this filter.
+                 (defun ,(intern (concat "prescient-toggle-" filter-type-name))
+                     (arg)                    ; Arg list
+                   ,(format
+"Toggle the \"%s\" filter on or off. With ARG, use only this filter.
 This toggling only affects filtering in the current completion
 buffer. It does not affect the default behavior (determined by
 `prescient-filter-method')."  filter-type-name)
-         (interactive "P")
+                   (interactive "P")
 
-         ;; Make `prescient-filter-method' buffer-local in the
-         ;; completion buffer. We don't want to accidentally change the
-         ;; user's default behavior.
-         (make-local-variable 'prescient-filter-method)
+                   ;; Make `prescient-filter-method' buffer-local in the
+                   ;; completion buffer. We don't want to accidentally
+                   ;; change the user's default behavior.
+                   (make-local-variable 'prescient-filter-method)
 
-         (if arg
-             ;; If user provides a prefix argument, set filtering to
-             ;; be a list of only one filter type.
-             (setq prescient-filter-method '(,filter-type))
+                   (if arg
+                       ;; If user provides a prefix argument, set filtering to
+                       ;; be a list of only one filter type.
+                       (setq prescient-filter-method '(,filter-type))
 
-           ;; Otherwise, if the current setting is a function,
-           ;; evaluate it to get the value.
-           (when (functionp prescient-filter-method)
-             (setq prescient-filter-method
-                   (funcall prescient-filter-method)))
+                     ;; Otherwise, if the current setting is a function,
+                     ;; evaluate it to get the value.
+                     (when (functionp prescient-filter-method)
+                       (setq prescient-filter-method
+                             (funcall prescient-filter-method)))
 
-           ;; If we need to add or remove from the list, make sure
-           ;; it's actually a list and not just a symbol.
-           (when (symbolp prescient-filter-method)
-             (setq prescient-filter-method
-                   (list prescient-filter-method)))
+                     ;; If we need to add or remove from the list, make sure
+                     ;; it's actually a list and not just a symbol.
+                     (when (symbolp prescient-filter-method)
+                       (setq prescient-filter-method
+                             (list prescient-filter-method)))
 
-           (if (equal prescient-filter-method '(,filter-type))
-               ;; Make sure the user doesn't accidentally disable all
-               ;; filtering.
-               (user-error
-                ,(concat
-                  "Prescient.el: Can't toggle off only active filter method: "
-                  filter-type-name))
+                     (if (equal prescient-filter-method '(,filter-type))
+                       ;; Make sure the user doesn't accidentally disable all
+                       ;; filtering.
+                         (user-error
+                          ,(concat
+                            "Prescient.el: Can't toggle off"
+                            " only active filter method: "
+                            filter-type-name))
 
-             (setq prescient-filter-method
-                   (if (memq ',filter-type prescient-filter-method)
-                       ;; Even when running `make-local-variable',
-                       ;; it seems `delq' might still modify the
-                       ;; global value, so we use `remq' here.
-                       (remq ',filter-type prescient-filter-method)
-                     (cons ',filter-type prescient-filter-method)))))
+                       (setq prescient-filter-method
+                             (if (memq ',filter-type prescient-filter-method)
+                                 ;; Even when running `make-local-variable',
+                                 ;; it seems `delq' might still modify the
+                                 ;; global value, so we use `remq' here.
+                                 (remq ',filter-type prescient-filter-method)
+                               (cons ',filter-type prescient-filter-method)))))
 
-         ;; After changing `prescient-filter-method', tell the user
-         ;; the new value and update the UI's display.
-         (message "Prescient.el filter is now %s"
-                  prescient-filter-method)
+                   ;; After changing `prescient-filter-method', tell the user
+                   ;; the new value and update the UI's display.
+                   (message "Prescient.el filter is now %s"
+                            prescient-filter-method)
 
-         ;; Call "exhibit" function.
-         (prescient--toggle-refresh)))))
+                   ;; Call "exhibit" function.
+                   (prescient--toggle-refresh)))))
 
 (prescient-create-and-bind-toggle-command anchored "a")
 (prescient-create-and-bind-toggle-command fuzzy "f")
@@ -1385,7 +1386,7 @@ See the user option `prescient-use-char-folding'."
 
 ;; This is the same binding used by `isearch-toggle-char-fold'.
 (define-key prescient-toggle-map (kbd "'")
-  #'prescient-toggle-char-fold)
+            #'prescient-toggle-char-fold)
 
 (defun prescient-toggle-case-fold ()
   "Toggle case folding in the current completion buffer.
@@ -1411,7 +1412,7 @@ folding."
 
 ;; This is the same binding used by `isearch-toggle-case-fold'.
 (define-key prescient-toggle-map (kbd "c")
-  #'prescient-toggle-case-fold)
+            #'prescient-toggle-case-fold)
 
 
 ;;;; Closing remarks

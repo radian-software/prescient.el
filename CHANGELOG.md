@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Enchancements
+* Give `prescient-save.el` a lexical binding cookie to avoid
+  warning on such that breaks strict byte-compiling such
+  as used by radian see
+  [#547](https://github.com/radian-software/radian/issues/547)
+
 ## 6.3.1 (released 2024-08-03)
 ### Bugs fixed
 * In version 6.3 a bug was introduced that caused
