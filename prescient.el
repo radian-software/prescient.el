@@ -371,7 +371,8 @@ Usually this variable is dynamically bound to another value while
                    :history ',prescient--history
                    :frequency ',prescient--frequency
                    :serial-number ',prescient--serial-number)
-         (current-buffer))))))
+         (current-buffer))
+        (elisp-enable-lexical-binding nil)))))
 
 (define-minor-mode prescient-persist-mode
   "Minor mode to persist prescient.el statistics to `prescient-save-file'."
