@@ -365,6 +365,7 @@ Usually this variable is dynamically bound to another value while
                        (expand-file-name prescient-save-file))
                       'parents)
       (with-temp-file prescient-save-file
+        (insert  ";;; -*- lexical-binding: t; -*-")
         (print
          `(funcall prescient-cache-callback
                    :version ',prescient--cache-version
