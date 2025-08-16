@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
+## 6.3.2 (released 2025-08-15)
 ### Enchancements
 * Give `prescient-save.el` a lexical binding cookie to avoid
   warning on such that breaks strict byte-compiling such

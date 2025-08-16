@@ -8,7 +8,7 @@
 ;; Created: 23 Sep 2022
 ;; Package-Requires: ((emacs "27.1") (prescient "6.1.0") (corfu "1.1"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.3.1
+;; Version: 6.3.2
 
 ;;; Commentary:
 
@@ -224,7 +224,7 @@ This mode will:
     (when (equal (lookup-key corfu-map (kbd "M-s"))
                  prescient-toggle-map)
       (define-key corfu-map (kbd "M-s")
-        corfu-prescient--old-toggle-binding))
+                  corfu-prescient--old-toggle-binding))
     (remove-hook 'prescient--toggle-refresh-functions
                  #'corfu-prescient--toggle-refresh)
     (if (boundp 'corfu--state-vars)

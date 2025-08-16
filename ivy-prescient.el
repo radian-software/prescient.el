@@ -8,7 +8,7 @@
 ;; Created: 1 May 2018
 ;; Package-Requires: ((emacs "25.1") (prescient "6.1.0") (ivy "0.11.0"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.3.1
+;; Version: 6.3.2
 
 ;;; Commentary:
 

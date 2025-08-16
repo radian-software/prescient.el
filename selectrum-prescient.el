@@ -8,7 +8,7 @@
 ;; Created: 8 Dec 2019
 ;; Package-Requires: ((emacs "25.1") (prescient "6.1.0") (selectrum "3.1"))
 ;; SPDX-License-Identifier: MIT
-;; Version: 6.3.1
+;; Version: 6.3.2
 
 ;;; Commentary:
 
@@ -130,7 +130,7 @@ For use on `selectrum-candidate-selected-hook'."
           (setq selectrum-highlight-candidates-function
                 #'prescient--highlight-candidates)
           (define-key selectrum-minibuffer-map
-            (kbd "M-s") prescient-toggle-map)
+                      (kbd "M-s") prescient-toggle-map)
           (add-hook 'prescient--toggle-refresh-functions
                     #'selectrum-prescient--toggle-refresh))
         (when selectrum-prescient-enable-sorting
