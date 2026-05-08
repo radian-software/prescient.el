@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Bugs fixed
+* `vertico-prescient` no longer records the contents of password
+  prompts (`read-passwd`) into `prescient--history` and
+  `prescient-save-file`. Previously, when `vertico-prescient-mode` and
+  `prescient-persist-mode` were both enabled, passwords entered via
+  `read-passwd` were saved to disk in cleartext.
+
 ## 6.3.2 (released 2025-08-15)
 ### Enchancements
 * Give `prescient-save.el` a lexical binding cookie to avoid

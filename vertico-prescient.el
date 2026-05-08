@@ -116,6 +116,17 @@ by `vertico-prescient-mode'."
   (prescient--completion-kill-local-vars)
   (setq vertico-prescient--local-settings nil))
 
+(defun vertico-prescient--password-prompt-p ()
+  "Return non-nil if the current minibuffer is a password prompt.
+
+`read-passwd' activates `read-passwd-mode' (Emacs 30+) and uses
+`read-passwd-map' as the local map.  Either signal indicates we
+must not remember the minibuffer contents, since they are a
+cleartext password."
+  (or (bound-and-true-p read-passwd-mode)
+      (and (boundp 'read-passwd-map)
+           (eq (current-local-map) read-passwd-map))))
+
 (defun vertico-prescient--remember-minibuffer-contents ()
   "Remember the minibuffer contents as a candidate.
 
@@ -123,21 +134,27 @@ If we are not completing a file name (according to
 `minibuffer-completing-file-name'), then we remember the
 minibuffer contents. When completing file names, we remember the
 last component of the completed file name path, including a
-trailing directory separator as needed."
-  (let ((txt (minibuffer-contents-no-properties)))
-    (unless (string-empty-p txt)
-      (prescient-remember (if minibuffer-completing-file-name
-                              (if (directory-name-p txt)
+trailing directory separator as needed.
+
+Skip recording entirely when the current minibuffer is a password
+prompt (see `vertico-prescient--password-prompt-p'), to avoid
+persisting passwords entered via `read-passwd' to
+`prescient-save-file'."
+  (unless (vertico-prescient--password-prompt-p)
+    (let ((txt (minibuffer-contents-no-properties)))
+      (unless (string-empty-p txt)
+        (prescient-remember (if minibuffer-completing-file-name
+                                (if (directory-name-p txt)
+                                    (thread-first txt
+                                                  file-name-split
+                                                  (last 2)
+                                                  car
+                                                  file-name-as-directory)
                                   (thread-first txt
                                                 file-name-split
-                                                (last 2)
-                                                car
-                                                file-name-as-directory)
-                                (thread-first txt
-                                              file-name-split
-                                              last
-                                              car))
-                            txt)))))
+                                                last
+                                                car))
+                              txt))))))
 
 (defvar vertico-prescient--insertion-commands
   '(vertico-insert

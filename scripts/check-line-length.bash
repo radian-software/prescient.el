@@ -9,6 +9,7 @@ find=(
     -name "*.elc" -o
     -name "*.png" -o
     -name prescient-test.el -o
+    -name vertico-prescient-test.el -o
     -type f -print
 )
 

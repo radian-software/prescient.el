@@ -48,6 +48,8 @@ longlines: ## Check for long lines
 test:
 	$(EMACS) -Q --batch -L . -l ert -l ./test/prescient-test.el \
 		 --eval "(let ((ert-quiet t)) (ert-run-tests-batch-and-exit))"
+	$(EMACS) -Q --batch -L . -L stub -l ert -l ./test/vertico-prescient-test.el \
+		 --eval "(let ((ert-quiet t)) (ert-run-tests-batch-and-exit))"
 
 .PHONY: clean
 clean: ## Remove build artifacts
