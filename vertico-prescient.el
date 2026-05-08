@@ -31,6 +31,13 @@
 
 (defvar vertico-mode)
 
+;; `read-passwd-mode' (Emacs 30+) and `read-passwd-map' live in
+;; `auth-source' and are normally autoloaded. Forward-declare both so
+;; byte-compilation is warning-free on Emacs versions where they are
+;; not yet preloaded at compile time.
+(defvar read-passwd-mode)
+(defvar read-passwd-map)
+
 ;;;; Customization
 
 (defgroup vertico-prescient nil
@@ -120,12 +127,12 @@ by `vertico-prescient-mode'."
   "Return non-nil if the current minibuffer is a password prompt.
 
 `read-passwd' activates `read-passwd-mode' (Emacs 30+) and uses
-`read-passwd-map' as the local map.  Either signal indicates we
+`read-passwd-map' as the local map. Either signal indicates we
 must not remember the minibuffer contents, since they are a
 cleartext password."
   (or (bound-and-true-p read-passwd-mode)
       (and (boundp 'read-passwd-map)
-           (eq (current-local-map) read-passwd-map))))
+           (eq (current-local-map) (symbol-value 'read-passwd-map)))))
 
 (defun vertico-prescient--remember-minibuffer-contents ()
   "Remember the minibuffer contents as a candidate.
