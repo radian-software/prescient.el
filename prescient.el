@@ -1312,15 +1312,16 @@ passed to `kbd'."
                  (defun ,(intern (concat "prescient-toggle-" filter-type-name))
                      (arg)                    ; Arg list
                    ,(format
-                     "Toggle the \"%s\" filter on or off. With ARG, use only this filter.
+                     "Toggle the \"%s\" filter on or off.
+With ARG, use only this filter.
 This toggling only affects filtering in the current completion
 buffer. It does not affect the default behavior (determined by
 `prescient-filter-method')."  filter-type-name)
                    (interactive "P")
 
-                   ;; Make `prescient-filter-method' buffer-local in the
-                   ;; completion buffer. We don't want to accidentally change the
-                   ;; user's default behavior.
+                   ;; Make `prescient-filter-method' buffer-local in
+                   ;; the completion buffer. We don't want to
+                   ;; accidentally change the user's default behavior.
                    (make-local-variable 'prescient-filter-method)
 
                    (if arg
@@ -1345,7 +1346,8 @@ buffer. It does not affect the default behavior (determined by
                          ;; filtering.
                          (user-error
                           ,(concat
-                            "Prescient.el: Can't toggle off only active filter method: "
+                            "Prescient.el: "
+                            "Can't toggle off only active filter method: "
                             filter-type-name))
 
                        (setq prescient-filter-method
