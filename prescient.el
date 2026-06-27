@@ -1308,61 +1308,62 @@ FILTER-TYPE is an unquoted symbol that can be used in
 `prescient-filter-method'. KBD-STRING is a string that can be
 passed to `kbd'."
   (let* ((filter-type-name (symbol-name filter-type)))
-    `(define-key prescient-toggle-map (kbd ,kbd-string)
-                 (defun ,(intern (concat "prescient-toggle-" filter-type-name))
-                     (arg)                    ; Arg list
-                   ,(format
-                     "Toggle the \"%s\" filter on or off. With ARG, use only this filter.
+    `(define-key
+      prescient-toggle-map (kbd ,kbd-string)
+      (defun ,(intern (concat "prescient-toggle-" filter-type-name))
+          (arg)                    ; Arg list
+        ,(format
+          "Toggle the \"%s\" filter on or off. With ARG, use only this filter.
 This toggling only affects filtering in the current completion
 buffer. It does not affect the default behavior (determined by
 `prescient-filter-method')."  filter-type-name)
-                   (interactive "P")
+        (interactive "P")
 
-                   ;; Make `prescient-filter-method' buffer-local in the
-                   ;; completion buffer. We don't want to accidentally change the
-                   ;; user's default behavior.
-                   (make-local-variable 'prescient-filter-method)
+        ;; Make `prescient-filter-method' buffer-local in the
+        ;; completion buffer. We don't want to accidentally change the
+        ;; user's default behavior.
+        (make-local-variable 'prescient-filter-method)
 
-                   (if arg
-                       ;; If user provides a prefix argument, set filtering to
-                       ;; be a list of only one filter type.
-                       (setq prescient-filter-method '(,filter-type))
+        (if arg
+            ;; If user provides a prefix argument, set filtering to
+            ;; be a list of only one filter type.
+            (setq prescient-filter-method '(,filter-type))
 
-                     ;; Otherwise, if the current setting is a function,
-                     ;; evaluate it to get the value.
-                     (when (functionp prescient-filter-method)
-                       (setq prescient-filter-method
-                             (funcall prescient-filter-method)))
+          ;; Otherwise, if the current setting is a function,
+          ;; evaluate it to get the value.
+          (when (functionp prescient-filter-method)
+            (setq prescient-filter-method
+                  (funcall prescient-filter-method)))
 
-                     ;; If we need to add or remove from the list, make sure
-                     ;; it's actually a list and not just a symbol.
-                     (when (symbolp prescient-filter-method)
-                       (setq prescient-filter-method
-                             (list prescient-filter-method)))
+          ;; If we need to add or remove from the list, make sure
+          ;; it's actually a list and not just a symbol.
+          (when (symbolp prescient-filter-method)
+            (setq prescient-filter-method
+                  (list prescient-filter-method)))
 
-                     (if (equal prescient-filter-method '(,filter-type))
-                         ;; Make sure the user doesn't accidentally disable all
-                         ;; filtering.
-                         (user-error
-                          ,(concat
-                            "Prescient.el: Can't toggle off only active filter method: "
-                            filter-type-name))
+          (if (equal prescient-filter-method '(,filter-type))
+              ;; Make sure the user doesn't accidentally disable all
+              ;; filtering.
+              (user-error
+               ,(concat
+                 "Prescient.el: Can't toggle off only active filter method: "
+                 filter-type-name))
 
-                       (setq prescient-filter-method
-                             (if (memq ',filter-type prescient-filter-method)
-                                 ;; Even when running `make-local-variable',
-                                 ;; it seems `delq' might still modify the
-                                 ;; global value, so we use `remq' here.
-                                 (remq ',filter-type prescient-filter-method)
-                               (cons ',filter-type prescient-filter-method)))))
+            (setq prescient-filter-method
+                  (if (memq ',filter-type prescient-filter-method)
+                      ;; Even when running `make-local-variable',
+                      ;; it seems `delq' might still modify the
+                      ;; global value, so we use `remq' here.
+                      (remq ',filter-type prescient-filter-method)
+                    (cons ',filter-type prescient-filter-method)))))
 
-                   ;; After changing `prescient-filter-method', tell the user
-                   ;; the new value and update the UI's display.
-                   (message "Prescient.el filter is now %s"
-                            prescient-filter-method)
+        ;; After changing `prescient-filter-method', tell the user
+        ;; the new value and update the UI's display.
+        (message "Prescient.el filter is now %s"
+                 prescient-filter-method)
 
-                   ;; Call "exhibit" function.
-                   (prescient--toggle-refresh)))))
+        ;; Call "exhibit" function.
+        (prescient--toggle-refresh)))))
 
 (prescient-create-and-bind-toggle-command anchored "a")
 (prescient-create-and-bind-toggle-command fuzzy "f")
