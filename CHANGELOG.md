@@ -3,8 +3,8 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
-## Unreleased
-### Bugs fixed
+## 6.3.3 (released 2026-06-28)
+### Security fixes
 * Only set up `vertico-prescient` remembrance functions in Vertico
   minibuffers, not in all minibuffers ([#172], [#173]).
 
