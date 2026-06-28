@@ -246,8 +246,8 @@ This mode will:
         ;; While sorting might not be enabled in Vertico, it might
         ;; still be enabled in another UI, such as Company or Corfu.
         ;; Therefore, we still want to remember candidates.
-        (add-hook 'minibuffer-setup-hook
-                  #'vertico-prescient--setup-remembrance))
+        (advice-add 'vertico--setup
+                    :after #'vertico-prescient--setup-remembrance))
 
     ;; Turn off mode.
 
@@ -275,8 +275,8 @@ This mode will:
           (vertico-prescient--undo-completion-settings))))
 
     ;; Undo remembrance settings.
-    (remove-hook 'minibuffer-setup-hook
-                 #'vertico-prescient--setup-remembrance)))
+    (advice-remove 'vertico--setup
+                   #'vertico-prescient--setup-remembrance)))
 
 (provide 'vertico-prescient)
 ;;; vertico-prescient.el ends here

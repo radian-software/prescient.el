@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Bugs fixed
+* Only set up `vertico-prescient` remembrance functions in Vertico
+  minibuffers, not in all minibuffers ([#172], [#173]).
+
+  Previously, remembrance functions were added to
+  `minibuffer-setup-hook`, which was accidentally recording minibuffer
+  contents for all uses of the minibuffer, such as `read-passwd`. If
+  `vertico-prescient-mode` and `prescient-persist-mode` were both
+  active, then it was possible for passwords to have been saved to
+  disk.  Users should check the contents of `prescient-save-file`.
+
+  The remembrance functions are now set up by advising
+  `vertico--setup`, which should mean that they are only set up within
+  Vertico buffers, not minibuffers in general.
+
+[#172]: https://github.com/radian-software/prescient.el/pull/172
+[#173]: https://github.com/radian-software/prescient.el/pull/173
+
 ## 6.3.2 (released 2025-08-15)
 ### Enchancements
 * Give `prescient-save.el` a lexical binding cookie to avoid
