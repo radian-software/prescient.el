@@ -6,7 +6,7 @@
 ;; Homepage: https://github.com/raxod502/prescient.el
 ;; Keywords: extensions
 ;; Created: 7 Aug 2017
-;; Package-Requires: ((emacs "25.1"))
+;; Package-Requires: ((emacs "26.1"))
 ;; SPDX-License-Identifier: MIT
 ;; Version: 6.3.3
 
@@ -237,8 +237,8 @@ contains no upper-case letters."
 (defcustom prescient-completion-highlight-matches t
   "Whether the `prescient' completion style should highlight matches.
 
-If `completion-lazy-hilit' is bound and non-nil, then this user
-option is ignored in favor of that variable.
+This user option is ignored if the user option `completion-lazy-hilit'
+is bound and non-nil.
 
 See also the faces `prescient-primary-highlight' and
 `prescient-secondary-highlight'."
@@ -1047,14 +1047,14 @@ This function returns a list of completions whose final `cdr' is
 the length of the prefix string used for completion (which might
 be all or just part of STRING).
 
-When `completion-lazy-hilit' is bound and non-nil, then this
-function sets `completion-lazy-hilit-fn'. Otherwise, if
-`prescient-completion-highlight-matches' is non-nil, this
-function propertizes all of the returned completions using the
-face `prescient-primary-highlight' and the face
+When the user option `completion-lazy-hilit' is bound and non-nil, then
+this function sets `completion-lazy-hilit-fn'. Otherwise, if
+`prescient-completion-highlight-matches' is non-nil, this function
+propertizes all of the returned completions using the face
+`prescient-primary-highlight' and the face
 `prescient-secondary-highlight'."
   ;; `point' is a required argument, but unneeded here.
-  (when-let ((completions (prescient-filter string table pred)))
+  (when-let* ((completions (prescient-filter string table pred)))
     (pcase-let* ((`(,prefix . ,pattern)
                   (prescient--prefix-and-pattern string table pred))
                  (maybe-highlighted
@@ -1085,7 +1085,7 @@ match equals STRING, this function returns t. Otherwise, this
 function returns a cons cell of the completed string and its
 length. If there is more than one match, that completed string is
 actually just the input, in which case nothing happens."
-  (when-let ((completions (prescient-filter string table pred)))
+  (when-let* ((completions (prescient-filter string table pred)))
     (if (cdr completions)
         (cons string point) ; Multiple matches
       (let ((match (car completions)))

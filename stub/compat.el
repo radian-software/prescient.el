@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; This file contains stub definitions from compat.el which allows
 ;; files to be byte-compiled in the absence of compat.el.
 

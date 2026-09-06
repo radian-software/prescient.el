@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; This file contains stub definitions from company.el which allow
 ;; company-prescient.el to be byte-compiled in the absence of
 ;; company.el.

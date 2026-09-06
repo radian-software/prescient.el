@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; This file contains stub definitions from corfu.el which allow
 ;; corfu-prescient.el to be byte-compiled in the absence of
 ;; corfu.el.
