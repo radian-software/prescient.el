@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; This file contains stub definitions from ivy.el which allow
 ;; ivy-prescient.el to be byte-compiled in the absence of ivy.el.
 

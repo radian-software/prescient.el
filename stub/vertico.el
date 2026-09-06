@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; This file contains stub definitions from vertico.el which allow
 ;; vertico-prescient.el to be byte-compiled in the absence of
 ;; vertico.el.

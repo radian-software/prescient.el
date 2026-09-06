@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; This file contains stub definitions from selectrum.el which allow
 ;; selectrum-prescient.el to be byte-compiled in the absence of
 ;; selectrum.el.
