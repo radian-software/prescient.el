@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog].
 
+## Unreleased
+### Breaking changes
+* Support dropped for Emacs 25. Minimum version is now Emacs 26
+  (released 2018-05-28).
+
+### Compatibility improvements
+* Compatibility with Emacs 31 (fixed some warnings).
+
 ## 6.3.3 (released 2026-06-28)
 ### Security fixes
 * Only set up `vertico-prescient` remembrance functions in Vertico
@@ -23,7 +31,7 @@ The format is based on [Keep a Changelog].
 [#173]: https://github.com/radian-software/prescient.el/pull/173
 
 ## 6.3.2 (released 2025-08-15)
-### Enchancements
+### Enhancements
 * Give `prescient-save.el` a lexical binding cookie to avoid
   warning on such that breaks strict byte-compiling such
   as used by radian see
